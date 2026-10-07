@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite",
+    "dev:lan": "TWIPER_TRACE_SINK=1 vite --host",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --host",
+    "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

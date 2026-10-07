@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "pnpm --filter @twiper/web dev",
+    "dev:lan": "pnpm --filter @twiper/web dev:lan",
     "build": "pnpm --filter @twiper/web build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",

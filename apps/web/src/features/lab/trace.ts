@@ -91,11 +91,29 @@ export function sampleViewport(reason: string): ViewportSample {
   };
 }
 
+/** 개발 서버(dev/traceSink.ts)가 확인하는 헤더 이름 */
+const TRACE_KEY_HEADER = 'x-twiper-trace-key';
+const TRACE_KEY_STORAGE = 'twiper.traceKey';
+
+/**
+ * 개발 서버가 터미널에 출력한 주소의 #k=… 값을 읽어 이 탭에서 기억한다.
+ * 키가 없으면 null (trace 수집을 켜지 않았거나 다른 주소로 접속한 경우).
+ */
+export function readTraceKey(): string | null {
+  const fromHash = new URLSearchParams(window.location.hash.slice(1)).get('k');
+  try {
+    if (fromHash) sessionStorage.setItem(TRACE_KEY_STORAGE, fromHash);
+    return fromHash ?? sessionStorage.getItem(TRACE_KEY_STORAGE);
+  } catch {
+    return fromHash;
+  }
+}
+
 /** 개발 서버의 /__trace로 보내 저장소 픽스처 폴더에 저장한다. 저장된 파일 이름을 돌려준다. */
-export async function sendTrace(trace: Trace): Promise<string> {
+export async function sendTrace(trace: Trace, key: string): Promise<string> {
   const response = await fetch('/__trace', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', [TRACE_KEY_HEADER]: key },
     body: JSON.stringify(trace),
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);

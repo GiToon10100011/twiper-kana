@@ -16,6 +16,7 @@ import {
 import {
   downloadTrace,
   isStandalone,
+  readTraceKey,
   sampleViewport,
   sendTrace,
   traceLabel,
@@ -278,6 +279,8 @@ export function ImeLab() {
     const onViewportResize = () => record('vv-resize');
     const onViewportScroll = () => record('vv-scroll');
     const onWindowResize = () => record('window-resize');
+    // 주소의 #k=… 를 화면 이동 전에 읽어 둔다.
+    readTraceKey();
     record('mount');
     window.visualViewport?.addEventListener('resize', onViewportResize);
     window.visualViewport?.addEventListener('scroll', onViewportScroll);
@@ -349,9 +352,16 @@ export function ImeLab() {
   });
 
   const send = async () => {
+    const key = readTraceKey();
+    if (!key) {
+      setMessage(
+        'trace 키가 없습니다. pnpm dev:lan이 출력한 주소(#k=…)로 접속하거나 다운로드하세요.',
+      );
+      return;
+    }
     setMessage('보내는 중…');
     try {
-      const file = await sendTrace(buildTrace());
+      const file = await sendTrace(buildTrace(), key);
       setMessage(`저장됨: ${file}`);
     } catch (error) {
       const reason = error instanceof Error ? error.message : '알 수 없는 오류';
