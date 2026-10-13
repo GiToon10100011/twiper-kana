@@ -1,4 +1,15 @@
 export type {
+  FlickDirection,
+  GuideClaim,
+  GuideKey,
+  GuideLayer,
+  GuideLayerId,
+  GuideModifier,
+  InputStep,
+  KeyboardGuide,
+} from './guide/types';
+export { findKeyStep, guideClaims } from './guide/claims';
+export type {
   CharStatus,
   InputError,
   InputErrorCause,
