@@ -14,11 +14,12 @@ import {
   type RawInputEvent,
 } from '../../platform/input/imeAdapter';
 import {
-  downloadTrace,
+  downloadLabData,
   isStandalone,
   readTraceKey,
   sampleViewport,
-  sendTrace,
+  sendLabData,
+  toCodePoint,
   traceLabel,
   type InputSource,
   type LineResult,
@@ -132,9 +133,6 @@ function formatEvent(event: LoggedEvent): string {
   parts.push(`value=${JSON.stringify(event.value)}`);
   return parts.join(' ');
 }
-
-const toCodePoint = (char: string): string =>
-  `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`;
 
 /** 버튼을 눌러도 입력창의 포커스(키보드)를 유지한다. */
 const keepFocus = (event: MouseEvent) => event.preventDefault();
@@ -361,7 +359,7 @@ export function ImeLab() {
     }
     setMessage('보내는 중…');
     try {
-      const file = await sendTrace(buildTrace(), key);
+      const file = await sendLabData(buildTrace(), key);
       setMessage(`저장됨: ${file}`);
     } catch (error) {
       const reason = error instanceof Error ? error.message : '알 수 없는 오류';
@@ -487,7 +485,7 @@ export function ImeLab() {
         <button type="button" onClick={() => void send()}>
           서버로 보내기
         </button>
-        <button type="button" onClick={() => downloadTrace(buildTrace())}>
+        <button type="button" onClick={() => downloadLabData(buildTrace())}>
           JSON 다운로드
         </button>
         <button type="button" onClick={clearLogs}>

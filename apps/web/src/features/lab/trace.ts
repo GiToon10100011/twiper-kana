@@ -109,24 +109,34 @@ export function readTraceKey(): string | null {
   }
 }
 
+/** /lab 화면들이 내보내는 JSON의 공통 부분 */
+export interface LabPayload {
+  /** 저장 파일 이름에 들어가는 짧은 이름 (영문 소문자·숫자·하이픈) */
+  label: string;
+  recordedAt: string;
+}
+
+export const toCodePoint = (char: string): string =>
+  `U+${(char.codePointAt(0) ?? 0).toString(16).toUpperCase().padStart(4, '0')}`;
+
 /** 개발 서버의 /__trace로 보내 저장소 픽스처 폴더에 저장한다. 저장된 파일 이름을 돌려준다. */
-export async function sendTrace(trace: Trace, key: string): Promise<string> {
+export async function sendLabData(payload: LabPayload, key: string): Promise<string> {
   const response = await fetch('/__trace', {
     method: 'POST',
     headers: { 'content-type': 'application/json', [TRACE_KEY_HEADER]: key },
-    body: JSON.stringify(trace),
+    body: JSON.stringify(payload),
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   const body = (await response.json()) as { file?: string };
   return body.file ?? '';
 }
 
-export function downloadTrace(trace: Trace): void {
-  const blob = new Blob([JSON.stringify(trace, null, 2)], { type: 'application/json' });
+export function downloadLabData(payload: LabPayload): void {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `twiper-trace-${trace.label}-${trace.recordedAt.replace(/[:.]/g, '-')}.json`;
+  link.download = `twiper-${payload.label}-${payload.recordedAt.replace(/[:.]/g, '-')}.json`;
   link.click();
   URL.revokeObjectURL(url);
 }
