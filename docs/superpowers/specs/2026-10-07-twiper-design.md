@@ -19,6 +19,7 @@
 | UI 언어 | **한국어 → 일본어 → 영어** 순 (일본인 사용자도 대상). 문자열은 처음부터 i18n 분리 |
 | 스택 | **Vite + React + TS, pnpm workspace 모노레포** (`packages/core` 순수 TS · `packages/content` · `apps/web`) |
 | 학습 루프 | 튜토리얼 → 기초 → 문자 조합 → 단어 → 문장 → 실전 → 약점 보완 → 필요한 단계로 회귀 |
+| 비주얼 | **Perplexity풍 따뜻한 미니멀** (2026-10-13 추가). 오프화이트 배경 `#fcfcf9`, 잉크색 텍스트 `#27251e`, 1px 옅은 테두리, 그림자 최소. 포인트 컬러는 마젠타 `#c2187a`를 화면당 주요 동작 하나·포커스·현재 위치 표시에만 사용. 라이트 모드 전용. 토큰은 `apps/web/src/styles.css`의 `:root` |
 
 초기 요청서의 §8 Gesture Recognition, §9 Keyboard Profile은 위 결정에 따라 각각 **Input Capture & IME Composition**, **Keyboard Guide(설명용 참조 데이터)** 로 대체한다.
 

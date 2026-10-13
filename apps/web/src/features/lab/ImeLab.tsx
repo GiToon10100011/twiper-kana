@@ -385,7 +385,10 @@ export function ImeLab() {
 
       <p className="lab-target" lang="ja" aria-label="목표">
         {session.target.map((char, i) => (
-          <span key={i} className={`ch-${statuses[i] ?? 'todo'}`}>
+          <span
+            key={i}
+            className={`ch-${statuses[i] ?? 'todo'}${i === session.value.length ? ' ch-next' : ''}`}
+          >
             {char}
           </span>
         ))}
@@ -424,6 +427,7 @@ export function ImeLab() {
       <div className="lab-row">
         <button
           type="button"
+          className="primary"
           onMouseDown={keepFocus}
           onClick={() => elementOf(lab.active)?.focus()}
         >

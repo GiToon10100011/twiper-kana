@@ -198,6 +198,7 @@ export function GuideCheck() {
         </button>
         <button
           type="button"
+          className="primary"
           disabled={!claim}
           onMouseDown={keepFocus}
           onClick={() => record('typed')}
