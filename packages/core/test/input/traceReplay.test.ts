@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { replayInputSession, type InputSnapshot, type JudgeMode } from '../../src/index';
 import desktopEdgeCdp from '../fixtures/traces/desktop-edge-cdp.json';
+import iosSafari18Kana from '../fixtures/traces/ios-safari-18-kana.json';
 
 /** /lab/ime가 내보내는 trace 중 재생에 필요한 부분 */
 interface RecordedTrace {
@@ -21,6 +22,8 @@ interface RecordedTrace {
 const TRACES: Record<string, RecordedTrace> = {
   // 데스크톱 Edge(Chromium)에서 CDP Input.imeSetComposition으로 조합을 흉내 낸 합성 trace
   'desktop-edge-cdp': desktopEdgeCdp,
+  // iPhone(iOS 18.7) Safari 탭, 실제 かな 키보드. 리셋 전략 R1–R4를 각각 6줄씩 (2026-10-17)
+  'ios-safari-18-kana': iosSafari18Kana,
 };
 
 describe.each(Object.entries(TRACES))('trace 재생: %s', (_name, trace) => {
