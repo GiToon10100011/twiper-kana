@@ -29,7 +29,10 @@ export interface GuideModifier {
   col: number;
   /** 탭할 때마다 순환하는 변형 계열. chars[0]이 기본 문자 */
   cycles: readonly { chars: readonly string[]; unverified?: boolean }[];
-  /** 키를 플릭해 한 번에 변형하는 동작의 예. 전부 실기 확인 대상이다 */
+  /**
+   * 키를 플릭해 한 번에 변형하는 동작의 예. 전부 실기 확인 대상이다.
+   * iOS 기본 키보드에는 없다(탭 순환만 지원). Gboard 계열은 ゛·゜·小를 플릭으로 바로 적용한다.
+   */
   direct: readonly { dir: FlickDirection; base: string; out: string }[];
 }
 

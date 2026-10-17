@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { findKeyStep, guideClaims } from '@twiper/core';
 import { iosKana } from '../src/index';
+import deviceCheck from './fixtures/ios-kana-guide-check-2026-10-17.json';
 
 const BASIC_KANA =
   'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん';
@@ -49,14 +50,32 @@ describe('iosKana 가이드', () => {
 
     expect(multi.map((claim) => claim.id)).toEqual([]);
   });
+});
 
-  it('실기 확인이 필요한 항목이 표시돼 있다', () => {
-    const unverified = claims.filter((claim) => claim.unverified).map((claim) => claim.id);
+describe('iosKana 가이드 — 2026-10-17 실기기 기록과 대조', () => {
+  const byId = new Map(guideClaims(iosKana).map((claim) => [claim.id, claim]));
+  const typed = deviceCheck.results.filter((result) => result.status === 'typed');
 
-    expect(unverified).toContain('kana.ya.left');
-    expect(unverified).toContain('kana.wa.right');
-    expect(unverified).toContain('number.8.up');
-    expect(unverified).toContain('modifier.direct.left');
-    expect(unverified).not.toContain('kana.a.left');
+  it.each(
+    typed.filter((result) => byId.has(result.id)).map((result) => [result.id, result] as const),
+  )('%s — 가이드의 예상이 기기에서 나온 문자와 같다', (_id, result) => {
+    expect(byId.get(result.id)?.expected).toBe(result.actual);
+  });
+
+  it('기록에는 있지만 가이드에서 뺀 항목은 변형 키 플릭뿐이다', () => {
+    const removed = typed.filter((result) => !byId.has(result.id)).map((result) => result.id);
+
+    expect(removed).toEqual([
+      'modifier.direct.left',
+      'modifier.direct.right',
+      'modifier.direct.up',
+    ]);
+  });
+
+  it('小゛゜ 키는 플릭 없이 탭할 때마다 변형을 순환한다', () => {
+    expect(iosKana.modifier.direct).toEqual([]);
+    expect(byId.get('modifier.cycle.つ.1')?.expected).toBe('っ');
+    expect(byId.get('modifier.cycle.つ.2')?.expected).toBe('づ');
+    expect(byId.get('modifier.cycle.は.2')?.expected).toBe('ぱ');
   });
 });

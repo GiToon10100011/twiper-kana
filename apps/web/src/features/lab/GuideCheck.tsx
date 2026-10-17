@@ -58,7 +58,10 @@ const keepFocus = (event: MouseEvent) => event.preventDefault();
  * 입력창을 비우지 않고 이어 붙이면서, 항목마다 새로 늘어난 부분만 읽는다.
  */
 export function GuideCheck() {
-  const [onlyUnverified, setOnlyUnverified] = useState(true);
+  // 확인이 필요한 항목이 없으면(가이드를 모두 확인했으면) 전체를 기본으로 보여 준다.
+  const [onlyUnverified, setOnlyUnverified] = useState(() =>
+    guideClaims(GUIDE).some((claim) => claim.unverified),
+  );
   const [index, setIndex] = useState(0);
   const [results, setResults] = useState<Record<string, CheckResult>>({});
   const [baseline, setBaseline] = useState('');

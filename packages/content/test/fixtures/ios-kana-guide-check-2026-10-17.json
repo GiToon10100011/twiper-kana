@@ -1,0 +1,881 @@
+{
+  "schema": "twiper.guide-check/1",
+  "label": "guide-ios-kana-ios-browser",
+  "recordedAt": "2026-10-17T02:11:54.599Z",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Mobile/15E148 Safari/604.1",
+  "standalone": false,
+  "guideId": "ios-kana",
+  "results": [
+    {
+      "id": "kana.ya.left",
+      "expected": "「",
+      "actual": "「",
+      "expectedCodePoints": [
+        "U+300C"
+      ],
+      "actualCodePoints": [
+        "U+300C"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "kana.ya.right",
+      "expected": "」",
+      "actual": "」",
+      "expectedCodePoints": [
+        "U+300D"
+      ],
+      "actualCodePoints": [
+        "U+300D"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "kana.wa.left",
+      "expected": "を",
+      "actual": "を",
+      "expectedCodePoints": [
+        "U+3092"
+      ],
+      "actualCodePoints": [
+        "U+3092"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "kana.wa.up",
+      "expected": "ん",
+      "actual": "ん",
+      "expectedCodePoints": [
+        "U+3093"
+      ],
+      "actualCodePoints": [
+        "U+3093"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "kana.wa.right",
+      "expected": "ー",
+      "actual": "ー",
+      "expectedCodePoints": [
+        "U+30FC"
+      ],
+      "actualCodePoints": [
+        "U+30FC"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "kana.punct.tap",
+      "expected": "、",
+      "actual": "、",
+      "expectedCodePoints": [
+        "U+3001"
+      ],
+      "actualCodePoints": [
+        "U+3001"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "kana.punct.left",
+      "expected": "。",
+      "actual": "。",
+      "expectedCodePoints": [
+        "U+3002"
+      ],
+      "actualCodePoints": [
+        "U+3002"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "kana.punct.up",
+      "expected": "？",
+      "actual": "？",
+      "expectedCodePoints": [
+        "U+FF1F"
+      ],
+      "actualCodePoints": [
+        "U+FF1F"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "kana.punct.right",
+      "expected": "！",
+      "actual": "！",
+      "expectedCodePoints": [
+        "U+FF01"
+      ],
+      "actualCodePoints": [
+        "U+FF01"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.1.left",
+      "expected": "☆",
+      "actual": "☆",
+      "expectedCodePoints": [
+        "U+2606"
+      ],
+      "actualCodePoints": [
+        "U+2606"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.1.up",
+      "expected": "♪",
+      "actual": "♪",
+      "expectedCodePoints": [
+        "U+266A"
+      ],
+      "actualCodePoints": [
+        "U+266A"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.1.right",
+      "expected": "→",
+      "actual": "→",
+      "expectedCodePoints": [
+        "U+2192"
+      ],
+      "actualCodePoints": [
+        "U+2192"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.2.left",
+      "expected": "¥",
+      "actual": "¥",
+      "expectedCodePoints": [
+        "U+00A5"
+      ],
+      "actualCodePoints": [
+        "U+00A5"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.2.up",
+      "expected": "$",
+      "actual": "$",
+      "expectedCodePoints": [
+        "U+0024"
+      ],
+      "actualCodePoints": [
+        "U+0024"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.2.right",
+      "expected": "€",
+      "actual": "€",
+      "expectedCodePoints": [
+        "U+20AC"
+      ],
+      "actualCodePoints": [
+        "U+20AC"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.3.left",
+      "expected": "%",
+      "actual": "%",
+      "expectedCodePoints": [
+        "U+0025"
+      ],
+      "actualCodePoints": [
+        "U+0025"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.3.up",
+      "expected": "°",
+      "actual": "°",
+      "expectedCodePoints": [
+        "U+00B0"
+      ],
+      "actualCodePoints": [
+        "U+00B0"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.3.right",
+      "expected": "#",
+      "actual": "#",
+      "expectedCodePoints": [
+        "U+0023"
+      ],
+      "actualCodePoints": [
+        "U+0023"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.4.left",
+      "expected": "○",
+      "actual": "○",
+      "expectedCodePoints": [
+        "U+25CB"
+      ],
+      "actualCodePoints": [
+        "U+25CB"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.4.up",
+      "expected": "*",
+      "actual": "＊",
+      "expectedCodePoints": [
+        "U+002A"
+      ],
+      "actualCodePoints": [
+        "U+FF0A"
+      ],
+      "match": false,
+      "status": "typed"
+    },
+    {
+      "id": "number.4.right",
+      "expected": "・",
+      "actual": "・",
+      "expectedCodePoints": [
+        "U+30FB"
+      ],
+      "actualCodePoints": [
+        "U+30FB"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.5.left",
+      "expected": "+",
+      "actual": "+",
+      "expectedCodePoints": [
+        "U+002B"
+      ],
+      "actualCodePoints": [
+        "U+002B"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.5.up",
+      "expected": "×",
+      "actual": "×",
+      "expectedCodePoints": [
+        "U+00D7"
+      ],
+      "actualCodePoints": [
+        "U+00D7"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.5.right",
+      "expected": "÷",
+      "actual": "÷",
+      "expectedCodePoints": [
+        "U+00F7"
+      ],
+      "actualCodePoints": [
+        "U+00F7"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.6.left",
+      "expected": "<",
+      "actual": "<",
+      "expectedCodePoints": [
+        "U+003C"
+      ],
+      "actualCodePoints": [
+        "U+003C"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.6.up",
+      "expected": "=",
+      "actual": "=",
+      "expectedCodePoints": [
+        "U+003D"
+      ],
+      "actualCodePoints": [
+        "U+003D"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.6.right",
+      "expected": ">",
+      "actual": ">",
+      "expectedCodePoints": [
+        "U+003E"
+      ],
+      "actualCodePoints": [
+        "U+003E"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.7.left",
+      "expected": "「",
+      "actual": "「",
+      "expectedCodePoints": [
+        "U+300C"
+      ],
+      "actualCodePoints": [
+        "U+300C"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.7.up",
+      "expected": "」",
+      "actual": "」",
+      "expectedCodePoints": [
+        "U+300D"
+      ],
+      "actualCodePoints": [
+        "U+300D"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.7.right",
+      "expected": ":",
+      "actual": ":",
+      "expectedCodePoints": [
+        "U+003A"
+      ],
+      "actualCodePoints": [
+        "U+003A"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.8.left",
+      "expected": "〒",
+      "actual": "〒",
+      "expectedCodePoints": [
+        "U+3012"
+      ],
+      "actualCodePoints": [
+        "U+3012"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.8.up",
+      "expected": "々",
+      "actual": "々",
+      "expectedCodePoints": [
+        "U+3005"
+      ],
+      "actualCodePoints": [
+        "U+3005"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.8.right",
+      "expected": "〆",
+      "actual": "〆",
+      "expectedCodePoints": [
+        "U+3006"
+      ],
+      "actualCodePoints": [
+        "U+3006"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.9.left",
+      "expected": "^",
+      "actual": "^",
+      "expectedCodePoints": [
+        "U+005E"
+      ],
+      "actualCodePoints": [
+        "U+005E"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.9.up",
+      "expected": "|",
+      "actual": "|",
+      "expectedCodePoints": [
+        "U+007C"
+      ],
+      "actualCodePoints": [
+        "U+007C"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.9.right",
+      "expected": "\\",
+      "actual": "\\",
+      "expectedCodePoints": [
+        "U+005C"
+      ],
+      "actualCodePoints": [
+        "U+005C"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.paren.tap",
+      "expected": "(",
+      "actual": "(",
+      "expectedCodePoints": [
+        "U+0028"
+      ],
+      "actualCodePoints": [
+        "U+0028"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.paren.left",
+      "expected": ")",
+      "actual": ")",
+      "expectedCodePoints": [
+        "U+0029"
+      ],
+      "actualCodePoints": [
+        "U+0029"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.paren.up",
+      "expected": "[",
+      "actual": "[",
+      "expectedCodePoints": [
+        "U+005B"
+      ],
+      "actualCodePoints": [
+        "U+005B"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.paren.right",
+      "expected": "]",
+      "actual": "]",
+      "expectedCodePoints": [
+        "U+005D"
+      ],
+      "actualCodePoints": [
+        "U+005D"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.0.left",
+      "expected": "〜",
+      "actual": "〜",
+      "expectedCodePoints": [
+        "U+301C"
+      ],
+      "actualCodePoints": [
+        "U+301C"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.0.up",
+      "expected": "…",
+      "actual": "…",
+      "expectedCodePoints": [
+        "U+2026"
+      ],
+      "actualCodePoints": [
+        "U+2026"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.dot.tap",
+      "expected": ".",
+      "actual": ".",
+      "expectedCodePoints": [
+        "U+002E"
+      ],
+      "actualCodePoints": [
+        "U+002E"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.dot.left",
+      "expected": ",",
+      "actual": ",",
+      "expectedCodePoints": [
+        "U+002C"
+      ],
+      "actualCodePoints": [
+        "U+002C"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.dot.up",
+      "expected": "-",
+      "actual": "-",
+      "expectedCodePoints": [
+        "U+002D"
+      ],
+      "actualCodePoints": [
+        "U+002D"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "number.dot.right",
+      "expected": "/",
+      "actual": "/",
+      "expectedCodePoints": [
+        "U+002F"
+      ],
+      "actualCodePoints": [
+        "U+002F"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.sym.tap",
+      "expected": "@",
+      "actual": "@",
+      "expectedCodePoints": [
+        "U+0040"
+      ],
+      "actualCodePoints": [
+        "U+0040"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.sym.left",
+      "expected": "#",
+      "actual": "#",
+      "expectedCodePoints": [
+        "U+0023"
+      ],
+      "actualCodePoints": [
+        "U+0023"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.sym.up",
+      "expected": "/",
+      "actual": "/",
+      "expectedCodePoints": [
+        "U+002F"
+      ],
+      "actualCodePoints": [
+        "U+002F"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.sym.right",
+      "expected": "&",
+      "actual": "&",
+      "expectedCodePoints": [
+        "U+0026"
+      ],
+      "actualCodePoints": [
+        "U+0026"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.sym.down",
+      "expected": "_",
+      "actual": "_",
+      "expectedCodePoints": [
+        "U+005F"
+      ],
+      "actualCodePoints": [
+        "U+005F"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.quote.tap",
+      "expected": "'",
+      "actual": "'",
+      "expectedCodePoints": [
+        "U+0027"
+      ],
+      "actualCodePoints": [
+        "U+0027"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.quote.left",
+      "expected": "\"",
+      "actual": "\"",
+      "expectedCodePoints": [
+        "U+0022"
+      ],
+      "actualCodePoints": [
+        "U+0022"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.quote.up",
+      "expected": "(",
+      "actual": "(",
+      "expectedCodePoints": [
+        "U+0028"
+      ],
+      "actualCodePoints": [
+        "U+0028"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.quote.right",
+      "expected": ")",
+      "actual": ")",
+      "expectedCodePoints": [
+        "U+0029"
+      ],
+      "actualCodePoints": [
+        "U+0029"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.dot.tap",
+      "expected": ".",
+      "actual": ".",
+      "expectedCodePoints": [
+        "U+002E"
+      ],
+      "actualCodePoints": [
+        "U+002E"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.dot.left",
+      "expected": ",",
+      "actual": ",",
+      "expectedCodePoints": [
+        "U+002C"
+      ],
+      "actualCodePoints": [
+        "U+002C"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.dot.up",
+      "expected": "?",
+      "actual": "?",
+      "expectedCodePoints": [
+        "U+003F"
+      ],
+      "actualCodePoints": [
+        "U+003F"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.dot.right",
+      "expected": "!",
+      "actual": "!",
+      "expectedCodePoints": [
+        "U+0021"
+      ],
+      "actualCodePoints": [
+        "U+0021"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "modifier.cycle.う.1",
+      "expected": "ぅ",
+      "actual": "ぅ",
+      "expectedCodePoints": [
+        "U+3045"
+      ],
+      "actualCodePoints": [
+        "U+3045"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "modifier.cycle.う.2",
+      "expected": "ゔ",
+      "actual": "ゔ",
+      "expectedCodePoints": [
+        "U+3094"
+      ],
+      "actualCodePoints": [
+        "U+3094"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "modifier.cycle.つ.1",
+      "expected": "っ",
+      "actual": "っ",
+      "expectedCodePoints": [
+        "U+3063"
+      ],
+      "actualCodePoints": [
+        "U+3063"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "modifier.cycle.つ.2",
+      "expected": "づ",
+      "actual": "づ",
+      "expectedCodePoints": [
+        "U+3065"
+      ],
+      "actualCodePoints": [
+        "U+3065"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "modifier.cycle.わ.1",
+      "expected": "ゎ",
+      "actual": "ゎ",
+      "expectedCodePoints": [
+        "U+308E"
+      ],
+      "actualCodePoints": [
+        "U+308E"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "modifier.direct.left",
+      "expected": "ば",
+      "actual": "ば",
+      "expectedCodePoints": [
+        "U+3070"
+      ],
+      "actualCodePoints": [
+        "U+3070"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "modifier.direct.right",
+      "expected": "ぱ",
+      "actual": "ば",
+      "expectedCodePoints": [
+        "U+3071"
+      ],
+      "actualCodePoints": [
+        "U+3070"
+      ],
+      "match": false,
+      "status": "typed"
+    },
+    {
+      "id": "modifier.direct.up",
+      "expected": "っ",
+      "actual": "っ",
+      "expectedCodePoints": [
+        "U+3063"
+      ],
+      "actualCodePoints": [
+        "U+3063"
+      ],
+      "match": true,
+      "status": "typed"
+    }
+  ]
+}
