@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { replayInputSession, type InputSnapshot, type JudgeMode } from '../../src/index';
 import desktopEdgeCdp from '../fixtures/traces/desktop-edge-cdp.json';
 import iosSafari18Kana from '../fixtures/traces/ios-safari-18-kana.json';
+import iosStandalone18Kana from '../fixtures/traces/ios-standalone-18-kana.json';
 
 /** /lab/ime가 내보내는 trace 중 재생에 필요한 부분 */
 interface RecordedTrace {
@@ -24,6 +25,8 @@ const TRACES: Record<string, RecordedTrace> = {
   'desktop-edge-cdp': desktopEdgeCdp,
   // iPhone(iOS 18.7) Safari 탭, 실제 かな 키보드. 리셋 전략 R1–R4를 각각 6줄씩 (2026-10-17)
   'ios-safari-18-kana': iosSafari18Kana,
+  // 같은 기기, 홈 화면에 추가한 앱(standalone)으로 같은 순서를 반복 (2026-10-17)
+  'ios-standalone-18-kana': iosStandalone18Kana,
 };
 
 describe.each(Object.entries(TRACES))('trace 재생: %s', (_name, trace) => {
