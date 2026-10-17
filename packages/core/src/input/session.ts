@@ -1,7 +1,14 @@
 import { sameKeyRow } from '../kana/rows';
 import { sameVariantFamily } from '../kana/variants';
 import { normalizeBase, normalizeForCompare } from '../text/normalize';
-import type { CharStatus, InputError, InputSessionState, InputSnapshot, JudgeMode } from './types';
+import type {
+  CharStatus,
+  InputError,
+  InputSessionOptions,
+  InputSessionState,
+  InputSnapshot,
+  JudgeMode,
+} from './types';
 
 // 반각 A–Z·a–z와 전각 Ａ–Ｚ(U+FF21–FF3A)·ａ–ｚ(U+FF41–FF5A)
 const LATIN_LETTER = /[A-Za-z\u{FF21}-\u{FF3A}\u{FF41}-\u{FF5A}]/u;
@@ -20,6 +27,7 @@ function commonPrefixLength(a: readonly string[], b: readonly string[]): number 
 export function createInputSession(
   target: string,
   judge: JudgeMode = 'composing',
+  options: InputSessionOptions = {},
 ): InputSessionState {
   const chars = toChars(normalizeForCompare(target));
   return {
@@ -32,7 +40,9 @@ export function createInputSession(
     flagged: [],
     unitTimes: chars.map(() => null),
     startedAt: null,
+    matchedAt: null,
     completedAt: null,
+    completeOnCommit: options.completeOnCommit ?? false,
     romajiSuspected: false,
     toggleSuspected: false,
   };
@@ -53,6 +63,7 @@ export function reduceInputSession(
   const equalsTarget = matched === target.length && next.length === target.length;
 
   if (state.judge === 'commit') {
+    const committed = equalsTarget && !snapshot.composing;
     // 변환이 필요한 목표는 조합 중 문자열(읽기)을 목표와 비교하지 않고 확정된 값만 판정한다.
     return {
       ...state,
@@ -60,7 +71,8 @@ export function reduceInputSession(
       composing: snapshot.composing,
       matched,
       startedAt,
-      completedAt: equalsTarget && !snapshot.composing ? t : null,
+      matchedAt: committed ? t : null,
+      completedAt: committed ? t : null,
     };
   }
 
@@ -110,7 +122,8 @@ export function reduceInputSession(
     flagged,
     unitTimes: state.unitTimes.map((time, i) => (i < matched ? (time ?? t) : null)),
     startedAt,
-    completedAt: equalsTarget ? t : null,
+    matchedAt: state.matchedAt ?? (equalsTarget ? t : null),
+    completedAt: equalsTarget && (!state.completeOnCommit || !snapshot.composing) ? t : null,
     romajiSuspected: state.romajiSuspected || romaji,
     toggleSuspected: state.toggleSuspected || toggled,
   };
@@ -121,8 +134,9 @@ export function replayInputSession(
   target: string,
   snapshots: readonly InputSnapshot[],
   judge: JudgeMode = 'composing',
+  options: InputSessionOptions = {},
 ): InputSessionState {
-  return snapshots.reduce(reduceInputSession, createInputSession(target, judge));
+  return snapshots.reduce(reduceInputSession, createInputSession(target, judge, options));
 }
 
 /** 목표의 각 문자를 화면에 어떻게 표시할지 */

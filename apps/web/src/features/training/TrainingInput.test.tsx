@@ -1,0 +1,68 @@
+// @vitest-environment jsdom
+import { act, cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { TrainingInput } from './TrainingInput';
+
+afterEach(cleanup);
+
+/** 어댑터가 setTimeout(0)으로 모은 스냅샷을 내보낼 때까지 기다린다. */
+const flush = () => act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+
+/** iOS かな 키보드처럼 조합 중 값이 바뀌는 이벤트를 흉내 낸다. */
+async function compose(input: HTMLInputElement, value: string) {
+  input.dispatchEvent(new CompositionEvent('compositionstart'));
+  input.value = value;
+  input.dispatchEvent(new CompositionEvent('compositionupdate', { data: value }));
+  input.dispatchEvent(
+    new InputEvent('input', { data: value, inputType: 'insertCompositionText', isComposing: true }),
+  );
+  await flush();
+}
+
+async function commit(input: HTMLInputElement) {
+  input.dispatchEvent(new CompositionEvent('compositionend', { data: input.value }));
+  await flush();
+}
+
+describe('TrainingInput', () => {
+  it('조합 중 일치하면 確定 안내를 보여 주고, 確定한 뒤에만 완료를 알린다', async () => {
+    const onComplete = vi.fn();
+    render(<TrainingInput target="あい" onComplete={onComplete} matchedHint="確定을 누르세요" />);
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+
+    await compose(input, 'あ');
+    await compose(input, 'あい');
+    expect(screen.getByRole('status').textContent).toBe('確定을 누르세요');
+    expect(onComplete).not.toHaveBeenCalled();
+
+    await commit(input);
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(onComplete.mock.calls[0]?.[0].matchedAt).not.toBeNull();
+    expect(input.value).toBe('');
+  });
+
+  it('목표가 바뀌어도 같은 입력창을 유지한다', async () => {
+    const { rerender } = render(<TrainingInput target="あ" onComplete={() => {}} matchedHint="" />);
+    const before = screen.getByRole('textbox');
+
+    rerender(<TrainingInput target="か" onComplete={() => {}} matchedHint="" />);
+
+    expect(screen.getByRole('textbox')).toBe(before);
+  });
+
+  it('경고가 있으면 확정 안내 대신 경고를 보여 준다', async () => {
+    render(
+      <TrainingInput
+        target="か"
+        onComplete={() => {}}
+        matchedHint="確定"
+        notice={(session) => (session.romajiSuspected ? '로마자 키보드' : null)}
+      />,
+    );
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+
+    await compose(input, 'k');
+
+    expect(screen.getByRole('status').textContent).toBe('로마자 키보드');
+  });
+});
