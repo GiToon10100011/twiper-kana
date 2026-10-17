@@ -5,3 +5,4 @@ coverage/
 *.local
 *.tsbuildinfo
 .DS_Store
+.claude/settings.local.json
