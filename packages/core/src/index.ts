@@ -13,6 +13,7 @@ export type {
   CharStatus,
   InputError,
   InputErrorCause,
+  InputSessionOptions,
   InputSessionState,
   InputSnapshot,
   JudgeMode,
