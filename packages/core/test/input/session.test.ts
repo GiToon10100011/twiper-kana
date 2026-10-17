@@ -59,11 +59,20 @@ describe('InputSession — composing 판정', () => {
     expect(state.completedAt).toBe(600);
   });
 
-  it('마지막 글자는 틀려도 보류한다', () => {
+  it('끝 글자가 아직 목표로 바뀔 수 있으면 보류 표시한다', () => {
+    expect(charStatuses(replayInputSession('がぎ', snaps(['が', 'がき'])))).toEqual([
+      'correct',
+      'pending',
+    ]);
+    expect(charStatuses(replayInputSession('づ', snaps(['っ'])))).toEqual(['pending']);
+    expect(charStatuses(replayInputSession('か', snaps(['k'])))).toEqual(['pending']);
+  });
+
+  it('끝 글자가 목표로 바뀔 수 없으면 바로 오타로 표시하되, 오류 기록은 확정될 때까지 미룬다', () => {
     const state = replayInputSession('あい', snaps(['あ', 'あう']));
 
+    expect(charStatuses(state)).toEqual(['correct', 'wrong']);
     expect(state.errors).toEqual([]);
-    expect(charStatuses(state)).toEqual(['correct', 'pending']);
     expect(state.completedAt).toBeNull();
   });
 

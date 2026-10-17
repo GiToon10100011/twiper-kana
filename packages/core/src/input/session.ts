@@ -1,4 +1,5 @@
 import { sameKeyRow } from '../kana/rows';
+import { sameVariantFamily } from '../kana/variants';
 import { normalizeBase, normalizeForCompare } from '../text/normalize';
 import type { CharStatus, InputError, InputSessionState, InputSnapshot, JudgeMode } from './types';
 
@@ -132,6 +133,9 @@ export function charStatuses(state: InputSessionState): CharStatus[] {
     if (actual === undefined) return 'todo';
     if (state.judge === 'commit') return i < state.matched ? 'correct' : 'pending';
     if (actual === expected) return 'correct';
-    return i === last ? 'pending' : 'wrong';
+    // 끝 글자가 아직 목표로 바뀔 수 있는 중간 상태(か→が, つ→っ, 로마자 k)면 보류하고,
+    // 그럴 수 없으면 오타로 바로 보여 준다. 오류 기록 시점(확정·삭제)은 reduceInputSession이 정한다.
+    const intermediate = sameVariantFamily(actual, expected) || isLatinLetter(actual);
+    return i === last && intermediate ? 'pending' : 'wrong';
   });
 }
