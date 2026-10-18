@@ -7,16 +7,20 @@ import type { FlickDirection, InputSessionState } from '@twiper/core';
 import { markOnboarded } from '../../lib/flags';
 import { TrainingInput } from '../training/TrainingInput';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
+import { LayoutTour, VowelTour } from '../tutorial/tours';
 
-type Step = 'setup' | 'flick' | 'try' | 'check' | 'done';
+type Step = 'setup' | 'flick' | 'try' | 'layout' | 'vowels' | 'check' | 'done';
+type TypingStep = 'try' | 'check';
 
-const STEPS: readonly Step[] = ['setup', 'flick', 'try', 'check', 'done'];
-const PRACTICE = { try: 'あいうえお', check: 'かきくけこ' } as const;
+const STEPS: readonly Step[] = ['setup', 'flick', 'try', 'layout', 'vowels', 'check', 'done'];
+/** try: 같은 키, 다섯 방향 / check: 다른 키, 같은 방향(왼쪽 = い단) */
+const PRACTICE: Record<TypingStep, string> = { try: 'あいうえお', check: 'きしちにひ' };
 const A_KEY = iosKana.layers.kana.keys.find((key) => key.id === 'a');
 
 /**
- * 첫 실행 안내 (Tutorial Part 0).
- * 키보드 준비 → 플릭의 개념 → 직접 입력해 보며 確定 후 다음으로 넘어가는 규칙 익히기 → 키보드 확인.
+ * 튜토리얼 (Part 0–3). 홈에서 언제든 다시 볼 수 있다.
+ * 키보드 준비 → 플릭의 개념 → 직접 입력하며 確定 후 넘어가는 규칙 익히기
+ * → 12키 배치(50음 순서) → 방향 = 모음 → 다른 키를 같은 방향으로 쳐 보기.
  */
 export function Onboarding() {
   const { t } = useTranslation();
@@ -29,8 +33,8 @@ export function Onboarding() {
   };
 
   // 버튼을 누른 그 순간에 입력창에 포커스해야 iOS가 키보드를 띄운다.
-  const startPractice = () => {
-    flushSync(() => setStep('try'));
+  const startTyping = (next: TypingStep) => {
+    flushSync(() => setStep(next));
     inputRef.current?.focus();
   };
 
@@ -81,8 +85,41 @@ export function Onboarding() {
           <p className="screen-body">{t('onboarding.flick.body')}</p>
           {A_KEY ? <FlickDiagram keyDef={A_KEY} labels={labels} /> : null}
           <p className="screen-body">{t('onboarding.flick.rule')}</p>
-          <button type="button" className="btn btn-primary" onClick={startPractice}>
+          <button type="button" className="btn btn-primary" onClick={() => startTyping('try')}>
             {t('onboarding.flick.tryIt')}
+          </button>
+        </section>
+      ) : null}
+
+      {step === 'layout' ? (
+        <section>
+          <h1 className="screen-title">{t('onboarding.layout.title')}</h1>
+          <p className="screen-body">{t('onboarding.layout.body')}</p>
+          <LayoutTour label={t('onboarding.layout.title')} />
+          <p className="screen-note">{t('onboarding.layout.modifier')}</p>
+          <button type="button" className="btn btn-primary" onClick={() => setStep('vowels')}>
+            {t('onboarding.layout.next')}
+          </button>
+        </section>
+      ) : null}
+
+      {step === 'vowels' ? (
+        <section>
+          <h1 className="screen-title">{t('onboarding.vowels.title')}</h1>
+          <p className="screen-body">{t('onboarding.vowels.body')}</p>
+          <VowelTour
+            legend={{
+              tap: t('onboarding.vowels.legend.tap'),
+              left: t('onboarding.vowels.legend.left'),
+              up: t('onboarding.vowels.legend.up'),
+              right: t('onboarding.vowels.legend.right'),
+              down: t('onboarding.vowels.legend.down'),
+            }}
+            label={t('onboarding.vowels.title')}
+          />
+          <p className="screen-note">{t('onboarding.vowels.exception')}</p>
+          <button type="button" className="btn btn-primary" onClick={() => startTyping('check')}>
+            {t('onboarding.vowels.tryIt')}
           </button>
         </section>
       ) : null}
@@ -94,7 +131,7 @@ export function Onboarding() {
           <TrainingInput
             target={PRACTICE[step]}
             questionKey={step}
-            onComplete={() => (step === 'try' ? setStep('check') : finish())}
+            onComplete={() => (step === 'try' ? setStep('layout') : finish())}
             matchedHint={t('onboarding.matched')}
             notice={notice}
             placeholder={t('training.tapInput')}
