@@ -98,7 +98,6 @@ export const ko = {
   pwa: {
     update: '새 버전이 있어요.',
     reload: '업데이트',
-    offlineReady: '이제 인터넷 없이도 쓸 수 있어요.',
     close: '닫기',
   },
   settings: {

@@ -103,7 +103,6 @@ export const ja: typeof ko = {
   pwa: {
     update: '新しいバージョンがあります。',
     reload: '更新',
-    offlineReady: 'オフラインでも使えるようになりました。',
     close: '閉じる',
   },
   settings: {
