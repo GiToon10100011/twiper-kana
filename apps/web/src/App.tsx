@@ -11,19 +11,27 @@ import { CourseList } from './features/training/CourseList';
 import { DrillRoute } from './features/training/Drill';
 import { isOnboarded } from './lib/flags';
 
+/** 톱니바퀴 (Lucide "settings", ISC) */
+function GearIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
 function Home() {
   const { t } = useTranslation();
   const access = levelAccess();
   return (
     <main className="home">
-      <header className="home-header">
-        <h1 className="wordmark">
-          twiper<span aria-hidden="true">.</span>
-        </h1>
-        <Link className="btn-quiet" to="/settings">
-          {t('home.settings')}
-        </Link>
-      </header>
+      <Link className="icon-btn home-settings" to="/settings" aria-label={t('home.settings')}>
+        <GearIcon />
+      </Link>
+      <h1 className="wordmark">
+        twiper<span aria-hidden="true">.</span>
+      </h1>
       <p className="lead">{t('home.lead')}</p>
 
       {/* PWA는 설치 직후 안내를 강제할 수 없으므로 튜토리얼은 언제든 열 수 있게 둔다. */}

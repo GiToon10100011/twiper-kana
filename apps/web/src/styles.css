@@ -84,7 +84,43 @@ a {
 /* 홈 */
 
 .home {
+  position: relative;
   padding-top: calc(env(safe-area-inset-top) + 4rem);
+}
+
+/* 아이콘만 있는 버튼. 누르는 영역은 44px */
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--ink-muted);
+  border-radius: var(--radius-pill);
+  transition:
+    background var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease);
+}
+
+.icon-btn:hover {
+  color: var(--ink);
+  background: var(--line);
+}
+
+.icon-btn svg {
+  width: 1.375rem;
+  height: 1.375rem;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 화면 오른쪽 위 모서리. 아이콘 가장자리가 본문 여백(16px)과 맞도록 버튼을 바깥으로 뺀다 */
+.home-settings {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + var(--space-2));
+  right: calc(var(--space-4) - 0.6875rem);
 }
 
 .wordmark {
@@ -703,12 +739,6 @@ a.btn-quiet {
 
 .course-list .is-current a {
   box-shadow: inset 3px 0 0 var(--accent);
-}
-
-.home-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .home-tutorial {
