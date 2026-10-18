@@ -3,19 +3,32 @@ import { BrowserRouter, Link, Route, Routes } from 'react-router';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
 import { Onboarding } from './features/onboarding/Onboarding';
+import { CourseList } from './features/training/CourseList';
+import { DrillRoute } from './features/training/Drill';
 import { isOnboarded } from './lib/flags';
 
 function Home() {
   const { t } = useTranslation();
+  const onboarded = isOnboarded();
   return (
     <main className="home">
       <h1 className="wordmark">
         twiper<span aria-hidden="true">.</span>
       </h1>
       <p className="lead">{t('home.lead')}</p>
-      <Link className="btn btn-primary" to="/onboarding">
-        {isOnboarded() ? t('home.redoOnboarding') : t('home.start')}
-      </Link>
+      {onboarded ? null : (
+        <Link className="btn btn-primary" to="/onboarding">
+          {t('home.start')}
+        </Link>
+      )}
+
+      <h2 className="section-label">{t('course.title')}</h2>
+      <CourseList />
+      {onboarded ? (
+        <Link className="btn-quiet home-onboarding" to="/onboarding">
+          {t('home.redoOnboarding')}
+        </Link>
+      ) : null}
 
       <h2 className="section-label">{t('home.devTools')}</h2>
       <ul className="nav-list">
@@ -42,6 +55,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/train/:levelId" element={<DrillRoute />} />
         <Route path="/lab/ime" element={<ImeLab />} />
         <Route path="/lab/guide-check" element={<GuideCheck />} />
       </Routes>
