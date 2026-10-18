@@ -5,12 +5,15 @@ import { Link, Navigate, useParams } from 'react-router';
 import { findLevel, iosKana, nextLevel, type Level } from '@twiper/content';
 import {
   advanceDrill,
+  attemptRecordOf,
   createDrill,
   lineResultOf,
   summarizeDrill,
+  type DrillSummary,
   type FlickDirection,
   type InputSessionState,
 } from '@twiper/core';
+import { newId, trainingRepo } from '../../lib/db';
 import { recordLevel } from '../../lib/progress';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
 import { levelAccess } from './access';
@@ -30,6 +33,10 @@ export function Drill({ level }: { level: Level }) {
   const [drill, setDrill] = useState(() => createDrill(level.drill, newSeed()));
   const shownAt = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  /** 지금 판의 세션 기록 */
+  const sessionRef = useRef<{ id: string; startedAt: string } | null>(null);
+  /** 같은 레벨의 지난 판 요약. undefined: 아직 모름 / null: 처음 */
+  const [previous, setPrevious] = useState<DrillSummary | null | undefined>(undefined);
 
   // iOS는 사용자가 누른 그 순간에 포커스해야 키보드를 띄우므로 입력창을 동기로 그린 뒤 포커스한다.
   const start = () => {
@@ -39,21 +46,59 @@ export function Drill({ level }: { level: Level }) {
     });
     shownAt.current = performance.now();
     inputRef.current?.focus();
+
+    const session = { id: newId(), startedAt: new Date().toISOString() };
+    sessionRef.current = session;
+    setPrevious(undefined);
+    void trainingRepo().saveSession({
+      ...session,
+      levelId: level.id,
+      endedAt: null,
+      summary: null,
+    });
   };
 
   const onComplete = (session: InputSessionState) => {
     const result = lineResultOf(session, shownAt.current);
+    if (sessionRef.current) {
+      const meta = {
+        id: newId(),
+        sessionId: sessionRef.current.id,
+        levelId: level.id,
+        shownAt: shownAt.current,
+        at: new Date(),
+      };
+      void trainingRepo().saveAttempt(attemptRecordOf(session, meta));
+    }
     // 다음 줄은 確定 직후에 나타난다. 같은 시계(스냅샷 시각)로 재야 반응 시간이 맞는다.
     shownAt.current = session.completedAt ?? performance.now();
     setDrill((prev) => advanceDrill(prev, result));
   };
 
-  // 끝까지 푼 레벨을 기록해 다음 레벨을 연다. 같은 드릴을 두 번 기록하지 않는다.
+  // 끝까지 푼 레벨을 기록해 다음 레벨을 열고, 세션 요약을 저장한 뒤 지난 판과 비교할 기록을 읽는다.
+  // 같은 드릴을 두 번 기록하지 않는다.
   const recorded = useRef<typeof drill | null>(null);
   useEffect(() => {
     if (!drill.done || recorded.current === drill) return;
     recorded.current = drill;
-    recordLevel(level.id, summarizeDrill(drill.results));
+    const summary = summarizeDrill(drill.results);
+    recordLevel(level.id, summary);
+
+    const session = sessionRef.current;
+    if (!session) return;
+    const repo = trainingRepo();
+    void repo
+      .saveSession({
+        ...session,
+        levelId: level.id,
+        endedAt: new Date().toISOString(),
+        summary,
+      })
+      .then(() => repo.finishedSessions(level.id, 2))
+      .then((sessions) => {
+        if (sessionRef.current?.id !== session.id) return;
+        setPrevious(sessions.find((s) => s.id !== session.id)?.summary ?? null);
+      });
   }, [drill, level.id]);
 
   const notice = (session: InputSessionState) => {
@@ -111,6 +156,7 @@ export function Drill({ level }: { level: Level }) {
         <DrillResult
           title={title}
           summary={summarizeDrill(drill.results)}
+          previous={previous}
           next={nextLevel(level.id)}
           onAgain={start}
         />

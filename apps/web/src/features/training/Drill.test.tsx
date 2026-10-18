@@ -65,6 +65,22 @@ describe('Drill', () => {
     expect(screen.getByRole('link', { name: /다음: Lv\.3/ })).toBeTruthy();
   });
 
+  it('같은 레벨을 다시 끝내면 지난 판과 비교해 보여 준다', async () => {
+    const level = renderDrill('L1');
+    const playAll = async () => {
+      for (let i = 0; i < level.drill.lineCount; i += 1) {
+        await typeLine(screen.getByRole<HTMLInputElement>('textbox'), currentLine());
+      }
+    };
+    fireEvent.click(screen.getByRole('button', { name: '시작' }));
+    await playAll();
+    fireEvent.click(screen.getByRole('button', { name: '다시 하기' }));
+    await playAll();
+
+    // 두 판 모두 한 번에 맞혀 정확도 차이는 없다
+    expect(await screen.findByText('지난번보다 \u{00B1}0%p')).toBeTruthy();
+  });
+
   it('결과에서 다시 하기를 누르면 첫 줄부터 다시 입력창에 포커스한다', async () => {
     const level = renderDrill('L1');
     fireEvent.click(screen.getByRole('button', { name: '시작' }));

@@ -979,6 +979,14 @@ a.btn-quiet {
   color: var(--ink-muted);
 }
 
+.stat-delta {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
 .stats dd {
   margin: var(--space-1) 0 0;
   font-size: 1.5rem;
