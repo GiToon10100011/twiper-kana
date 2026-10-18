@@ -18,6 +18,11 @@ const DAN: Record<FlickDirection, string> = {
   down: 'おこそとのほもよろ',
 };
 
+/** 배치 도해에서 키 하나를 짚는 시간 */
+const LAYOUT_STEP_MS = 600;
+/** 모음 도해에서 한 방향을 보여 주는 시간. 한 단의 글자 8–10개를 읽을 수 있을 만큼 둔다 */
+const VOWEL_STEP_MS = 3200;
+
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia?.(REDUCED_MOTION).matches === true;
@@ -29,7 +34,10 @@ export function LayoutTour({ label }: { label: string }) {
 
   useEffect(() => {
     if (reduced) return;
-    const timer = setInterval(() => setStep((s) => (s + 1) % (ROW_ORDER.length + 2)), 600);
+    const timer = setInterval(
+      () => setStep((s) => (s + 1) % (ROW_ORDER.length + 2)),
+      LAYOUT_STEP_MS,
+    );
     return () => clearInterval(timer);
   }, [reduced]);
 
@@ -62,7 +70,7 @@ export function VowelTour({ legend, label }: VowelTourProps) {
     if (reduced || picked) return;
     const timer = setInterval(() => {
       setDirection((d) => DIRECTIONS[(DIRECTIONS.indexOf(d) + 1) % DIRECTIONS.length] ?? 'tap');
-    }, 1800);
+    }, VOWEL_STEP_MS);
     return () => clearInterval(timer);
   }, [reduced, picked]);
 

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { VowelTour } from './tours';
 
 afterEach(cleanup);
@@ -25,6 +25,25 @@ describe('VowelTour', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '아래 = お단' }));
     expect(screen.getByTestId('dan-row').textContent).toBe('お こ そ と の ほ も よ ろ');
+  });
+
+  it('3.2초마다 다음 방향으로 넘어가고, 방향을 직접 고르면 자동 전환을 멈춘다', () => {
+    vi.useFakeTimers();
+    try {
+      render(<VowelTour legend={LEGEND} label="방향은 모음" />);
+      const row = () => screen.getByTestId('dan-row').textContent;
+
+      act(() => vi.advanceTimersByTime(3100));
+      expect(row()).toBe('い き し ち に ひ み り');
+      act(() => vi.advanceTimersByTime(100));
+      expect(row()).toBe('う く す つ ぬ ふ む ゆ る');
+
+      fireEvent.click(screen.getByRole('button', { name: '탭 = あ단' }));
+      act(() => vi.advanceTimersByTime(10_000));
+      expect(row()).toBe('あ か さ た な は ま や ら わ');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('규칙 밖의 글자(괄호·を·ん·ー)는 강조하지 않는다', () => {
