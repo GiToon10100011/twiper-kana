@@ -29,4 +29,5 @@ export {
 } from './input/session';
 export { KANA_KEY_ROWS, keyRowOf, sameKeyRow } from './kana/rows';
 export { sameVariantFamily } from './kana/variants';
+export { currentLevel, unlockedLevels } from './progress/unlock';
 export { normalizeBase, normalizeForCompare } from './text/normalize';

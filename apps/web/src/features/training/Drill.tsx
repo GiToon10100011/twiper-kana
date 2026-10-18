@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, useParams } from 'react-router';
@@ -11,7 +11,9 @@ import {
   type FlickDirection,
   type InputSessionState,
 } from '@twiper/core';
+import { recordLevel } from '../../lib/progress';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
+import { levelAccess } from './access';
 import { DrillResult } from './DrillResult';
 import { levelTitle } from './levelTitle';
 import { TrainingInput } from './TrainingInput';
@@ -45,6 +47,14 @@ export function Drill({ level }: { level: Level }) {
     shownAt.current = session.completedAt ?? performance.now();
     setDrill((prev) => advanceDrill(prev, result));
   };
+
+  // 끝까지 푼 레벨을 기록해 다음 레벨을 연다. 같은 드릴을 두 번 기록하지 않는다.
+  const recorded = useRef<typeof drill | null>(null);
+  useEffect(() => {
+    if (!drill.done || recorded.current === drill) return;
+    recorded.current = drill;
+    recordLevel(level.id, summarizeDrill(drill.results));
+  }, [drill, level.id]);
 
   const notice = (session: InputSessionState) => {
     if (session.romajiSuspected) return t('training.romaji');
@@ -83,7 +93,10 @@ export function Drill({ level }: { level: Level }) {
             {t(level.kind === 'all' ? 'drill.introAll' : 'drill.intro', { count: lineCount })}
           </p>
           {level.keys.length > 0 ? (
-            <div className="key-guide" aria-label={t('drill.keyGuide')}>
+            <div
+              className={`key-guide${level.keys.length > 1 ? ' is-multi' : ''}`}
+              aria-label={t('drill.keyGuide')}
+            >
               {level.keys.map((char) => {
                 const key = keyOf(char);
                 return key ? <FlickDiagram key={char} keyDef={key} labels={labels} /> : null;
@@ -123,10 +136,10 @@ export function Drill({ level }: { level: Level }) {
   );
 }
 
-/** /train/:levelId. 레벨이 바뀌면 상태를 새로 시작하도록 key를 준다 */
+/** /train/:levelId. 없거나 잠긴 레벨이면 홈으로. 레벨이 바뀌면 상태를 새로 시작하도록 key를 준다 */
 export function DrillRoute() {
   const { levelId = '' } = useParams();
   const level = findLevel(levelId);
-  if (!level) return <Navigate to="/" replace />;
+  if (!level || !levelAccess().unlocked.has(level.id)) return <Navigate to="/" replace />;
   return <Drill key={level.id} level={level} />;
 }

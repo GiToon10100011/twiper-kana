@@ -1,34 +1,51 @@
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BrowserRouter, Link, Route, Routes } from 'react-router';
+import { Opening } from './features/intro/Opening';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
 import { Onboarding } from './features/onboarding/Onboarding';
+import { Settings } from './features/settings/Settings';
+import { levelAccess } from './features/training/access';
 import { CourseList } from './features/training/CourseList';
 import { DrillRoute } from './features/training/Drill';
 import { isOnboarded } from './lib/flags';
 
+/** 톱니바퀴 (Lucide "settings", ISC) */
+function GearIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
 function Home() {
   const { t } = useTranslation();
-  const onboarded = isOnboarded();
+  const access = levelAccess();
   return (
     <main className="home">
+      <Link className="icon-btn home-settings" to="/settings" aria-label={t('home.settings')}>
+        <GearIcon />
+      </Link>
       <h1 className="wordmark">
         twiper<span aria-hidden="true">.</span>
       </h1>
       <p className="lead">{t('home.lead')}</p>
-      {onboarded ? null : (
-        <Link className="btn btn-primary" to="/onboarding">
-          {t('home.start')}
-        </Link>
-      )}
+
+      {/* PWA는 설치 직후 안내를 강제할 수 없으므로 튜토리얼은 언제든 열 수 있게 둔다. */}
+      <ul className="nav-list home-tutorial">
+        <li>
+          <Link to="/tutorial">
+            <span>{t('home.tutorial')}</span>
+            <small>{isOnboarded() ? t('home.tutorialHint') : t('home.tutorialFirst')}</small>
+          </Link>
+        </li>
+      </ul>
 
       <h2 className="section-label">{t('course.title')}</h2>
-      <CourseList />
-      {onboarded ? (
-        <Link className="btn-quiet home-onboarding" to="/onboarding">
-          {t('home.redoOnboarding')}
-        </Link>
-      ) : null}
+      <CourseList access={access} />
 
       <h2 className="section-label">{t('home.devTools')}</h2>
       <ul className="nav-list">
@@ -49,16 +66,27 @@ function Home() {
   );
 }
 
+/** 홈으로 앱을 열었을 때만 오프닝을 보여 준다. 다른 주소로 바로 들어오면 건너뛴다 */
+const opensAtHome = () => typeof window !== 'undefined' && window.location.pathname === '/';
+
 export function App() {
+  const [opening, setOpening] = useState(opensAtHome);
+  const finishOpening = useCallback(() => setOpening(false), []);
+
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/train/:levelId" element={<DrillRoute />} />
-        <Route path="/lab/ime" element={<ImeLab />} />
-        <Route path="/lab/guide-check" element={<GuideCheck />} />
-      </Routes>
+      {opening ? (
+        <Opening onFinish={finishOpening} />
+      ) : (
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/tutorial" element={<Onboarding />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/train/:levelId" element={<DrillRoute />} />
+          <Route path="/lab/ime" element={<ImeLab />} />
+          <Route path="/lab/guide-check" element={<GuideCheck />} />
+        </Routes>
+      )}
     </BrowserRouter>
   );
 }
