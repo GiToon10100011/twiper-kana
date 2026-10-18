@@ -98,6 +98,12 @@ export const ja: typeof ko = {
     next: '次へ: {{level}}',
     home: 'ホームへ',
   },
+  pwa: {
+    update: '新しいバージョンがあります。',
+    reload: '更新',
+    offlineReady: 'オフラインでも使えるようになりました。',
+    close: '閉じる',
+  },
   settings: {
     title: '設定',
     unlockAll: 'すべてのレッスンを開く',

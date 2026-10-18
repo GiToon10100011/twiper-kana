@@ -5,6 +5,7 @@ import { Opening } from './features/intro/Opening';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
 import { Onboarding } from './features/onboarding/Onboarding';
+import { UpdatePrompt } from './features/pwa/UpdatePrompt';
 import { Settings } from './features/settings/Settings';
 import { levelAccess } from './features/training/access';
 import { CourseList } from './features/training/CourseList';
@@ -75,9 +76,8 @@ export function App() {
 
   return (
     <BrowserRouter>
-      {opening ? (
-        <Opening onFinish={finishOpening} />
-      ) : (
+      {opening ? <Opening onFinish={finishOpening} /> : <UpdatePrompt />}
+      {opening ? null : (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/tutorial" element={<Onboarding />} />
