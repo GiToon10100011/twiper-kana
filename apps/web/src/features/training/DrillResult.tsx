@@ -10,12 +10,24 @@ const PASS_ACCURACY = 0.9;
 interface DrillResultProps {
   title: string;
   summary: DrillSummary;
+  /** 같은 레벨의 지난 판. 없거나 아직 읽는 중이면 비교를 보여 주지 않는다 */
+  previous?: DrillSummary | null;
   next: Level | undefined;
   onAgain: () => void;
 }
 
-export function DrillResult({ title, summary, next, onAgain }: DrillResultProps) {
+/** +4, −3, ±0 */
+const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `\u{2212}${-n}` : '\u{00B1}0');
+
+export function DrillResult({ title, summary, previous, next, onAgain }: DrillResultProps) {
   const { t } = useTranslation();
+  const accuracyDelta = previous
+    ? Math.round(summary.accuracy * 100) - Math.round(previous.accuracy * 100)
+    : null;
+  const kpmDelta =
+    previous?.kpm != null && summary.kpm !== null
+      ? Math.round(summary.kpm) - Math.round(previous.kpm)
+      : null;
   const passed = summary.accuracy >= PASS_ACCURACY;
   const seconds = Math.round(summary.totalMs / 1000);
   const time =
@@ -30,10 +42,18 @@ export function DrillResult({ title, summary, next, onAgain }: DrillResultProps)
         <div>
           <dt>{t('result.accuracy')}</dt>
           <dd>{Math.round(summary.accuracy * 100)}%</dd>
+          {accuracyDelta === null ? null : (
+            <small className="stat-delta">
+              {t('result.vsLast', { value: t('result.points', { value: signed(accuracyDelta) }) })}
+            </small>
+          )}
         </div>
         <div>
           <dt>{t('result.speed')}</dt>
           <dd>{summary.kpm === null ? '–' : Math.round(summary.kpm)}</dd>
+          {kpmDelta === null ? null : (
+            <small className="stat-delta">{t('result.vsLast', { value: signed(kpmDelta) })}</small>
+          )}
         </div>
         <div>
           <dt>{t('result.time')}</dt>

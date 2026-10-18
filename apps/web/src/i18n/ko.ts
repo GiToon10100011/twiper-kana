@@ -83,6 +83,8 @@ export const ko = {
     time: '시간',
     minutes: '{{min}}분 {{sec}}초',
     seconds: '{{sec}}초',
+    vsLast: '지난번보다 {{value}}',
+    points: '{{value}}%p',
     missed: '틀린 글자',
     noMissed: '한 번도 틀리지 않았어요.',
     pass: '첫 시도 정확도가 90%를 넘었어요. 다음 레벨로 가요.',

@@ -86,6 +86,8 @@ export const ja: typeof ko = {
     time: '時間',
     minutes: '{{min}}分{{sec}}秒',
     seconds: '{{sec}}秒',
+    vsLast: '前回より {{value}}',
+    points: '{{value}}pt',
     missed: '間違えた文字',
     noMissed: '一度も間違えませんでした。',
     pass: '一発正解率が90%を超えました。次のレベルへ進みましょう。',

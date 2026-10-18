@@ -30,4 +30,8 @@ export {
 export { KANA_KEY_ROWS, keyRowOf, sameKeyRow } from './kana/rows';
 export { sameVariantFamily } from './kana/variants';
 export { currentLevel, unlockedLevels } from './progress/unlock';
+export type { AttemptFlag, AttemptRecord, SessionRecord, TrainingRepo } from './record/types';
+export { attemptRecordOf, type AttemptMeta } from './record/attempt';
+export { createMemoryRepo } from './record/memoryRepo';
+export { ulid } from './record/ulid';
 export { normalizeBase, normalizeForCompare } from './text/normalize';
