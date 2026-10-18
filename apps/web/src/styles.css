@@ -1,0 +1,410 @@
+/*
+ * 디자인 토큰. 따뜻한 모노크롬 위에 마젠타를 포인트로만 쓴다 (라이트 모드 전용).
+ * 마젠타는 화면당 주요 동작 하나, 포커스, 현재 위치 표시에만 쓰고 넓은 면에는 쓰지 않는다.
+ */
+:root {
+  --bg: #fcfcf9;
+  --surface: #fdfbfa;
+  --ink: #27251e;
+  --ink-muted: rgb(39 37 30 / 0.62);
+  --ink-faint: rgb(39 37 30 / 0.45);
+  --line: rgb(39 37 30 / 0.1);
+  --line-strong: rgb(39 37 30 / 0.22);
+  --accent: #c2187a;
+  --accent-strong: #a3126a;
+  --accent-soft: #fbe9f3;
+  --on-accent: #ffffff;
+  --danger: #9f2f2d;
+  --danger-soft: #fdebec;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.08);
+
+  /* 간격은 4px 단위 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+
+  --duration-fast: 75ms;
+  --duration-base: 300ms;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Hiragino Sans',
+    'Apple SD Gothic Neo', 'Noto Sans JP', 'Noto Sans KR', 'Yu Gothic', 'Malgun Gothic', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--bg);
+  /* 한국어는 단어 중간에서 줄을 바꾸지 않는다 */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+:lang(ja) {
+  word-break: normal;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.home,
+.lab {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: calc(env(safe-area-inset-top) + var(--space-3)) var(--space-4)
+    calc(env(safe-area-inset-bottom) + 2rem);
+}
+
+/* 홈 */
+
+.home {
+  padding-top: calc(env(safe-area-inset-top) + 4rem);
+}
+
+.wordmark {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.33;
+  letter-spacing: -0.02em;
+}
+
+.wordmark span {
+  color: var(--accent);
+}
+
+.lead {
+  margin: var(--space-1) 0 0;
+  font-size: 1.5rem;
+  line-height: 1.33;
+  color: var(--ink-muted);
+  text-wrap: balance;
+}
+
+.section-label {
+  margin: 3rem 0 var(--space-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.nav-list {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.nav-list li + li {
+  border-top: 1px solid var(--line);
+}
+
+.nav-list a {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.5rem;
+  padding: 0 var(--space-4);
+  color: var(--ink);
+  transition: background var(--duration-fast) var(--ease);
+}
+
+.nav-list a:hover {
+  background: var(--accent-soft);
+}
+
+.nav-list small {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+/* 개발용 진단 화면 */
+
+.lab-header {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: 2.75rem;
+  font-size: 0.875rem;
+}
+
+.lab-header a {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-left: calc(var(--space-3) * -1);
+  font-size: 1.125rem;
+  color: var(--ink);
+  border-radius: var(--radius-md);
+}
+
+.lab-header strong {
+  font-weight: 600;
+}
+
+.lab-header span {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.lab-instruction {
+  margin: var(--space-3) 0 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.33;
+  text-align: center;
+}
+
+.lab-target {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.12em;
+  justify-content: center;
+  margin: var(--space-2) 0 var(--space-3);
+  font-size: 2.25rem;
+  line-height: 1.33;
+}
+
+.lab-target span {
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+  transition: color var(--duration-fast) var(--ease);
+}
+
+/* 입력한 글자는 잉크색으로 채워지고, 다음에 칠 글자만 마젠타 밑줄로 표시한다 */
+.ch-todo {
+  color: var(--ink-faint);
+}
+
+.lab-target .ch-next {
+  border-bottom-color: var(--accent);
+}
+
+.lab-target .ch-pending {
+  border-bottom-color: var(--accent);
+  border-bottom-style: dotted;
+}
+
+.ch-wrong {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-radius: var(--radius-sm);
+}
+
+/* 두 입력창을 같은 자리에 겹쳐 두고 활성 입력창만 보이게 한다 (리셋 전략 R1) */
+.lab-inputs {
+  position: relative;
+  height: 3.25rem;
+}
+
+.lab-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0 var(--space-4);
+  font-family: inherit;
+  font-size: 1.375rem;
+  color: var(--ink);
+  appearance: none;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color var(--duration-fast) var(--ease),
+    box-shadow var(--duration-fast) var(--ease);
+}
+
+.lab-input::placeholder {
+  font-size: 1rem;
+  color: var(--ink-faint);
+}
+
+.lab-input:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.lab-input-idle {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.lab-status {
+  min-height: 1.25rem;
+  margin: var(--space-2) 0;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+  word-break: break-all;
+}
+
+.lab-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin: var(--space-3) 0;
+}
+
+.lab button {
+  min-height: 2.75rem;
+  padding: 0 var(--space-4);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  transition:
+    background var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease);
+}
+
+.lab button:hover {
+  border-color: var(--ink-muted);
+}
+
+.lab button:active {
+  transform: scale(0.98);
+}
+
+.lab button:disabled {
+  color: var(--ink-faint);
+  border-color: var(--line);
+  transform: none;
+}
+
+/* 화면당 하나뿐인 주요 동작 */
+.lab button.primary {
+  font-weight: 600;
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.lab button.primary:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+.lab button.primary:disabled {
+  color: var(--ink-faint);
+  background: var(--surface);
+  border-color: var(--line);
+}
+
+.lab fieldset {
+  margin: var(--space-4) 0;
+  padding: var(--space-1) var(--space-4) var(--space-2);
+  font-size: 0.875rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.lab legend {
+  padding: 0 var(--space-1);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.lab label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+.lab input[type='radio'] {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.lab small {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.lab h2 {
+  margin: 1.5rem 0 var(--space-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.lab table {
+  width: 100%;
+  font-size: 0.8125rem;
+  border-collapse: collapse;
+}
+
+.lab th,
+.lab td {
+  padding: var(--space-2) var(--space-1);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+.lab th {
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.lab-log {
+  max-height: 16rem;
+  margin: 0;
+  padding: var(--space-3);
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  word-break: break-all;
+  white-space: pre-wrap;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0s !important;
+  }
+}
