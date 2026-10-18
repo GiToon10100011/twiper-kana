@@ -17,12 +17,22 @@
 
 ```sh
 pnpm install
-pnpm dev         # 개발 서버 (같은 Wi-Fi의 스마트폰에서 접속 가능)
+pnpm dev         # 개발 서버 (이 컴퓨터에서만)
+pnpm dev:lan     # 같은 Wi-Fi의 스마트폰에서 접속 + 실기 trace 수집
 pnpm test
 pnpm typecheck
 pnpm lint
 pnpm build
 ```
+
+## 설치형 앱(PWA)
+
+빌드하면 `manifest.webmanifest`와 서비스 워커(`sw.js`)가 생기고, 앱 화면과 콘텐츠를 모두 미리 받아 두어 인터넷 없이도 훈련할 수 있다.
+
+- 서비스 워커는 빌드에서만 켠다. `pnpm dev`·`pnpm dev:lan`에서는 등록하지 않는다.
+- 새 버전은 홈·설정 화면에 「새 버전이 있어요」 알림으로만 알리고, 사용자가 「업데이트」를 눌렀을 때 적용한다. 훈련·튜토리얼 중에는 알리지 않는다.
+- 이 컴퓨터에서 확인: `pnpm build && pnpm --filter @twiper/web preview` 후 `http://localhost:4173`.
+- 서비스 워커는 HTTPS(또는 localhost)에서만 동작한다. iPhone에서 설치·오프라인을 확인하려면 HTTPS로 배포한 주소가 필요하다. LAN 주소(`http://192.168…`)에서는 홈 화면에 추가해도 오프라인으로 동작하지 않는다.
 
 ## IME 스파이크 (`/lab/ime`)
 
