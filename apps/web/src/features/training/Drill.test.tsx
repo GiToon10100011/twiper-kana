@@ -6,7 +6,10 @@ import { findLevel } from '@twiper/content';
 import '../../i18n';
 import { Drill } from './Drill';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+});
 
 const flush = () => act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
 

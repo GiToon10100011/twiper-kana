@@ -67,7 +67,6 @@ export function Onboarding() {
           <p className="screen-body">{t('onboarding.setup.body')}</p>
           <ol className="checklist">
             <li>{t('onboarding.setup.add')}</li>
-            <li>{t('onboarding.setup.flickOnly')}</li>
             <li>{t('onboarding.setup.switch')}</li>
           </ol>
           <button type="button" className="btn btn-primary" onClick={() => setStep('flick')}>
@@ -110,9 +109,14 @@ export function Onboarding() {
         <section>
           <h1 className="screen-title">{t('onboarding.done.title')}</h1>
           <p className="screen-body">{t('onboarding.done.body')}</p>
-          <Link className="btn btn-primary" to="/">
-            {t('onboarding.done.home')}
-          </Link>
+          <div className="actions">
+            <Link className="btn btn-primary" to="/train/L1">
+              {t('onboarding.done.start')}
+            </Link>
+            <Link className="btn-quiet" to="/">
+              {t('onboarding.done.home')}
+            </Link>
+          </div>
         </section>
       ) : null}
     </main>
