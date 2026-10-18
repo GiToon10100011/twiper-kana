@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import type { DrillSummary } from '@twiper/core';
+import type { DrillSummary, MistakeKind } from '@twiper/core';
 import type { Level } from '@twiper/content';
 import { levelTitle } from './levelTitle';
 
@@ -29,6 +29,10 @@ export function DrillResult({ title, summary, previous, next, onAgain }: DrillRe
       ? Math.round(summary.kpm) - Math.round(previous.kpm)
       : null;
   const passed = summary.accuracy >= PASS_ACCURACY;
+  // 많은 순. 종류를 알 수 없는 '기타'는 맨 뒤
+  const kinds = (Object.entries(summary.mistakeKinds) as [MistakeKind, number][])
+    .filter(([, count]) => count > 0)
+    .sort(([a, x], [b, y]) => Number(a === 'other') - Number(b === 'other') || y - x);
   const seconds = Math.round(summary.totalMs / 1000);
   const time =
     seconds >= 60
@@ -74,6 +78,20 @@ export function DrillResult({ title, summary, previous, next, onAgain }: DrillRe
       ) : (
         <p className="screen-body">{t('result.noMissed')}</p>
       )}
+
+      {kinds.length > 0 ? (
+        <>
+          <h2 className="section-label">{t('result.kinds')}</h2>
+          <ul className="kind-list">
+            {kinds.map(([kind, count]) => (
+              <li key={kind}>
+                <span>{t(`result.kind.${kind}`)}</span>
+                <small>×{count}</small>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
 
       {summary.romajiSuspected ? <p className="result-warning">{t('result.romaji')}</p> : null}
       {summary.toggleSuspected ? <p className="result-warning">{t('result.toggle')}</p> : null}

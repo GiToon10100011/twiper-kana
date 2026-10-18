@@ -27,8 +27,10 @@ export {
   reduceInputSession,
   replayInputSession,
 } from './input/session';
-export { KANA_KEY_ROWS, keyRowOf, sameKeyRow } from './kana/rows';
-export { sameVariantFamily } from './kana/variants';
+export { classifyMistake, type MistakeKind } from './kana/classify';
+export { KANA_KEY_ROWS, danOf, keyRowOf, sameKeyRow, type Dan } from './kana/rows';
+export { tokenizeKana } from './kana/tokenize';
+export { sameVariantFamily, variantBase } from './kana/variants';
 export { currentLevel, unlockedLevels } from './progress/unlock';
 export type { AttemptFlag, AttemptRecord, SessionRecord, TrainingRepo } from './record/types';
 export { attemptRecordOf, type AttemptMeta } from './record/attempt';

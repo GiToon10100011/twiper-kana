@@ -1,5 +1,6 @@
 import { lineResultOf } from '../drill/result';
 import type { InputSessionState } from '../input/types';
+import { classifyMistake } from '../kana/classify';
 import type { AttemptFlag, AttemptRecord } from './types';
 
 export interface AttemptMeta {
@@ -44,6 +45,7 @@ export function attemptRecordOf(session: InputSessionState, meta: AttemptMeta): 
       expected,
       actual,
       cause,
+      kind: classifyMistake(expected, actual),
     })),
     corrections: new Set(session.errors.map((error) => error.index)).size,
     flags,

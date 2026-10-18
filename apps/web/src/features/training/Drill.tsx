@@ -16,6 +16,7 @@ import {
 import { newId, trainingRepo } from '../../lib/db';
 import { recordLevel } from '../../lib/progress';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
+import { ModifierHowTo } from '../tutorial/ModifierHowTo';
 import { levelAccess } from './access';
 import { DrillResult } from './DrillResult';
 import { levelTitle } from './levelTitle';
@@ -24,6 +25,16 @@ import { TrainingInput } from './TrainingInput';
 const newSeed = () => Math.floor(Math.random() * 2 ** 31);
 
 const keyOf = (char: string) => iosKana.layers.kana.keys.find((key) => key.outputs.tap === char);
+
+/** 준비 화면 안내문: 단어만 / 50음+단어 / 조합+단어 / 글자 줄 */
+function introKey(
+  level: Level,
+): 'drill.introWords' | 'drill.introAll' | 'drill.introCombo' | 'drill.intro' {
+  const hasWords = (level.drill.words?.length ?? 0) > 0;
+  if (hasWords && level.drill.focus.length === 0) return 'drill.introWords';
+  if (hasWords) return level.kind === 'all' ? 'drill.introAll' : 'drill.introCombo';
+  return 'drill.intro';
+}
 
 /** 한 레벨의 줄 드릴: 준비 → 줄마다 입력하고 確定 → 결과 */
 export function Drill({ level }: { level: Level }) {
@@ -135,8 +146,14 @@ export function Drill({ level }: { level: Level }) {
             {title}
           </h1>
           <p className="screen-body">
-            {t(level.kind === 'all' ? 'drill.introAll' : 'drill.intro', { count: lineCount })}
+            {t(introKey(level), { count: lineCount, length: level.drill.lineLength })}
           </p>
+          {level.topic ? (
+            <>
+              <p className="screen-body">{t(`drill.howTo.${level.topic}`)}</p>
+              <ModifierHowTo topic={level.topic} label={t('drill.keyGuide')} />
+            </>
+          ) : null}
           {level.keys.length > 0 ? (
             <div
               className={`key-guide${level.keys.length > 1 ? ' is-multi' : ''}`}

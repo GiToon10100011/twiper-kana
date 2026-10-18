@@ -29,17 +29,24 @@ const perfect = (line: string): LineResult => ({
   units: Array.from(line).length,
   firstTryUnits: Array.from(line).length,
   missed: [],
+  missedIndexes: [],
+  mistakeKinds: {},
   reactionMs: 500,
   elapsedMs: 3000,
   romajiSuspected: false,
   toggleSuspected: false,
 });
 
-const missing = (line: string, chars: string[]): LineResult => ({
-  ...perfect(line),
-  firstTryUnits: Array.from(line).length - chars.length,
-  missed: chars,
-});
+/** 줄에서 chars가 처음 나오는 자리를 틀린 것으로 한다 */
+const missing = (line: string, chars: string[]): LineResult => {
+  const lineChars = Array.from(line);
+  return {
+    ...perfect(line),
+    firstTryUnits: lineChars.length - chars.length,
+    missed: chars,
+    missedIndexes: chars.map((char) => lineChars.indexOf(char)),
+  };
+};
 
 function runPerfect(state: DrillState): DrillState {
   let current = state;
@@ -168,6 +175,37 @@ describe('advanceDrill', () => {
     expect(advanceDrill(done, perfect('かき'))).toBe(done);
   });
 
+  it('여러 글자로 된 단위(요음)는 한 단위로 다시 내고 한 단위로 센다', () => {
+    const yoon = ['きゃ', 'しゅ', 'ちょ', 'にゃ'];
+    for (let seed = 1; seed <= 20; seed += 1) {
+      let state = createDrill(spec({ focus: yoon, review: [], lineLength: 4 }), seed);
+      const firstUnit = yoon.find((unit) => state.line.startsWith(unit)) ?? '';
+      // 첫 단위의 두 번째 글자(작은 ゃ·ゅ·ょ)를 틀림
+      state = advanceDrill(state, { ...missing(state.line, []), missedIndexes: [1] });
+
+      expect(state.results[0]?.missed).toEqual([firstUnit]);
+      expect(state.retries.map((r) => r.unit)).toEqual([firstUnit]);
+      expect(state.lineUnits.every((unit) => yoon.includes(unit))).toBe(true);
+    }
+  });
+
+  it('이번 레벨 문자가 없으면 모든 줄을 단어로 내고, 틀린 단위가 든 단어를 다시 낸다', () => {
+    const words = ['きって', 'がっこう', 'ざっし', 'もっと', 'やっと', 'ずっと'];
+    for (let seed = 1; seed <= 20; seed += 1) {
+      let state = createDrill(spec({ focus: [], review: [], words, lineCount: 6 }), seed);
+      const first = state.line;
+      const lines = [first];
+      state = advanceDrill(state, { ...missing(first, ['っ']) });
+      while (!state.done) {
+        lines.push(state.line);
+        state = advanceDrill(state, perfect(state.line));
+      }
+
+      expect(lines.every((line) => words.includes(line))).toBe(true);
+      expect(lines.slice(2).some((line) => line.includes('っ'))).toBe(true);
+    }
+  });
+
   it('단어가 있으면 기본 줄의 홀수 번째 줄은 단어 하나다', () => {
     const words = ['さくら', 'いぬ', 'ねこ'];
     const lines = runPerfect(createDrill(spec({ words }), 2)).results.map((r) => r.target);
@@ -192,6 +230,8 @@ describe('lineResultOf', () => {
       units: 3,
       firstTryUnits: 3,
       missed: [],
+      missedIndexes: [],
+      mistakeKinds: {},
       reactionMs: 500,
       elapsedMs: 700,
       romajiSuspected: false,
@@ -213,7 +253,10 @@ describe('lineResultOf', () => {
     const result = lineResultOf(session, 1000);
 
     expect(result.missed).toEqual(['き']);
+    expect(result.missedIndexes).toEqual([1]);
     expect(result.firstTryUnits).toBe(2);
+    // き 자리에 같은 키의 け를 침 → 방향 착오
+    expect(result.mistakeKinds).toEqual({ direction: 1 });
   });
 
   it('입력이 없으면 시간을 null로 둔다', () => {
@@ -241,6 +284,15 @@ describe('summarizeDrill', () => {
       { char: 'き', count: 2 },
       { char: 'こ', count: 1 },
     ]);
+  });
+
+  it('틀린 종류를 줄 전체에서 더한다', () => {
+    const summary = summarizeDrill([
+      { ...perfect('がぎ'), mistakeKinds: { dakuten: 1, direction: 1 } },
+      { ...perfect('ぱ'), mistakeKinds: { dakuten: 2, handakuten: 1 } },
+    ]);
+
+    expect(summary.mistakeKinds).toEqual({ dakuten: 3, direction: 1, handakuten: 1 });
   });
 
   it('시간을 잴 수 없는 줄은 가나/분 계산에서 뺀다', () => {

@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { findLevel } from '@twiper/content';
+import { variantBase } from '@twiper/core';
 import '../../i18n';
 import { Drill } from './Drill';
 
@@ -79,6 +80,33 @@ describe('Drill', () => {
 
     // 두 판 모두 한 번에 맞혀 정확도 차이는 없다
     expect(await screen.findByText('지난번보다 \u{00B1}0%p')).toBeTruthy();
+  });
+
+  it('조합 레벨에서 탁점을 빠뜨리면 결과에 「탁점」으로 센다', async () => {
+    const level = renderDrill('L11');
+    expect(screen.getByText(/「小゛゜」를 한 번/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '시작' }));
+    let slipped = false;
+
+    for (let i = 0; i < level.drill.lineCount + 2; i += 1) {
+      if (!document.querySelector('.target-text')) break;
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      const line = Array.from(currentLine());
+      const k = line.findIndex((char, j) => j < line.length - 1 && variantBase(char) !== char);
+      if (!slipped && k !== -1) {
+        // 탁점을 붙이지 않은 채 다음 글자로 넘어갔다가, 지우고 고쳐 친다
+        const wrong = [...line.slice(0, k), variantBase(line[k] ?? ''), line[k + 1] ?? ''].join('');
+        input.dispatchEvent(new CompositionEvent('compositionstart'));
+        input.value = wrong;
+        input.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText' }));
+        await flush();
+        slipped = true;
+      }
+      await typeLine(input, line.join(''));
+    }
+
+    expect(slipped).toBe(true);
+    expect(await screen.findByText('탁점')).toBeTruthy();
   });
 
   it('결과에서 다시 하기를 누르면 첫 줄부터 다시 입력창에 포커스한다', async () => {

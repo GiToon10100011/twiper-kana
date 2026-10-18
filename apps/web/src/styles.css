@@ -661,6 +661,65 @@ a {
   transition: transform var(--duration-base) var(--ease);
 }
 
+/* 「小゛゜」 사용법 (조합 레벨 준비 화면) */
+
+.howto {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.howto li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: center;
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.howto-key {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 2px;
+  align-items: baseline;
+  place-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 var(--space-1);
+  font-size: 1.125rem;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+}
+
+.howto-key.is-mod {
+  font-size: 0.875rem;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.howto-key small {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.howto-plus,
+.howto-eq {
+  padding: 0 2px;
+  color: var(--ink-faint);
+}
+
+.howto-out {
+  font-size: 1.375rem;
+  font-weight: 600;
+}
+
 /* 12키 배치 도해 (튜토리얼) */
 
 .kb-grid {
@@ -778,6 +837,17 @@ a.btn-quiet {
 .course-list .course-name {
   flex: 1;
   font-weight: 600;
+}
+
+.course-group + .course-group {
+  margin-top: var(--space-4);
+}
+
+.course-group-title {
+  margin: 0 0 var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-faint);
 }
 
 .course-row {
@@ -1091,6 +1161,31 @@ a.btn-quiet {
 }
 
 .missed-list small {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.kind-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.kind-list li {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: baseline;
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.875rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+}
+
+.kind-list small {
   font-size: 0.75rem;
   color: var(--ink-muted);
 }

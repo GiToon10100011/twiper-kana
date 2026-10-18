@@ -2,6 +2,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
+import { levels } from '@twiper/content';
 import '../../i18n';
 import { recordLevel } from '../../lib/progress';
 import { saveSettings } from '../../lib/settings';
@@ -29,7 +30,7 @@ describe('CourseList', () => {
 
     expect(levelLinks()).toEqual(['/train/L1']);
     expect(screen.getByRole('link').getAttribute('aria-current')).toBe('step');
-    expect(screen.getAllByLabelText(/잠김$/)).toHaveLength(9);
+    expect(screen.getAllByLabelText(/잠김$/)).toHaveLength(levels.length - 1);
   });
 
   it('끝낸 레벨은 최고 정확도를 보여 주고 다음 레벨이 열린다', () => {
@@ -40,11 +41,11 @@ describe('CourseList', () => {
     expect(screen.getByText('최고 96%')).toBeTruthy();
   });
 
-  it('설정에서 모두 열기를 켜면 10개 레벨이 모두 열린다', () => {
+  it('설정에서 모두 열기를 켜면 모든 레벨이 열린다', () => {
     saveSettings({ unlockAll: true });
     renderList();
 
-    expect(levelLinks()).toHaveLength(10);
+    expect(levelLinks()).toHaveLength(levels.length);
   });
 });
 

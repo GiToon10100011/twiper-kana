@@ -22,6 +22,27 @@ export function keyRowOf(kana: string): number {
   return ROW_OF.get(kana) ?? -1;
 }
 
+export type Dan = 'a' | 'i' | 'u' | 'e' | 'o';
+
+/** 단(모음)별 기본 가나. を·ん·ー는 방향과 모음이 맞지 않아 넣지 않는다 */
+const DAN_KANA: Record<Dan, string> = {
+  a: 'あかさたなはまやらわ',
+  i: 'いきしちにひみり',
+  u: 'うくすつぬふむゆる',
+  e: 'えけせてねへめれ',
+  o: 'おこそとのほもよろ',
+};
+
+const DAN_OF = new Map<string, Dan>();
+for (const [dan, kana] of Object.entries(DAN_KANA) as [Dan, string][]) {
+  for (const char of kana) DAN_OF.set(char, dan);
+}
+
+/** 기본 가나의 단. 탁음·작은 글자 등은 먼저 variantBase로 기본 가나로 바꿔서 넘긴다 */
+export function danOf(kana: string): Dan | null {
+  return DAN_OF.get(kana) ?? null;
+}
+
 /** 서로 다른 두 가나가 같은 키에 있으면 true */
 export function sameKeyRow(a: string, b: string): boolean {
   const row = keyRowOf(a);
