@@ -645,6 +645,112 @@ a {
   color: var(--danger);
 }
 
+/* 코스·드릴 */
+
+a.btn-quiet {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ink-muted);
+}
+
+.home-onboarding {
+  margin-top: var(--space-2);
+}
+
+.course-list .course-level {
+  flex: none;
+  width: 3rem;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.course-list .course-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.screen-title-small {
+  margin-top: var(--space-2);
+  font-size: 1rem;
+  color: var(--ink-muted);
+}
+
+.key-guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-4);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.stats div {
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.stats dt {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.stats dd {
+  margin: var(--space-1) 0 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.33;
+}
+
+.missed-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.missed-list li {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: baseline;
+  padding: var(--space-1) var(--space-3);
+  background: var(--danger-soft);
+  border-radius: var(--radius-pill);
+}
+
+.missed-list span {
+  font-size: 1.25rem;
+  color: var(--danger);
+}
+
+.missed-list small {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.result-warning {
+  margin: 0 0 var(--space-3);
+  font-size: 0.875rem;
+  color: var(--danger);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition-duration: 0s !important;

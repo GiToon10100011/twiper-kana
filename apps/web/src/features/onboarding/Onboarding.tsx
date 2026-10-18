@@ -43,8 +43,8 @@ export function Onboarding() {
   };
 
   const notice = (session: InputSessionState) => {
-    if (session.romajiSuspected) return t('onboarding.romaji');
-    if (session.toggleSuspected) return t('onboarding.toggle');
+    if (session.romajiSuspected) return t('training.romaji');
+    if (session.toggleSuspected) return t('training.toggle');
     return null;
   };
 
@@ -98,7 +98,7 @@ export function Onboarding() {
             onComplete={() => (step === 'try' ? setStep('check') : finish())}
             matchedHint={t('onboarding.matched')}
             notice={notice}
-            placeholder={t('onboarding.tapInput')}
+            placeholder={t('training.tapInput')}
             targetLabel={t(`onboarding.${step}.title`)}
             inputRef={inputRef}
           />

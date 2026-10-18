@@ -1,3 +1,6 @@
+export type { DrillRetry, DrillSpec, DrillState, DrillSummary, LineResult } from './drill/types';
+export { advanceDrill, createDrill } from './drill/drill';
+export { lineResultOf, summarizeDrill } from './drill/result';
 export type {
   FlickDirection,
   GuideClaim,
