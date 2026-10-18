@@ -40,7 +40,12 @@ export interface InputSessionState {
   /** 목표의 각 문자가 올바르게 입력된 시각 */
   readonly unitTimes: readonly (number | null)[];
   readonly startedAt: number | null;
+  /** 값이 처음 목표와 같아진 시각. 정답 시각이자 속도 측정 기준이다 */
+  readonly matchedAt: number | null;
+  /** 다음 문제로 넘어가도 되는 시각 (completeOnCommit이면 確定 후) */
   readonly completedAt: number | null;
+  /** composing 판정에서도 確定까지 기다려 완료로 볼지 */
+  readonly completeOnCommit: boolean;
   /** 가나 목표를 입력하는 중에 라틴 문자가 나타남 → 로마자 키보드 사용 추정 */
   readonly romajiSuspected: boolean;
   /** 끝 글자가 같은 키 안에서 제자리 교체됨 → 토글(연타) 입력 추정 */
@@ -48,3 +53,11 @@ export interface InputSessionState {
 }
 
 export type CharStatus = 'todo' | 'correct' | 'pending' | 'wrong';
+
+export interface InputSessionOptions {
+  /**
+   * composing 판정에서도 確定(조합 끝)을 기다려 완료로 본다. 정답 시각은 matchedAt에 따로 남는다.
+   * iOS에서는 조합 중에 입력창을 비우면 입력이 끊기므로 훈련 화면은 이 옵션을 켠다 (결정 0001).
+   */
+  completeOnCommit?: boolean;
+}

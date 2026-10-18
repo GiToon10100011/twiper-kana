@@ -1,27 +1,34 @@
+import { useTranslation } from 'react-i18next';
 import { BrowserRouter, Link, Route, Routes } from 'react-router';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
+import { Onboarding } from './features/onboarding/Onboarding';
+import { isOnboarded } from './lib/flags';
 
 function Home() {
+  const { t } = useTranslation();
   return (
     <main className="home">
       <h1 className="wordmark">
         twiper<span aria-hidden="true">.</span>
       </h1>
-      <p className="lead">실제 키보드로 익히는 일본어 플릭 입력</p>
+      <p className="lead">{t('home.lead')}</p>
+      <Link className="btn btn-primary" to="/onboarding">
+        {isOnboarded() ? t('home.redoOnboarding') : t('home.start')}
+      </Link>
 
-      <h2 className="section-label">개발 도구</h2>
+      <h2 className="section-label">{t('home.devTools')}</h2>
       <ul className="nav-list">
         <li>
           <Link to="/lab/ime">
-            <span>IME 스파이크</span>
-            <small>입력 흐름 확인</small>
+            <span>{t('home.imeLab')}</span>
+            <small>{t('home.imeLabHint')}</small>
           </Link>
         </li>
         <li>
           <Link to="/lab/guide-check">
-            <span>키보드 가이드 확인</span>
-            <small>키 배치 대조</small>
+            <span>{t('home.guideCheck')}</span>
+            <small>{t('home.guideCheckHint')}</small>
           </Link>
         </li>
       </ul>
@@ -34,6 +41,7 @@ export function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/lab/ime" element={<ImeLab />} />
         <Route path="/lab/guide-check" element={<GuideCheck />} />
       </Routes>
