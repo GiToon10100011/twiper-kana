@@ -15,6 +15,7 @@ import {
 } from '@twiper/core';
 import { newId, trainingRepo } from '../../lib/db';
 import { recordLevel } from '../../lib/progress';
+import { BackIcon } from '../../ui/icons';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
 import { ModifierHowTo } from '../tutorial/ModifierHowTo';
 import { levelAccess } from './access';
@@ -134,8 +135,8 @@ export function Drill({ level }: { level: Level }) {
   return (
     <main className="screen">
       <header className="screen-header">
-        <Link className="btn-quiet" to="/">
-          {t('drill.exit')}
+        <Link className="icon-btn header-back" to="/" aria-label={t('drill.exit')}>
+          <BackIcon />
         </Link>
         {started && !drill.done ? <span>{progress}</span> : null}
       </header>

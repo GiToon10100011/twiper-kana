@@ -125,6 +125,11 @@ a {
   right: calc(var(--space-4) - 0.6875rem);
 }
 
+/* 화면 왼쪽 위 뒤로 가기. 아이콘 여백만큼 당겨 본문 왼쪽 선에 맞춘다 */
+.header-back {
+  margin-inline-start: -0.6875rem;
+}
+
 .wordmark {
   margin: 0;
   font-size: 1.5rem;

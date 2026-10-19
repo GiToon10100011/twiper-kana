@@ -158,6 +158,6 @@ export const ko = {
     title: '설정',
     unlockAll: '모든 레슨 열기',
     unlockAllHint: '앞 레벨을 끝내지 않아도 모든 레벨을 바로 시작할 수 있어요.',
-    home: '홈',
+    home: '홈으로',
   },
 };

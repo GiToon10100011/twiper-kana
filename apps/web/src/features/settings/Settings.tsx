@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { loadSettings, saveSettings, type Settings as SettingsValue } from '../../lib/settings';
+import { BackIcon } from '../../ui/icons';
 
 export function Settings() {
   const { t } = useTranslation();
@@ -15,8 +16,8 @@ export function Settings() {
   return (
     <main className="screen">
       <header className="screen-header">
-        <Link className="btn-quiet" to="/">
-          {t('settings.home')}
+        <Link className="icon-btn header-back" to="/" aria-label={t('settings.home')}>
+          <BackIcon />
         </Link>
       </header>
       <h1 className="screen-title">{t('settings.title')}</h1>

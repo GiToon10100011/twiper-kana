@@ -161,6 +161,6 @@ export const ja: typeof ko = {
     title: '設定',
     unlockAll: 'すべてのレッスンを開く',
     unlockAllHint: '前のレベルを終えなくても、すべてのレベルをすぐに始められます。',
-    home: 'ホーム',
+    home: 'ホームへ',
   },
 };
