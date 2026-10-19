@@ -87,8 +87,8 @@ describe('attemptRecordOf', () => {
 
     expect(record.result).toBe('corrected');
     expect(record.mistakes).toEqual([
-      { index: 1, expected: 'き', actual: 'け', cause: 'continued' },
-      { index: 2, expected: '', actual: 'く', cause: 'deleted' },
+      { index: 1, expected: 'き', actual: 'け', cause: 'continued', kind: 'direction' },
+      { index: 2, expected: '', actual: 'く', cause: 'deleted', kind: 'extra' },
     ]);
     // 고쳐야 했던 자리 수: 틀린 け(1)와 넘친 く(2)
     expect(record.corrections).toBe(2);

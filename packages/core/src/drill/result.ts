@@ -1,5 +1,12 @@
 import type { InputSessionState } from '../input/types';
+import { classifyMistake, type MistakeKind } from '../kana/classify';
 import type { DrillSummary, LineResult } from './types';
+
+type KindCounts = Partial<Record<MistakeKind, number>>;
+
+const addKind = (counts: KindCounts, kind: MistakeKind, n = 1) => {
+  counts[kind] = (counts[kind] ?? 0) + n;
+};
 
 /** 끝난 입력 세션을 줄 결과로 바꾼다. shownAt은 줄이 나타난 시각 (세션 스냅샷과 같은 시계) */
 export function lineResultOf(session: InputSessionState, shownAt: number): LineResult {
@@ -13,6 +20,11 @@ export function lineResultOf(session: InputSessionState, shownAt: number): LineR
     units: session.target.length,
     firstTryUnits: session.target.length - missedAt.length,
     missed: missedAt.map((i) => session.target[i] ?? ''),
+    missedIndexes: missedAt,
+    mistakeKinds: session.errors.reduce<KindCounts>((counts, error) => {
+      addKind(counts, classifyMistake(error.expected, error.actual));
+      return counts;
+    }, {}),
     reactionMs: since(session.startedAt),
     elapsedMs: since(session.matchedAt),
     romajiSuspected: session.romajiSuspected,
@@ -26,6 +38,7 @@ export function summarizeDrill(results: readonly LineResult[]): DrillSummary {
   let totalMs = 0;
   let timedUnits = 0;
   const counts = new Map<string, number>();
+  const mistakeKinds: KindCounts = {};
   for (const result of results) {
     units += result.units;
     firstTryUnits += result.firstTryUnits;
@@ -34,6 +47,9 @@ export function summarizeDrill(results: readonly LineResult[]): DrillSummary {
       timedUnits += result.units;
     }
     for (const char of result.missed) counts.set(char, (counts.get(char) ?? 0) + 1);
+    for (const [kind, n] of Object.entries(result.mistakeKinds) as [MistakeKind, number][]) {
+      addKind(mistakeKinds, kind, n);
+    }
   }
   // sort는 안정 정렬이라 횟수가 같으면 먼저 틀린 글자가 앞에 남는다.
   const missed = [...counts]
@@ -47,6 +63,7 @@ export function summarizeDrill(results: readonly LineResult[]): DrillSummary {
     kpm: totalMs > 0 ? timedUnits / (totalMs / 60_000) : null,
     totalMs,
     missed,
+    mistakeKinds,
     romajiSuspected: results.some((result) => result.romajiSuspected),
     toggleSuspected: results.some((result) => result.toggleSuspected),
   };

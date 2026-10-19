@@ -39,6 +39,12 @@ FAMILIES.forEach((family, index) => {
   for (const kana of family) FAMILY_OF.set(kana, index);
 });
 
+/** 탁점·반탁점·작은 글자를 떼어 낸 기본 가나 (が→か, ぱ→は, っ→つ). 변형이 없으면 그대로 */
+export function variantBase(kana: string): string {
+  const family = FAMILY_OF.get(kana);
+  return family === undefined ? kana : (Array.from(FAMILIES[family] ?? kana)[0] ?? kana);
+}
+
 /** 두 가나가 변형 키로 서로 바뀔 수 있으면 true (같은 문자도 true) */
 export function sameVariantFamily(a: string, b: string): boolean {
   const family = FAMILY_OF.get(a);

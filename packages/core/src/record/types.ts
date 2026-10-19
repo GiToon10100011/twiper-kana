@@ -1,5 +1,6 @@
 import type { DrillSummary } from '../drill/types';
 import type { InputErrorCause, JudgeMode } from '../input/types';
+import type { MistakeKind } from '../kana/classify';
 
 export type AttemptFlag = 'romaji-suspected' | 'toggle-suspected';
 
@@ -27,6 +28,8 @@ export interface AttemptRecord {
     readonly expected: string;
     readonly actual: string;
     readonly cause: InputErrorCause;
+    /** 2026-10-18 이전 기록에는 없다 */
+    readonly kind?: MistakeKind;
   }[];
   /** 고쳐야 했던 자리 수 */
   readonly corrections: number;

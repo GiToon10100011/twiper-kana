@@ -81,12 +81,36 @@ export const ko = {
     row: '{{keys}}행',
     all: '50음 랜덤',
     allHint: '50음 + 단어',
+    stage: {
+      basic: '기초',
+      combo: '조합',
+    },
+    topic: {
+      dakuten: '탁음 が',
+      handakuten: '반탁음 ぱ',
+      small: '작은 글자 ぁ',
+      yoon: '요음 きゃ',
+      sokuon: '촉음 っ',
+    },
     locked: '잠김',
     best: '최고 {{accuracy}}%',
   },
   drill: {
     exit: '나가기',
-    intro: '한 줄에 5글자씩 {{count}}줄이에요. 줄을 다 치고 確定을 누르면 다음 줄이 나와요.',
+    intro:
+      '한 줄에 {{length}}글자씩 {{count}}줄이에요. 줄을 다 치고 確定을 누르면 다음 줄이 나와요.',
+    introCombo:
+      '글자 줄과 단어 줄을 번갈아 {{count}}줄 쳐요. 줄을 다 치고 確定을 누르면 다음 줄이 나와요.',
+    introWords: '단어 {{count}}개를 하나씩 쳐요. 다 치고 確定을 누르면 다음 단어가 나와요.',
+    howTo: {
+      dakuten: '글자를 친 다음 「小゛゜」를 한 번 누르면 탁점(゛)이 붙어요.',
+      handakuten:
+        'は행 글자를 친 다음 「小゛゜」를 두 번 누르세요. 한 번이면 ば, 두 번이면 ぱ예요.',
+      small:
+        '글자를 친 다음 「小゛゜」를 한 번 누르면 작게 바뀌어요. つ는 한 번이면 っ, 두 번이면 づ예요.',
+      yoon: 'い단 글자 다음에 や·ゆ·よ를 치고 「小゛゜」로 작게 만들어요. ぎょ처럼 탁음이면 앞 글자에서도 한 번 눌러요.',
+      sokuon: 'つ를 치고 「小゛゜」를 한 번 눌러 っ로 만든 다음, 뒤 글자를 이어서 쳐요.',
+    },
     introAll:
       '50음 줄과 단어 줄을 번갈아 {{count}}줄 쳐요. 줄을 다 치고 確定을 누르면 다음 줄이 나와요.',
     keyGuide: '이 레벨의 키',
@@ -106,6 +130,16 @@ export const ko = {
     vsLast: '지난번보다 {{value}}',
     points: '{{value}}%p',
     missed: '틀린 글자',
+    kinds: '틀린 종류',
+    kind: {
+      dakuten: '탁점',
+      handakuten: '반탁점',
+      small: '작은 글자',
+      direction: '방향',
+      key: '다른 키',
+      extra: '더 친 글자',
+      other: '기타',
+    },
     noMissed: '한 번도 틀리지 않았어요.',
     pass: '첫 시도 정확도가 90%를 넘었어요. 다음 레벨로 가요.',
     practice: '첫 시도 정확도가 90%를 넘으면 다음 레벨로 넘어가길 추천해요.',
@@ -124,6 +158,6 @@ export const ko = {
     title: '설정',
     unlockAll: '모든 레슨 열기',
     unlockAllHint: '앞 레벨을 끝내지 않아도 모든 레벨을 바로 시작할 수 있어요.',
-    home: '홈',
+    home: '홈으로',
   },
 };
