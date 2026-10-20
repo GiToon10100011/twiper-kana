@@ -8,6 +8,25 @@ export function GearIcon() {
   );
 }
 
+/** 오른쪽 꺾쇠 (Lucide "chevron-right", ISC). 목록에서 들어갈 수 있는 항목 */
+export function ForwardIcon() {
+  return (
+    <svg className="icon-forward" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
+}
+
+/** 자물쇠 (Lucide "lock", ISC). 아직 열리지 않은 레벨 */
+export function LockIcon() {
+  return (
+    <svg className="icon-lock" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </svg>
+  );
+}
+
 /** 왼쪽 꺾쇠 (Lucide "chevron-left", ISC). 화면 왼쪽 위의 홈으로 돌아가기 */
 export function BackIcon() {
   return (

@@ -2,13 +2,14 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BrowserRouter, Link, Route, Routes } from 'react-router';
 import { Opening } from './features/intro/Opening';
+import { CourseTilesLab } from './features/lab/CourseTilesLab';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
 import { Onboarding } from './features/onboarding/Onboarding';
 import { UpdatePrompt } from './features/pwa/UpdatePrompt';
 import { Settings } from './features/settings/Settings';
 import { levelAccess } from './features/training/access';
-import { CourseList } from './features/training/CourseList';
+import { CourseTiles } from './features/training/CourseTiles';
 import { DrillRoute } from './features/training/Drill';
 import { isOnboarded } from './lib/flags';
 import { GearIcon } from './ui/icons';
@@ -37,7 +38,7 @@ function Home() {
       </ul>
 
       <h2 className="section-label">{t('course.title')}</h2>
-      <CourseList access={access} />
+      <CourseTiles access={access} />
 
       <h2 className="section-label">{t('home.devTools')}</h2>
       <ul className="nav-list">
@@ -51,6 +52,12 @@ function Home() {
           <Link to="/lab/guide-check">
             <span>{t('home.guideCheck')}</span>
             <small>{t('home.guideCheckHint')}</small>
+          </Link>
+        </li>
+        <li>
+          <Link to="/lab/course-tiles">
+            <span>{t('home.courseTiles')}</span>
+            <small>{t('home.courseTilesHint')}</small>
           </Link>
         </li>
       </ul>
@@ -76,6 +83,7 @@ export function App() {
           <Route path="/train/:levelId" element={<DrillRoute />} />
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />
+          <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
         </Routes>
       )}
     </BrowserRouter>

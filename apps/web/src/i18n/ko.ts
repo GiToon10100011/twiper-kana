@@ -10,6 +10,8 @@ export const ko = {
     imeLabHint: '입력 흐름 확인',
     guideCheck: '키보드 가이드 확인',
     guideCheckHint: '키 배치 대조',
+    courseTiles: '목록 상태 미리보기',
+    courseTilesHint: '진행 상태별 코스 목록',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
@@ -81,6 +83,7 @@ export const ko = {
     row: '{{keys}}행',
     all: '50음 랜덤',
     allHint: '50음 + 단어',
+    stages: '단계',
     stage: {
       basic: '기초',
       combo: '조합',
@@ -94,6 +97,7 @@ export const ko = {
     },
     locked: '잠김',
     best: '최고 {{accuracy}}%',
+    current: '이어서 하기',
   },
   drill: {
     exit: '나가기',
