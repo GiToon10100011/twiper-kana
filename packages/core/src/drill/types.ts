@@ -1,3 +1,4 @@
+import type { JudgeMode } from '../input/types';
 import type { MistakeKind } from '../kana/classify';
 
 /**
@@ -17,6 +18,8 @@ export interface DrillSpec {
   readonly lineCount: number;
   /** 단위마다 복습 단위를 고를 확률 (0–1) */
   readonly reviewRatio: number;
+  /** 줄 판정. 기본은 composing, 가타카나처럼 변환이 필요한 줄은 commit */
+  readonly judge?: JudgeMode;
 }
 
 /** 한 줄을 푼 결과. 입력 세션에서 lineResultOf로 만든다. */

@@ -1,10 +1,10 @@
 import type { TFunction } from 'i18next';
-import type { ComboTopic, Level } from '@twiper/content';
+import type { Level, LevelTopic } from '@twiper/content';
 
 /** 「さ행」「ら・わ행」「50음 랜덤」「탁음 ゛」 */
 export function levelName(level: Level, t: TFunction): string {
   if (level.kind === 'all') return t('course.all');
-  if (level.kind === 'combo' && level.topic) return t(`course.topic.${level.topic}`);
+  if (level.topic) return t(`course.topic.${level.topic}`);
   return t('course.row', { keys: level.keys.join('・') });
 }
 
@@ -26,13 +26,15 @@ export function levelPreview(level: Level, t: TFunction): string {
   return preview;
 }
 
-/** 조합 레벨을 대표하는 글자 */
-const TOPIC_SYMBOL: Record<ComboTopic, string> = {
+/** 조합·가타카나 레벨을 대표하는 글자 */
+const TOPIC_SYMBOL: Record<LevelTopic, string> = {
   dakuten: 'が',
   handakuten: 'ぱ',
   small: 'ぁ',
   yoon: 'きゃ',
   sokuon: 'っ',
+  katakana: 'カ',
+  longVowel: 'ー',
 };
 
 /** 목록 타일에 크게 보일 대표 글자: 「あ」「らわ」「50音」「が」 */

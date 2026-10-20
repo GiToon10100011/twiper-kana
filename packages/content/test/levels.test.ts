@@ -3,6 +3,9 @@ import {
   KANA_KEY_ROWS,
   advanceDrill,
   createDrill,
+  isKana,
+  toHiragana,
+  toKatakana,
   tokenizeKana,
   type LineResult,
 } from '@twiper/core';
@@ -11,7 +14,9 @@ import {
   findLevel,
   handakutenWords,
   hiraganaWords,
+  katakanaWords,
   levels,
+  longVowelWords,
   nextLevel,
   sokuonWords,
   yoonWords,
@@ -33,14 +38,19 @@ const INTRODUCES: Record<ComboTopic, string> = {
   sokuon: '',
 };
 
-/** 이 레벨까지 배운 글자 */
+/** 이 레벨까지 배운 글자. 가타카나 레벨은 그때까지 배운 히라가나의 가타카나를, 장음 레벨은 ー를 더한다 */
 function allowedFor(level: Level): Set<string> {
   const allowed = new Set(BASIC_KANA);
   for (const prev of levels.slice(0, levels.indexOf(level) + 1)) {
-    if (prev.topic) for (const char of INTRODUCES[prev.topic]) allowed.add(char);
+    if (prev.topic === 'katakana') for (const char of [...allowed]) allowed.add(toKatakana(char));
+    else if (prev.topic === 'longVowel') allowed.add('\u{30FC}');
+    else if (prev.topic) for (const char of INTRODUCES[prev.topic]) allowed.add(char);
   }
   return allowed;
 }
+
+/** 다음 단계(외래음)에서 배우는 글자: 작은 ァィゥェォ와 ヴ */
+const FOREIGN = 'ァィゥェォヴ';
 
 const perfect = (line: string): LineResult => ({
   target: line,
@@ -56,13 +66,17 @@ const perfect = (line: string): LineResult => ({
 });
 
 describe('levels', () => {
-  it('L1부터 L15까지 번호와 id가 차례로 이어지고, 기초 10개·조합 5개다', () => {
+  it('L1부터 L17까지 번호와 id가 차례로 이어지고, 기초 10개·조합 5개·가타카나 2개다', () => {
     expect(levels.map((level) => level.id)).toEqual(
-      Array.from({ length: 15 }, (_, i) => `L${i + 1}`),
+      Array.from({ length: 17 }, (_, i) => `L${i + 1}`),
     );
     expect(levels.map((level) => level.number)).toEqual(
-      Array.from({ length: 15 }, (_, i) => i + 1),
+      Array.from({ length: 17 }, (_, i) => i + 1),
     );
+    expect(levels.filter((level) => level.stage === 'katakana').map((l) => l.topic)).toEqual([
+      'katakana',
+      'longVowel',
+    ]);
     expect(levels.filter((level) => level.stage === 'basic')).toHaveLength(10);
     expect(levels.filter((level) => level.stage === 'combo').map((l) => l.topic)).toEqual([
       'dakuten',
@@ -133,7 +147,8 @@ describe('levels', () => {
     expect(findLevel('L99')).toBeUndefined();
     expect(nextLevel('L9')?.id).toBe('L10');
     expect(nextLevel('L10')?.id).toBe('L11');
-    expect(nextLevel('L15')).toBeUndefined();
+    expect(nextLevel('L15')?.id).toBe('L16');
+    expect(nextLevel('L17')).toBeUndefined();
   });
 });
 
@@ -144,6 +159,8 @@ describe('단어 목록', () => {
     ['handakutenWords', handakutenWords, 15],
     ['yoonWords', yoonWords, 30],
     ['sokuonWords', sokuonWords, 30],
+    ['katakanaWords', katakanaWords, 40],
+    ['longVowelWords', longVowelWords, 40],
   ] as const)('%s: 겹치는 단어가 없고 %#번째 기준 개수 이상', (_, words, min) => {
     expect(new Set(words).size).toBe(words.length);
     expect(words.length).toBeGreaterThanOrEqual(min);
@@ -168,5 +185,32 @@ describe('단어 목록', () => {
 
   it('요음 단어에는 아직 배우지 않은 촉음 순서를 섞지 않는다', () => {
     expect(yoonWords.filter((w) => w.includes('っ'))).toEqual([]);
+  });
+
+  it('가타카나 단어는 가타카나와 ー로만 쓰고, 외래음(ァィゥェォ·ヴ)은 아직 쓰지 않는다', () => {
+    const katakanaOnly = (word: string) =>
+      Array.from(word).every((c) => isKana(c) && (c === '\u{30FC}' || toHiragana(c) !== c));
+
+    expect([...katakanaWords, ...longVowelWords].filter((w) => !katakanaOnly(w))).toEqual([]);
+    expect(
+      [...katakanaWords, ...longVowelWords].filter((w) =>
+        Array.from(w).some((c) => FOREIGN.includes(c)),
+      ),
+    ).toEqual([]);
+  });
+
+  it('가타카나 단어에는 ー가 없고, 장음 단어에는 모두 ー가 있다', () => {
+    expect(katakanaWords.filter((w) => w.includes('\u{30FC}'))).toEqual([]);
+    expect(longVowelWords.filter((w) => !w.includes('\u{30FC}'))).toEqual([]);
+  });
+
+  it('가타카나 레벨은 단어만 내고 確定한 결과로 채점한다', () => {
+    for (const id of ['L16', 'L17']) {
+      const drill = findLevel(id)?.drill;
+
+      expect(drill?.judge).toBe('commit');
+      expect(drill?.focus).toEqual([]);
+    }
+    expect(levels.filter((level) => level.drill.judge === 'commit')).toHaveLength(2);
   });
 });

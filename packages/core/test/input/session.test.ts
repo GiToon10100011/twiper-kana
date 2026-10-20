@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   charStatuses,
   createInputSession,
+  pendingStep,
   reduceInputSession,
   replayInputSession,
   type InputSnapshot,
@@ -135,14 +136,113 @@ describe('InputSession — commit 판정', () => {
     expect(committed.errors).toEqual([]);
   });
 
-  it('히라가나로 확정하면 완료되지 않고, 진행 중 글자를 오답으로 표시하지 않는다', () => {
-    const state = reduceInputSession(createInputSession('カメラ', 'commit'), {
-      t: 100,
-      value: 'かめら',
-      composing: false,
+  it('조합 중에는 읽기로 맞춰 본다: かめ는 カメ까지 맞은 것이고, 읽기를 다 치면 변환을 기다린다', () => {
+    const typing = replayInputSession('カメラ', snaps(['か', 'かめ']), 'commit');
+
+    expect(charStatuses(typing)).toEqual(['correct', 'correct', 'todo']);
+    expect(typing.matched).toBe(2);
+    expect(pendingStep(typing)).toBeNull();
+
+    const read = reduceInputSession(typing, { t: 300, value: 'かめら', composing: true });
+
+    expect(pendingStep(read)).toBe('convert');
+    expect(read.unitTimes).toEqual([100, 200, 300]);
+
+    const candidate = reduceInputSession(read, { t: 400, value: 'カメラ', composing: true });
+
+    expect(pendingStep(candidate)).toBe('commit');
+    expect(candidate.errors).toEqual([]);
+  });
+
+  it('읽기를 잘못 치면 composing 판정처럼 오류로 기록한다', () => {
+    const state = replayInputSession('カメラ', snaps(['か', 'かま', 'かまら']), 'commit');
+
+    expect(state.errors).toEqual([
+      { index: 1, expected: 'メ', actual: 'ま', cause: 'continued', t: 300 },
+    ]);
+    expect(charStatuses(state)).toEqual(['correct', 'wrong', 'correct']);
+  });
+
+  it('히라가나 그대로 確定하면 완료되지 않고, 확정한 글자를 한 번만 오답으로 기록한다', () => {
+    const typed = replayInputSession('カメラ', snaps(['か', 'かめ', 'かめら']), 'commit');
+    const committed = reduceInputSession(typed, { t: 400, value: 'かめら', composing: false });
+
+    expect(committed.completedAt).toBeNull();
+    expect(committed.errors.map((e) => [e.index, e.actual, e.cause])).toEqual([
+      [0, 'か', 'committed'],
+      [1, 'め', 'committed'],
+      [2, 'ら', 'committed'],
+    ]);
+    expect(charStatuses(committed)).toEqual(['wrong', 'wrong', 'wrong']);
+    expect(pendingStep(committed)).toBe('fix');
+
+    // 지우고 다시 쳐서 변환하면 완료된다. 지운 글자를 또 세지 않는다.
+    const fixed = [
+      { t: 500, value: 'かめ', composing: false },
+      { t: 600, value: '', composing: false },
+      { t: 700, value: 'か', composing: true },
+      { t: 800, value: 'かめら', composing: true },
+      { t: 900, value: 'カメラ', composing: false },
+    ].reduce(reduceInputSession, committed);
+
+    expect(fixed.errors).toHaveLength(3);
+    expect(fixed.completedAt).toBe(900);
+  });
+
+  it('한자 후보를 고르는 동안에는 오류를 세지 않고, 한자로 確定하면 기록한다', () => {
+    const browsing = replayInputSession(
+      'カメラ',
+      snaps(['か', 'かめら', '亀等', 'カメラ']),
+      'commit',
+    );
+
+    expect(browsing.errors).toEqual([]);
+
+    const wrong = reduceInputSession(
+      replayInputSession('カメラ', snaps(['かめら', '亀等']), 'commit'),
+      {
+        t: 300,
+        value: '亀等',
+        composing: false,
+      },
+    );
+
+    expect(wrong.errors.map((e) => [e.expected, e.actual, e.cause])).toEqual([
+      ['カ', '亀', 'committed'],
+      ['メ', '等', 'committed'],
+    ]);
+  });
+
+  it('장음 자리에 모음을 치면 오류로 기록한다', () => {
+    const state = replayInputSession('コーヒー', snaps(['こ', 'こう', 'こうひ']), 'commit');
+
+    expect(state.errors).toEqual([
+      { index: 1, expected: 'ー', actual: 'う', cause: 'continued', t: 300 },
+    ]);
+  });
+
+  it('앞부분을 맞게 확정하고 이어 쳐도 오류가 아니다', () => {
+    const state = [
+      { t: 100, value: 'かめ', composing: true },
+      { t: 200, value: 'カメ', composing: false },
+      { t: 300, value: 'カメら', composing: true },
+      { t: 400, value: 'カメラ', composing: false },
+    ].reduce(reduceInputSession, createInputSession('カメラ', 'commit'));
+
+    expect(state.errors).toEqual([]);
+    expect(state.completedAt).toBe(400);
+  });
+});
+
+describe('pendingStep — composing 판정', () => {
+  it('조합 중 일치하면 確定을 기다린다', () => {
+    const state = replayInputSession('あい', snaps(['あ', 'あい']), 'composing', {
+      completeOnCommit: true,
     });
 
-    expect(state.completedAt).toBeNull();
-    expect(charStatuses(state)).toEqual(['pending', 'pending', 'pending']);
+    expect(pendingStep(state)).toBe('commit');
+    expect(
+      pendingStep(reduceInputSession(state, { t: 300, value: 'あい', composing: false })),
+    ).toBeNull();
   });
 });

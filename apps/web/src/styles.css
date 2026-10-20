@@ -725,6 +725,13 @@ a {
   font-weight: 600;
 }
 
+/* 「후보」: 그 칸이 키보드 위 변환 후보라는 표시 */
+.howto-note {
+  padding-left: 2px;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
 /* 12키 배치 도해 (튜토리얼) */
 
 .kb-grid {

@@ -1,22 +1,28 @@
 import type { DrillSpec } from '@twiper/core';
 import { dakutenWords, handakutenWords, sokuonWords, yoonWords } from '../words/combos';
 import { hiraganaWords } from '../words/hiragana';
+import { katakanaWords, longVowelWords } from '../words/katakana';
 
 /** 조합 단계에서 다루는 규칙. 모두 「小゛゜」 키로 만든다 */
 export type ComboTopic = 'dakuten' | 'handakuten' | 'small' | 'yoon' | 'sokuon';
+
+/** 가타카나 단계에서 다루는 규칙. 읽는 대로 친 뒤 변환 후보에서 골라 確定한다 */
+export type KatakanaTopic = 'katakana' | 'longVowel';
+
+export type LevelTopic = ComboTopic | KatakanaTopic;
 
 export interface Level {
   /** URL과 저장에 쓰는 id */
   readonly id: string;
   readonly number: number;
-  /** basic: 기초(50음) / combo: 문자 조합 (계획 §10.2) */
-  readonly stage: 'basic' | 'combo';
-  /** row: 행별 연습 / all: 50음 전체 / combo: 조합 규칙 하나 */
-  readonly kind: 'row' | 'all' | 'combo';
-  /** 이 레벨이 다루는 키 (행의 첫 글자). 행별 레벨의 제목·도해에 쓴다 */
+  /** basic: 기초(50음) / combo: 문자 조합 / katakana: 가타카나 단어 (계획 §10.2) */
+  readonly stage: 'basic' | 'combo' | 'katakana';
+  /** row: 행별 연습 / all: 50음 전체 / combo: 조합 규칙 하나 / word: 변환해서 確定하는 단어 */
+  readonly kind: 'row' | 'all' | 'combo' | 'word';
+  /** 준비 화면에 도해로 보여 줄 키 (행의 첫 글자). 행별 레벨은 제목에도 쓴다 */
   readonly keys: readonly string[];
-  /** 조합 레벨의 규칙 */
-  readonly topic?: ComboTopic;
+  /** 조합·가타카나 레벨의 규칙 */
+  readonly topic?: LevelTopic;
   readonly drill: DrillSpec;
 }
 
@@ -111,6 +117,38 @@ const comboLevels: Level[] = [
   combo(15, 'sokuon', { focus: [], words: sokuonWords, lineCount: 10, reviewRatio: 0 }),
 ];
 
+const word = (
+  number: number,
+  topic: KatakanaTopic,
+  words: readonly string[],
+  keys: readonly string[] = [],
+): Level => ({
+  id: `L${number}`,
+  number,
+  stage: 'katakana',
+  kind: 'word',
+  keys,
+  topic,
+  drill: {
+    focus: [],
+    review: [],
+    words,
+    lineLength: LINE_LENGTH,
+    lineCount: 10,
+    reviewRatio: 0,
+    judge: 'commit',
+  },
+});
+
+/**
+ * 가타카나 단계 L16–L17. 가타카나 모드가 없으므로 히라가나로 읽기를 친 뒤 후보에서 고른다.
+ * 그래서 확정한 결과로 채점한다(commit). 장음 ー는 わ 키 → 라 도해를 보여 준다.
+ */
+const katakanaLevels: Level[] = [
+  word(16, 'katakana', katakanaWords),
+  word(17, 'longVowel', longVowelWords, ['わ']),
+];
+
 export const levels: readonly Level[] = [
   ...rowLevels,
   {
@@ -129,6 +167,7 @@ export const levels: readonly Level[] = [
     },
   },
   ...comboLevels,
+  ...katakanaLevels,
 ];
 
 export function findLevel(id: string): Level | undefined {

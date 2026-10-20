@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, useParams } from 'react-router';
-import { findLevel, iosKana, nextLevel, type Level } from '@twiper/content';
+import {
+  findLevel,
+  iosKana,
+  nextLevel,
+  type KatakanaTopic,
+  type Level,
+  type LevelTopic,
+} from '@twiper/content';
 import {
   advanceDrill,
   attemptRecordOf,
@@ -16,6 +23,7 @@ import {
 import { newId, trainingRepo } from '../../lib/db';
 import { recordLevel } from '../../lib/progress';
 import { BackIcon } from '../../ui/icons';
+import { ConvertHowTo } from '../tutorial/ConvertHowTo';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
 import { ModifierHowTo } from '../tutorial/ModifierHowTo';
 import { levelAccess } from './access';
@@ -27,10 +35,19 @@ const newSeed = () => Math.floor(Math.random() * 2 ** 31);
 
 const keyOf = (char: string) => iosKana.layers.kana.keys.find((key) => key.outputs.tap === char);
 
-/** 준비 화면 안내문: 단어만 / 50음+단어 / 조합+단어 / 글자 줄 */
+const isKatakanaTopic = (topic: LevelTopic): topic is KatakanaTopic =>
+  topic === 'katakana' || topic === 'longVowel';
+
+/** 준비 화면 안내문: 가타카나 단어 / 단어만 / 50음+단어 / 조합+단어 / 글자 줄 */
 function introKey(
   level: Level,
-): 'drill.introWords' | 'drill.introAll' | 'drill.introCombo' | 'drill.intro' {
+):
+  | 'drill.introKatakana'
+  | 'drill.introWords'
+  | 'drill.introAll'
+  | 'drill.introCombo'
+  | 'drill.intro' {
+  if (level.kind === 'word') return 'drill.introKatakana';
   const hasWords = (level.drill.words?.length ?? 0) > 0;
   if (hasWords && level.drill.focus.length === 0) return 'drill.introWords';
   if (hasWords) return level.kind === 'all' ? 'drill.introAll' : 'drill.introCombo';
@@ -152,7 +169,15 @@ export function Drill({ level }: { level: Level }) {
           {level.topic ? (
             <>
               <p className="screen-body">{t(`drill.howTo.${level.topic}`)}</p>
-              <ModifierHowTo topic={level.topic} label={t('drill.keyGuide')} />
+              {isKatakanaTopic(level.topic) ? (
+                <ConvertHowTo
+                  topic={level.topic}
+                  label={t('drill.keyGuide')}
+                  candidateLabel={t('drill.candidate')}
+                />
+              ) : (
+                <ModifierHowTo topic={level.topic} label={t('drill.keyGuide')} />
+              )}
             </>
           ) : null}
           {level.keys.length > 0 ? (
@@ -186,8 +211,11 @@ export function Drill({ level }: { level: Level }) {
           <TrainingInput
             target={drill.line}
             questionKey={String(drill.results.length)}
+            judge={level.drill.judge}
             onComplete={onComplete}
             matchedHint={t('drill.matched')}
+            convertHint={t('drill.convert', { word: drill.line })}
+            fixHint={t('drill.fix', { word: drill.line })}
             notice={notice}
             placeholder={t('training.tapInput')}
             targetLabel={title}

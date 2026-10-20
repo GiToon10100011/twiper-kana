@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { replayInputSession, type InputSnapshot, type JudgeMode } from '../../src/index';
+import {
+  replayInputSession,
+  toHiragana,
+  type InputSnapshot,
+  type JudgeMode,
+} from '../../src/index';
 import desktopEdgeCdp from '../fixtures/traces/desktop-edge-cdp.json';
 import iosSafari18Kana from '../fixtures/traces/ios-safari-18-kana.json';
 import iosStandalone18Kana from '../fixtures/traces/ios-standalone-18-kana.json';
@@ -49,10 +54,33 @@ describe.each(Object.entries(TRACES))('trace 재생: %s', (_name, trace) => {
           : Math.round(state.completedAt - state.startedAt);
 
       expect(state.completedAt).not.toBeNull();
-      expect(state.errors).toHaveLength(result.errors.length);
+      // 녹화 당시의 commit 판정은 조합 중 오타를 세지 않았다. 지금은 읽기로 세므로 composing 줄만 비교한다.
+      if (result.judge === 'composing') expect(state.errors).toHaveLength(result.errors.length);
+      expect(state.errors.filter((error) => error.cause === 'committed')).toEqual([]);
       expect(state.romajiSuspected).toBe(result.romajiSuspected);
       expect(state.toggleSuspected).toBe(result.toggleSuspected);
       expect(elapsedMs).toBe(result.elapsedMs);
+    },
+  );
+
+  // 히라가나 목표는 읽기와 표기가 같으므로 commit 판정도 composing 판정과 똑같이 오타를 세야 한다.
+  const commitKana = played.filter(
+    (result) => result.judge === 'commit' && toHiragana(result.target) === result.target,
+  );
+  it
+    .runIf(commitKana.length > 0)
+    .each(commitKana.map((result) => [`#${result.session} ${result.target}`, result] as const))(
+    '%s — commit 판정의 조합 중 오타가 composing 판정과 같다',
+    (_title, result) => {
+      const snapshots = trace.snapshots.filter(
+        (snapshot) => snapshot.session === result.session && !snapshot.ignored,
+      );
+      const asCommit = replayInputSession(result.target, snapshots, 'commit');
+      const asComposing = replayInputSession(result.target, snapshots, 'composing', {
+        completeOnCommit: true,
+      });
+
+      expect(asCommit.errors).toEqual(asComposing.errors);
     },
   );
 });
