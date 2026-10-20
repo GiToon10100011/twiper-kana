@@ -136,6 +136,12 @@ export const ko = {
     fix: '{{word}}와 다르게 確定됐어요. 지우고 다시 친 다음 후보에서 골라 주세요.',
     retryNote: '틀린 글자는 몇 줄 뒤에 다시 나와요.',
   },
+  help: {
+    title: '{{char}} 치는 법',
+    key: '{{key}} 키 {{dir}}',
+    modifier: '{{label}} {{times}}번',
+    reading: '읽기: {{reading}}. 단어를 다 친 뒤 후보에서 가타카나를 골라요.',
+  },
   result: {
     title: '{{level}} 끝',
     accuracy: '첫 시도 정확도',

@@ -14,7 +14,10 @@ import {
   advanceDrill,
   attemptRecordOf,
   createDrill,
+  explainChar,
+  helpIndex,
   lineResultOf,
+  missCounts,
   summarizeDrill,
   type DrillSummary,
   type FlickDirection,
@@ -28,6 +31,7 @@ import { FlickDiagram } from '../tutorial/FlickDiagram';
 import { ModifierHowTo } from '../tutorial/ModifierHowTo';
 import { levelAccess } from './access';
 import { DrillResult } from './DrillResult';
+import { HelpCard } from './HelpCard';
 import { levelTitle } from './levelTitle';
 import { TrainingInput } from './TrainingInput';
 
@@ -144,6 +148,14 @@ export function Drill({ level }: { level: Level }) {
     down: t('onboarding.flick.down'),
   };
 
+  // 다음 글자에서 머뭇거리거나 이번 판에 여러 번 틀린 글자에 오면 치는 법을 보여 준다.
+  const help = (session: InputSessionState, stuckAt: number | null) => {
+    const index = helpIndex(session, { stuckAt, misses: missCounts(drill.results, session) });
+    const char = index === null ? undefined : session.target[index];
+    const steps = char === undefined ? null : explainChar(iosKana, char);
+    return char && steps ? <HelpCard char={char} steps={steps} labels={labels} /> : null;
+  };
+
   const { lineCount } = level.drill;
   const current = drill.results.length + 1;
   const progress =
@@ -217,6 +229,7 @@ export function Drill({ level }: { level: Level }) {
             convertHint={t('drill.convert', { word: drill.line })}
             fixHint={t('drill.fix', { word: drill.line })}
             notice={notice}
+            help={help}
             placeholder={t('training.tapInput')}
             targetLabel={title}
             inputRef={inputRef}

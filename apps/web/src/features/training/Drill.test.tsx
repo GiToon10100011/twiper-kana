@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { findLevel } from '@twiper/content';
-import { toHiragana, variantBase } from '@twiper/core';
+import { HELP_POLICY, toHiragana, variantBase } from '@twiper/core';
 import '../../i18n';
 import { Drill } from './Drill';
 
@@ -28,6 +28,10 @@ async function typeLine(input: HTMLInputElement, line: string) {
 }
 
 const currentLine = () => document.querySelector('.target-text')?.textContent ?? '';
+
+/** あ행 글자를 내는 플릭 방향 이름 */
+const flickLabel = (char: string) =>
+  ['탭', '왼쪽', '위', '오른쪽', '아래'][Array.from('あいうえお').indexOf(char)];
 
 function renderDrill(id: string) {
   const level = findLevel(id);
@@ -156,6 +160,54 @@ describe('Drill', () => {
     expect(screen.getByText(/わ 키를 오른쪽으로/)).toBeTruthy();
     expect(screen.getAllByLabelText('이 레벨의 키')).toHaveLength(2);
     expect(screen.getByText('こーひー')).toBeTruthy();
+  });
+
+  it('다음 글자에서 한동안 진행이 없으면 그 글자를 치는 법을 입력창 아래에 보여 준다', async () => {
+    vi.useFakeTimers();
+    try {
+      renderDrill('L12');
+      fireEvent.click(screen.getByRole('button', { name: '시작' }));
+      const first = Array.from(currentLine())[0] ?? '';
+
+      await act(() => vi.advanceTimersByTimeAsync(HELP_POLICY.idleMs - 100));
+      expect(screen.queryByRole('complementary')).toBeNull();
+
+      await act(() => vi.advanceTimersByTimeAsync(100));
+      const card = screen.getByRole('complementary', { name: `${first} 치는 법` });
+      // 탁음이면 기본 글자를 친 뒤 「小゛゜」를 누르라고 보여 준다
+      expect(card.textContent?.includes('小゛゜')).toBe(variantBase(first) !== first);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('이번 판에서 두 번 틀린 글자는 기다리지 않고 바로 치는 법을 보여 준다', async () => {
+    renderDrill('L1');
+    fireEvent.click(screen.getByRole('button', { name: '시작' }));
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    const first = Array.from(currentLine())[0] ?? '';
+    const compose = async (value: string) => {
+      input.value = value;
+      input.dispatchEvent(
+        new InputEvent('input', {
+          data: value,
+          inputType: 'insertCompositionText',
+          isComposing: true,
+        }),
+      );
+      await flush();
+    };
+
+    input.dispatchEvent(new CompositionEvent('compositionstart'));
+    // あ행 줄의 첫 글자 자리에 か를 쳤다가 지우기를 두 번
+    await compose('か');
+    await compose('');
+    expect(screen.queryByRole('complementary')).toBeNull();
+    await compose('か');
+    await compose('');
+
+    expect(screen.getByRole('complementary', { name: `${first} 치는 법` })).toBeTruthy();
+    expect(screen.getByText(`あ 키 ${flickLabel(first)}`)).toBeTruthy();
   });
 
   it('결과에서 다시 하기를 누르면 첫 줄부터 다시 입력창에 포커스한다', async () => {

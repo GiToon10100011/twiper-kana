@@ -826,6 +826,69 @@ a {
   color: var(--danger);
 }
 
+/* 상황별 도움말: 입력창 아래에 붙여 입력창이 밀려 움직이지 않게 한다. 키보드 위 남은 자리에 들어가도록 작게 */
+.help-card {
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  animation: help-in var(--duration-base) var(--ease);
+}
+
+.help-title {
+  margin: 0 0 var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.help-steps {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.help-note {
+  margin: var(--space-2) 0 0;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.flick.is-compact {
+  --cell: 2.125rem;
+
+  margin: 0;
+}
+
+.flick.is-compact .flick-char {
+  font-size: 1.0625rem;
+}
+
+.flick.is-compact .flick-dir {
+  display: none;
+}
+
+@keyframes help-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* 화면에는 보이지 않고 화면 읽기 프로그램만 읽는 글 */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+  border: 0;
+}
+
 /* 코스·드릴 */
 
 a.btn-quiet {

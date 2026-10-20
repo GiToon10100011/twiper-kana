@@ -137,6 +137,12 @@ export const ja: typeof ko = {
     fix: '{{word}} と違う文字で確定しました。消して打ち直し、候補から選びましょう。',
     retryNote: '間違えた文字は数行あとにもう一度出ます。',
   },
+  help: {
+    title: '{{char}}の打ち方',
+    key: '{{key}}キーを{{dir}}',
+    modifier: '{{label}}を{{times}}回',
+    reading: '読み：{{reading}}。単語を打ち終えたら候補からカタカナを選びます。',
+  },
   result: {
     title: '{{level}} 完了',
     accuracy: '一発正解率',
