@@ -213,6 +213,23 @@ describe('InputSession — commit 판정', () => {
     ]);
   });
 
+  it('반각 가타카나 후보를 고르는 동안에도 오류를 세지 않는다', () => {
+    const browsing = replayInputSession(
+      'カメラ',
+      snaps(['かめら', '\u{FF76}\u{FF92}\u{FF97}', 'カメラ']),
+      'commit',
+    );
+
+    expect(browsing.errors).toEqual([]);
+    expect(charStatuses(browsing)).toEqual(['correct', 'correct', 'correct']);
+  });
+
+  it('조합 중 라틴 문자는 후보로 보지 않고 로마자 키보드로 추정한다', () => {
+    const state = replayInputSession('カメラ', snaps(['k', 'ka', 'かm']), 'commit');
+
+    expect(state.romajiSuspected).toBe(true);
+  });
+
   it('장음 자리에 모음을 치면 오류로 기록한다', () => {
     const state = replayInputSession('コーヒー', snaps(['こ', 'こう', 'こうひ']), 'commit');
 

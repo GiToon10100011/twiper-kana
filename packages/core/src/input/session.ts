@@ -40,13 +40,17 @@ function commonPrefixLength(
 }
 
 const HAN = /\p{Script=Han}/u;
+// 반각 가타카나 ･–ﾟ (U+FF65–FF9F). かな 키보드로는 직접 칠 수 없고 변환 후보로만 나온다
+const HALFWIDTH_KATAKANA = /[\u{FF65}-\u{FF9F}]/u;
+
+const isCandidateChar = (char: string): boolean => HAN.test(char) || HALFWIDTH_KATAKANA.test(char);
 
 /**
- * 조합 중에 한자가 보이면 변환 후보를 고르는 중이다. 읽기와 비교할 수 없으므로 오류를 세지 않는다.
- * 「、 같은 기호는 플릭으로 잘못 친 것일 수 있어 그대로 비교한다.
+ * 조합 중에 한자나 반각 가타카나가 보이면 변환 후보를 고르는 중이다. 읽기와 비교할 수 없으므로 오류를 세지 않는다.
+ * 「、 같은 기호는 플릭으로 잘못 친 것일 수 있어 그대로 비교한다. 라틴 문자는 로마자 키보드 추정에 쓰므로 후보로 보지 않는다.
  */
 const isConverting = (value: readonly string[], composing: boolean): boolean =>
-  composing && value.some((char) => HAN.test(char));
+  composing && value.some(isCandidateChar);
 
 export function createInputSession(
   target: string,
