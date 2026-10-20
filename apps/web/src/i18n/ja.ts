@@ -12,8 +12,8 @@ export const ja: typeof ko = {
     imeLabHint: '入力の流れを確認',
     guideCheck: 'キーボードガイド確認',
     guideCheckHint: 'キー配置の照合',
-    courseTiles: 'リスト試案',
-    courseTilesHint: 'コース一覧の新しいレイアウト',
+    courseTiles: 'コース一覧プレビュー',
+    courseTilesHint: '進み具合ごとの表示',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
@@ -86,6 +86,7 @@ export const ja: typeof ko = {
     row: '{{keys}}行',
     all: '五十音ランダム',
     allHint: '五十音 + 単語',
+    stages: 'ステージ',
     stage: {
       basic: '基礎',
       combo: '組み合わせ',

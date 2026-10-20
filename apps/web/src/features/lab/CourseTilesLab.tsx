@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import type { LevelRecord, Progress } from '../../lib/progress';
+import { levels } from '@twiper/content';
+import type { LevelRecord } from '../../lib/progress';
 import { BackIcon } from '../../ui/icons';
-import { accessFor, levelAccess } from '../training/access';
+import { accessFor, levelAccess, type LevelAccess } from '../training/access';
 import { CourseTiles } from '../training/CourseTiles';
 
-type Sample = 'midway' | 'fresh' | 'real';
+type Sample = 'midway' | 'fresh' | 'skipped' | 'allDone' | 'real';
 
 const cleared = (bestAccuracy: number): LevelRecord => ({
   clearedAt: '2026-10-19T00:00:00.000Z',
@@ -15,43 +16,44 @@ const cleared = (bestAccuracy: number): LevelRecord => ({
   bestKpm: null,
 });
 
-/** Lv.1–3을 끝내고 Lv.4를 할 차례인 예시. 저장소에는 쓰지 않는다 */
-const MIDWAY: Progress = { L1: cleared(0.98), L2: cleared(0.93), L3: cleared(0.86) };
+/** 진행 예시. 가짜 기록이며 저장소에는 쓰지 않는다 */
+const SAMPLES: Record<Exclude<Sample, 'real'>, { label: string; access: () => LevelAccess }> = {
+  // Lv.1–3을 끝내고 Lv.4를 할 차례
+  midway: {
+    label: 'Lv.4 차례',
+    access: () => accessFor({ L1: cleared(0.98), L2: cleared(0.93), L3: cleared(0.86) }),
+  },
+  fresh: { label: '처음', access: () => accessFor({}) },
+  // 모두 열기를 켜고 Lv.1–3과 Lv.12를 끝냄 → 최고 진도는 Lv.13
+  skipped: {
+    label: '전체 열기',
+    access: () =>
+      accessFor(
+        { L1: cleared(0.98), L2: cleared(0.93), L3: cleared(0.86), L12: cleared(0.91) },
+        true,
+      ),
+  },
+  allDone: {
+    label: '모두 끝냄',
+    access: () =>
+      accessFor(
+        Object.fromEntries(levels.map((level, i) => [level.id, cleared(0.8 + (i % 5) * 0.04)])),
+      ),
+  },
+};
 
-interface Choice<T extends string> {
-  label: string;
-  value: T;
-  options: readonly (readonly [T, string])[];
-  onChange: (value: T) => void;
-}
+const OPTIONS: readonly (readonly [Sample, string])[] = [
+  ...(Object.entries(SAMPLES) as [Exclude<Sample, 'real'>, { label: string }][]).map(
+    ([sample, { label }]) => [sample, label] as const,
+  ),
+  ['real', '내 기록'],
+];
 
-function Segmented<T extends string>({ label, value, options, onChange }: Choice<T>) {
-  return (
-    <div className="lab-choice">
-      <span>{label}</span>
-      <div className="stage-tabs" role="group" aria-label={label}>
-        {options.map(([option, text]) => (
-          <button
-            key={option}
-            type="button"
-            className="stage-tab"
-            aria-pressed={option === value}
-            onClick={() => onChange(option)}
-          >
-            {text}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/** 코스 목록 새 레이아웃 시안. 홈의 목록은 그대로 두고 여기서만 보여 준다 */
+/** 홈 코스 목록을 여러 진행 상태로 미리 본다. 가짜 기록은 저장하지 않는다 */
 export function CourseTilesLab() {
   const { t } = useTranslation();
-  const [view, setView] = useState<'all' | 'tabs'>('all');
   const [sample, setSample] = useState<Sample>('midway');
-  const access = sample === 'real' ? levelAccess() : accessFor(sample === 'midway' ? MIDWAY : {});
+  const access = sample === 'real' ? levelAccess() : SAMPLES[sample].access();
 
   return (
     <main className="lab">
@@ -59,33 +61,28 @@ export function CourseTilesLab() {
         <Link className="icon-btn header-back" to="/" aria-label={t('settings.home')}>
           <BackIcon />
         </Link>
-        <span>목록 시안</span>
+        <span>목록 상태 미리보기</span>
       </header>
 
-      <div className="lab-choices">
-        <Segmented
-          label="보기"
-          value={view}
-          options={[
-            ['all', '전체'],
-            ['tabs', '단계 탭'],
-          ]}
-          onChange={setView}
-        />
-        <Segmented
-          label="진행 예시"
-          value={sample}
-          options={[
-            ['midway', 'Lv.4 차례'],
-            ['fresh', '처음'],
-            ['real', '내 기록'],
-          ]}
-          onChange={setSample}
-        />
+      <div className="lab-choice">
+        <span>진행 예시</span>
+        <div className="stage-tabs" role="group" aria-label="진행 예시">
+          {OPTIONS.map(([option, text]) => (
+            <button
+              key={option}
+              type="button"
+              className="stage-tab"
+              aria-pressed={option === sample}
+              onClick={() => setSample(option)}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
       </div>
 
       <h2 className="section-label">{t('course.title')}</h2>
-      <CourseTiles key={sample} access={access} tabs={view === 'tabs'} />
+      <CourseTiles key={sample} access={access} />
     </main>
   );
 }

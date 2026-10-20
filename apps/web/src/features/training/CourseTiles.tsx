@@ -13,62 +13,38 @@ const STAGES: readonly Stage[] = ['basic', 'combo'];
 const stageOf = (id: string | null): Stage =>
   levels.find((level) => level.id === id)?.stage ?? 'basic';
 
-interface CourseTilesProps {
-  access: LevelAccess;
-  /** true: 단계를 알약 탭으로 골라 한 단계만 보여 준다 / false: 단계별 제목 아래 모두 보여 준다 */
-  tabs?: boolean;
-}
-
 /**
- * 코스 목록 시안 (/lab/course-tiles). 왼쪽 타일에 레벨의 대표 글자를 크게 두고,
- * 오른쪽에 이름·레벨·미리보기·기록을 둔다. 홈의 CourseList를 대신할지 사용자가 보고 정한다.
+ * 홈의 코스 목록. 단계를 알약 탭으로 고르고, 각 레벨은 왼쪽 타일에 대표 글자를 크게 둔다.
+ * 처음에는 최고 진도(access.current)가 있는 단계를 보여 주고, 그 레벨 하나만 강조한다.
+ * 앞 레벨을 끝내야 다음 레벨이 열린다 (설정에서 모두 열 수 있음).
  */
-export function CourseTiles({ access, tabs = false }: CourseTilesProps) {
+export function CourseTiles({ access }: { access: LevelAccess }) {
   const { t } = useTranslation();
   const [stage, setStage] = useState<Stage>(() => stageOf(access.current));
 
-  if (tabs) {
-    return (
-      <>
-        <div className="stage-tabs" role="group" aria-label={t('course.title')}>
-          {STAGES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              className="stage-tab"
-              aria-pressed={s === stage}
-              onClick={() => setStage(s)}
-            >
-              {t(`course.stage.${s}`)}
-            </button>
-          ))}
-        </div>
-        <TileList stage={stage} access={access} />
-      </>
-    );
-  }
-
   return (
     <>
-      {STAGES.map((s) => (
-        <section key={s} className="tile-group">
-          <h3 className="course-group-title">{t(`course.stage.${s}`)}</h3>
-          <TileList stage={s} access={access} />
-        </section>
-      ))}
-    </>
-  );
-}
-
-function TileList({ stage, access }: { stage: Stage; access: LevelAccess }) {
-  return (
-    <ol className="tile-list">
-      {levels
-        .filter((level) => level.stage === stage)
-        .map((level) => (
-          <TileItem key={level.id} level={level} access={access} />
+      <div className="stage-tabs" role="group" aria-label={t('course.stages')}>
+        {STAGES.map((s) => (
+          <button
+            key={s}
+            type="button"
+            className="stage-tab"
+            aria-pressed={s === stage}
+            onClick={() => setStage(s)}
+          >
+            {t(`course.stage.${s}`)}
+          </button>
         ))}
-    </ol>
+      </div>
+      <ol className="tile-list">
+        {levels
+          .filter((level) => level.stage === stage)
+          .map((level) => (
+            <TileItem key={level.id} level={level} access={access} />
+          ))}
+      </ol>
+    </>
   );
 }
 
@@ -78,7 +54,6 @@ function TileItem({ level, access }: { level: Level; access: LevelAccess }) {
   const locked = !access.unlocked.has(level.id);
   const isCurrent = access.current === level.id;
   const symbol = levelSymbol(level);
-  const name = levelName(level, t);
   const status = locked
     ? t('course.locked')
     : record
@@ -98,7 +73,7 @@ function TileItem({ level, access }: { level: Level; access: LevelAccess }) {
       </span>
       <span className="tile-body">
         <span className="tile-title" lang="ja">
-          {name}
+          {levelName(level, t)}
         </span>
         <span className="tile-meta">
           {t('course.level', { number: level.number })}

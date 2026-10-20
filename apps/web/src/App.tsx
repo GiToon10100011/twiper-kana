@@ -9,7 +9,7 @@ import { Onboarding } from './features/onboarding/Onboarding';
 import { UpdatePrompt } from './features/pwa/UpdatePrompt';
 import { Settings } from './features/settings/Settings';
 import { levelAccess } from './features/training/access';
-import { CourseList } from './features/training/CourseList';
+import { CourseTiles } from './features/training/CourseTiles';
 import { DrillRoute } from './features/training/Drill';
 import { isOnboarded } from './lib/flags';
 import { GearIcon } from './ui/icons';
@@ -38,7 +38,7 @@ function Home() {
       </ul>
 
       <h2 className="section-label">{t('course.title')}</h2>
-      <CourseList access={access} />
+      <CourseTiles access={access} />
 
       <h2 className="section-label">{t('home.devTools')}</h2>
       <ul className="nav-list">

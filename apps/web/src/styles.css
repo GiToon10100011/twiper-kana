@@ -831,74 +831,11 @@ a.btn-quiet {
   margin-top: var(--space-2);
 }
 
-.course-list .course-level {
-  flex: none;
-  width: 3rem;
-  font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-muted);
-}
-
-.course-list .course-name {
-  flex: 1;
-  font-weight: 600;
-}
-
-.course-group + .course-group {
-  margin-top: var(--space-4);
-}
-
-.course-group-title {
-  margin: 0 0 var(--space-2);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--ink-faint);
-}
-
-.course-row {
-  display: flex;
-  gap: var(--space-3);
-  align-items: center;
-  min-height: 3.5rem;
-  padding: 0 var(--space-4);
-}
-
-.course-list .is-locked {
-  color: var(--ink-faint);
-}
-
-.course-list .is-locked .course-level {
-  color: var(--ink-faint);
-}
-
-.course-lock {
-  flex: none;
-  width: 1rem;
-  height: 1rem;
-  fill: none;
-  stroke: currentcolor;
-  stroke-width: 1.5;
-}
-
-/* 이어서 할 레벨: 마젠타는 현재 위치 표시에만 쓴다 */
-.course-list .is-current .course-level {
-  font-weight: 600;
-  color: var(--accent);
-}
-
-.course-list .is-current a {
-  box-shadow: inset 3px 0 0 var(--accent);
-}
-
 .home-tutorial {
   margin-top: 2rem;
 }
 
-/* 코스 목록 시안 (/lab/course-tiles): 왼쪽 대표 글자 타일 + 이름·레벨·기록 */
-
-.tile-group + .tile-group {
-  margin-top: var(--space-4);
-}
+/* 코스 목록: 왼쪽 대표 글자 타일 + 이름·레벨·기록 */
 
 .tile-list {
   display: grid;
@@ -1035,16 +972,11 @@ a.tile-row:active {
   background: var(--ink);
 }
 
-.lab-choices {
-  display: grid;
-  gap: var(--space-2);
-  margin: var(--space-3) 0 var(--space-4);
-}
-
 .lab-choice {
   display: flex;
   gap: var(--space-3);
-  align-items: center;
+  align-items: baseline;
+  margin: var(--space-3) 0 var(--space-2);
   font-size: 0.8125rem;
   color: var(--ink-muted);
 }
@@ -1052,10 +984,6 @@ a.tile-row:active {
 .lab-choice > span {
   flex: none;
   width: 4.5rem;
-}
-
-.lab-choice .stage-tabs {
-  margin: 0;
 }
 
 /* 설정 */
