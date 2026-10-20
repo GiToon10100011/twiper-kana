@@ -8,6 +8,18 @@ export function GearIcon() {
   );
 }
 
+/** 막대 그래프 (Lucide "chart-column", ISC). 내 실력(스킬 통계) */
+export function ChartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+      <path d="M18 17V9" />
+      <path d="M13 17V5" />
+      <path d="M8 17v-3" />
+    </svg>
+  );
+}
+
 /** 오른쪽 꺾쇠 (Lucide "chevron-right", ISC). 목록에서 들어갈 수 있는 항목 */
 export function ForwardIcon() {
   return (

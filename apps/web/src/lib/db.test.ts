@@ -58,6 +58,23 @@ describe('createDexieRepo', () => {
 
     expect((await repo.attemptsOf('S')).map((x) => x.id)).toEqual([a, b]);
   });
+
+  it('최근 시도를 세션과 관계없이 최근 순으로 limit개 돌려준다', async () => {
+    const repo = freshRepo();
+    const base = attemptRecordOf(createInputSession('か'), {
+      id: '',
+      sessionId: 'S',
+      levelId: 'L1',
+      shownAt: 0,
+      at: new Date(0),
+    });
+    const at = (minute: number) => new Date(Date.UTC(2026, 9, 21, 0, minute)).toISOString();
+    await repo.saveAttempt({ ...base, id: 'A2', at: at(2) });
+    await repo.saveAttempt({ ...base, id: 'A3', at: at(3), sessionId: 'other' });
+    await repo.saveAttempt({ ...base, id: 'A1', at: at(1) });
+
+    expect((await repo.recentAttempts(2)).map((x) => x.id)).toEqual(['A3', 'A2']);
+  });
 });
 
 describe('resilientRepo', () => {
@@ -67,6 +84,7 @@ describe('resilientRepo', () => {
       saveSession: () => Promise.reject(new Error('blocked')),
       finishedSessions: () => Promise.reject(new Error('blocked')),
       attemptsOf: () => Promise.reject(new Error('blocked')),
+      recentAttempts: () => Promise.reject(new Error('blocked')),
     };
     const repo = resilientRepo(broken, createMemoryRepo());
 

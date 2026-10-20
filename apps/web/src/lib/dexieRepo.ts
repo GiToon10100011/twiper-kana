@@ -37,5 +37,8 @@ export function createDexieRepo(name = 'twiper'): TrainingRepo {
     attemptsOf(sessionId) {
       return db.attempts.where('sessionId').equals(sessionId).sortBy('id');
     },
+    recentAttempts(limit) {
+      return db.attempts.orderBy('at').reverse().limit(limit).toArray();
+    },
   };
 }

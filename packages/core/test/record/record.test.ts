@@ -148,4 +148,25 @@ describe('createMemoryRepo', () => {
 
     expect((await repo.attemptsOf('S')).map((a) => a.id)).toEqual(['A', 'B']);
   });
+
+  it('최근 시도를 세션과 관계없이 최근 순으로 limit개 돌려준다', async () => {
+    const repo = createMemoryRepo();
+    const attempt = attemptRecordOf(createInputSession('か'), {
+      id: 'A1',
+      sessionId: 'S',
+      levelId: 'L1',
+      shownAt: 0,
+      at: new Date(Date.UTC(2026, 9, 21, 0, 1)),
+    });
+    await repo.saveAttempt({ ...attempt, id: 'A2', at: '2026-10-21T00:02:00.000Z' });
+    await repo.saveAttempt({
+      ...attempt,
+      id: 'A3',
+      at: '2026-10-21T00:03:00.000Z',
+      sessionId: 'o',
+    });
+    await repo.saveAttempt(attempt);
+
+    expect((await repo.recentAttempts(2)).map((a) => a.id)).toEqual(['A3', 'A2']);
+  });
 });
