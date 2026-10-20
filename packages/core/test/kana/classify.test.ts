@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { classifyMistake, danOf, tokenizeKana, variantBase } from '../../src/index';
+import {
+  classifyMistake,
+  danOf,
+  isKana,
+  toHiragana,
+  toKatakana,
+  tokenizeKana,
+  variantBase,
+} from '../../src/index';
 
 describe('variantBase', () => {
   it('탁점·반탁점·작은 글자를 떼어 낸 기본 가나', () => {
@@ -57,6 +65,16 @@ describe('classifyMistake', () => {
     ['か', 'ね', 'other'],
     ['', 'く', 'extra'],
     ['か', 'k', 'other'],
+    ['カ', 'か', 'script'],
+    ['ガ', 'カ', 'dakuten'],
+    ['ッ', 'ツ', 'small'],
+    ['メ', 'ま', 'direction'],
+    ['ヒ', 'き', 'key'],
+    ['ー', 'う', 'long-vowel'],
+    ['ー', 'い', 'long-vowel'],
+    ['う', 'ー', 'long-vowel'],
+    ['ー', '-', 'long-vowel'],
+    ['カ', '亀', 'conversion'],
   ] as const)('目標 %s · 入力 %s → %s', (expected, actual, kind) => {
     expect(classifyMistake(expected, actual)).toBe(kind);
   });
@@ -74,5 +92,27 @@ describe('tokenizeKana', () => {
 
   it('앞 글자가 없는 작은 글자는 혼자 한 단위', () => {
     expect(tokenizeKana('ゃき')).toEqual(['ゃ', 'き']);
+  });
+
+  it('가타카나도 같다. 촉음 ッ과 장음 ー는 따로 둔다', () => {
+    expect(tokenizeKana('シャツ')).toEqual(['シャ', 'ツ']);
+    expect(tokenizeKana('ベッド')).toEqual(['ベ', 'ッ', 'ド']);
+    expect(tokenizeKana('コーヒー')).toEqual(['コ', 'ー', 'ヒ', 'ー']);
+  });
+});
+
+describe('toHiragana · toKatakana · isKana', () => {
+  it('가타카나와 히라가나를 서로 바꾸고, 장음 ー와 다른 문자는 그대로 둔다', () => {
+    expect(toHiragana('カメラ')).toBe('かめら');
+    expect(toHiragana('コーヒー')).toBe('こーひー');
+    expect(toHiragana('ヴァ')).toBe('ゔぁ');
+    expect(toKatakana('きゃべつ')).toBe('キャベツ');
+    expect(toKatakana('こーひー')).toBe('コーヒー');
+    expect(toHiragana('ABC 123')).toBe('ABC 123');
+  });
+
+  it('가나 한 글자인지', () => {
+    expect(['あ', 'ゃ', 'カ', 'ッ', 'ー'].every(isKana)).toBe(true);
+    expect(['亀', 'k', '、', '-', ''].some(isKana)).toBe(false);
   });
 });

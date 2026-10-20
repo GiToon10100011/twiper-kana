@@ -8,7 +8,7 @@ import { levelName, levelPreview, levelSymbol } from './levelTitle';
 
 type Stage = Level['stage'];
 
-const STAGES: readonly Stage[] = ['basic', 'combo'];
+const STAGES: readonly Stage[] = ['basic', 'combo', 'katakana'];
 
 const stageOf = (id: string | null): Stage =>
   levels.find((level) => level.id === id)?.stage ?? 'basic';

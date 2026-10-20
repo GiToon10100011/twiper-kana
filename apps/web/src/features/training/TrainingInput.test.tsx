@@ -41,6 +41,40 @@ describe('TrainingInput', () => {
     expect(input.value).toBe('');
   });
 
+  it('commit 판정: 읽기를 다 치면 후보 안내, 히라가나로 確定하면 고치라는 경고, 변환해야 완료', async () => {
+    const onComplete = vi.fn();
+    render(
+      <TrainingInput
+        target="カメラ"
+        judge="commit"
+        onComplete={onComplete}
+        matchedHint="確定"
+        convertHint="후보에서 고르세요"
+        fixHint="지우고 다시"
+      />,
+    );
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    const status = () => screen.getByRole('status');
+
+    await compose(input, 'かめら');
+    expect(status().textContent).toBe('후보에서 고르세요');
+
+    await commit(input);
+    expect(status().textContent).toBe('지우고 다시');
+    expect(status().className).toContain('is-warning');
+    expect(onComplete).not.toHaveBeenCalled();
+
+    await compose(input, 'かめら');
+    input.value = 'カメラ';
+    await commit(input);
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(onComplete.mock.calls[0]?.[0].errors.map((e: { cause: string }) => e.cause)).toEqual([
+      'committed',
+      'committed',
+      'committed',
+    ]);
+  });
+
   it('목표가 바뀌어도 같은 입력창을 유지한다', async () => {
     const { rerender } = render(<TrainingInput target="あ" onComplete={() => {}} matchedHint="" />);
     const before = screen.getByRole('textbox');

@@ -87,6 +87,7 @@ export const ko = {
     stage: {
       basic: '기초',
       combo: '조합',
+      katakana: '가타카나',
     },
     topic: {
       dakuten: '탁음 が',
@@ -94,6 +95,8 @@ export const ko = {
       small: '작은 글자 ぁ',
       yoon: '요음 きゃ',
       sokuon: '촉음 っ',
+      katakana: '가타카나 カ',
+      longVowel: '장음 ー',
     },
     locked: '잠김',
     best: '최고 {{accuracy}}%',
@@ -106,6 +109,8 @@ export const ko = {
     introCombo:
       '글자 줄과 단어 줄을 번갈아 {{count}}줄 쳐요. 줄을 다 치고 確定을 누르면 다음 줄이 나와요.',
     introWords: '단어 {{count}}개를 하나씩 쳐요. 다 치고 確定을 누르면 다음 단어가 나와요.',
+    introKatakana:
+      '가타카나 단어 {{count}}개를 쳐요. 가타카나로 바꿔서 確定해야 다음 단어가 나와요.',
     howTo: {
       dakuten: '글자를 친 다음 「小゛゜」를 한 번 누르면 탁점(゛)이 붙어요.',
       handakuten:
@@ -114,7 +119,12 @@ export const ko = {
         '글자를 친 다음 「小゛゜」를 한 번 누르면 작게 바뀌어요. つ는 한 번이면 っ, 두 번이면 づ예요.',
       yoon: 'い단 글자 다음에 や·ゆ·よ를 치고 「小゛゜」로 작게 만들어요. ぎょ처럼 탁음이면 앞 글자에서도 한 번 눌러요.',
       sokuon: 'つ를 치고 「小゛゜」를 한 번 눌러 っ로 만든 다음, 뒤 글자를 이어서 쳐요.',
+      katakana:
+        '읽는 대로 히라가나로 친 다음, 키보드 위 후보 줄에서 가타카나를 눌러요. 후보를 누르면 바로 確定돼요.',
+      longVowel:
+        '장음 ー는 わ 키를 오른쪽으로 밀어요. 히라가나는 おかあさん처럼 모음으로 쓰지만, 가타카나는 ー를 써요.',
     },
+    candidate: '후보',
     introAll:
       '50음 줄과 단어 줄을 번갈아 {{count}}줄 쳐요. 줄을 다 치고 確定을 누르면 다음 줄이 나와요.',
     keyGuide: '이 레벨의 키',
@@ -122,6 +132,8 @@ export const ko = {
     progress: '{{current}}/{{total}}',
     extra: '틀린 글자 복습',
     matched: '맞았어요. 確定을 누르면 다음 줄로 넘어가요.',
+    convert: '읽기는 맞았어요. 후보에서 {{word}}를 눌러 確定하세요.',
+    fix: '{{word}}와 다르게 確定됐어요. 지우고 다시 친 다음 후보에서 골라 주세요.',
     retryNote: '틀린 글자는 몇 줄 뒤에 다시 나와요.',
   },
   result: {
@@ -141,6 +153,9 @@ export const ko = {
       small: '작은 글자',
       direction: '방향',
       key: '다른 키',
+      'long-vowel': '장음',
+      script: '변환 안 함',
+      conversion: '다른 변환',
       extra: '더 친 글자',
       other: '기타',
     },

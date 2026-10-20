@@ -14,8 +14,18 @@ export interface InputSnapshot {
  */
 export type JudgeMode = 'composing' | 'commit';
 
-/** continued: 틀린 글자 뒤에 다음 글자를 입력함 / deleted: 틀린 글자를 지움 */
-export type InputErrorCause = 'continued' | 'deleted';
+/**
+ * continued: 틀린 글자 뒤에 다음 글자를 입력함 / deleted: 틀린 글자를 지움 /
+ * committed: commit 판정에서 목표와 다른 글자로 確定함 (히라가나 그대로, 다른 한자)
+ */
+export type InputErrorCause = 'continued' | 'deleted' | 'committed';
+
+/**
+ * 값을 다 쳤지만 아직 다음 문제로 넘어가지 않은 이유. 화면 안내에 쓴다.
+ * commit: 確定만 누르면 됨 / convert: 읽기는 맞음, 후보에서 목표 표기를 골라야 함 /
+ * fix: 목표와 다르게 確定함, 지우고 다시 쳐야 함
+ */
+export type PendingStep = 'commit' | 'convert' | 'fix';
 
 export interface InputError {
   /** 목표 문자열에서의 위치 (code point 단위) */

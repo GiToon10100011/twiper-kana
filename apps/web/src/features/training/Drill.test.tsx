@@ -3,7 +3,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { findLevel } from '@twiper/content';
-import { variantBase } from '@twiper/core';
+import { toHiragana, variantBase } from '@twiper/core';
 import '../../i18n';
 import { Drill } from './Drill';
 
@@ -107,6 +107,55 @@ describe('Drill', () => {
 
     expect(slipped).toBe(true);
     expect(await screen.findByText('탁점')).toBeTruthy();
+  });
+
+  it('가타카나 레벨: 읽기로 친 뒤 후보로 변환해 確定해야 넘어가고, 히라가나로 確定하면 「변환 안 함」으로 센다', async () => {
+    const level = renderDrill('L16');
+    expect(screen.getByText(/후보 줄에서 가타카나를 눌러요/)).toBeTruthy();
+    expect(screen.getByText('かめら')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '시작' }));
+    let first = true;
+
+    for (let i = 0; i < level.drill.lineCount + 2; i += 1) {
+      if (!document.querySelector('.target-text')) break;
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      const word = currentLine();
+      const reading = toHiragana(word);
+      input.dispatchEvent(new CompositionEvent('compositionstart'));
+      input.value = reading;
+      input.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText' }));
+      await flush();
+      expect(screen.getByRole('status').textContent).toContain('후보에서');
+      if (first) {
+        // 변환하지 않고 히라가나 그대로 確定했다가 지우고 다시 친다
+        input.dispatchEvent(new CompositionEvent('compositionend', { data: reading }));
+        await flush();
+        expect(screen.getByRole('status').textContent).toContain('지우고 다시');
+        input.value = '';
+        input.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+        await flush();
+        input.dispatchEvent(new CompositionEvent('compositionstart'));
+        input.value = reading;
+        input.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText' }));
+        await flush();
+        first = false;
+      }
+      // 후보를 누르면 iOS는 가타카나로 바로 確定한다
+      input.value = word;
+      input.dispatchEvent(new CompositionEvent('compositionend', { data: word }));
+      await flush();
+    }
+
+    expect(first).toBe(false);
+    expect(await screen.findByText('변환 안 함')).toBeTruthy();
+  });
+
+  it('장음 레벨은 준비 화면에 わ 키 도해(→ ー)를 보여 준다', () => {
+    renderDrill('L17');
+
+    expect(screen.getByText(/わ 키를 오른쪽으로/)).toBeTruthy();
+    expect(screen.getAllByLabelText('이 레벨의 키')).toHaveLength(2);
+    expect(screen.getByText('こーひー')).toBeTruthy();
   });
 
   it('결과에서 다시 하기를 누르면 첫 줄부터 다시 입력창에 포커스한다', async () => {

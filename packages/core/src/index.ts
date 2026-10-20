@@ -20,15 +20,18 @@ export type {
   InputSessionState,
   InputSnapshot,
   JudgeMode,
+  PendingStep,
 } from './input/types';
 export {
   charStatuses,
   createInputSession,
+  pendingStep,
   reduceInputSession,
   replayInputSession,
 } from './input/session';
 export { classifyMistake, type MistakeKind } from './kana/classify';
 export { KANA_KEY_ROWS, danOf, keyRowOf, sameKeyRow, type Dan } from './kana/rows';
+export { isKana, toHiragana, toKatakana } from './kana/script';
 export { tokenizeKana } from './kana/tokenize';
 export { sameVariantFamily, variantBase } from './kana/variants';
 export { frontierLevel, unlockedLevels } from './progress/unlock';

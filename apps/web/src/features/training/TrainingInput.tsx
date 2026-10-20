@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import {
   createInputSession,
+  pendingStep,
   reduceInputSession,
   type InputSessionState,
   type JudgeMode,
@@ -15,8 +16,12 @@ interface TrainingInputProps {
   judge?: JudgeMode;
   /** 確定 후 정답이면 호출한다. 이때 입력창은 이미 비어 있다 */
   onComplete: (session: InputSessionState) => void;
-  /** 조합 중 일치했을 때 보여 줄 안내 (確定을 누르라는 말) */
+  /** 값이 목표와 같아졌을 때 보여 줄 안내 (確定을 누르라는 말) */
   matchedHint: string;
+  /** commit 판정에서 읽기를 다 쳤을 때 보여 줄 안내 (후보에서 고르라는 말) */
+  convertHint?: string;
+  /** commit 판정에서 목표와 다르게 確定했을 때 보여 줄 안내 (지우고 다시 치라는 말) */
+  fixHint?: string;
   /** 세션 상태에 따라 보여 줄 경고(로마자 키보드 등). 없으면 null */
   notice?: (session: InputSessionState) => string | null;
   placeholder?: string;
@@ -37,6 +42,8 @@ export function TrainingInput({
   judge = 'composing',
   onComplete,
   matchedHint,
+  convertHint,
+  fixHint,
   notice,
   placeholder,
   targetLabel,
@@ -74,9 +81,11 @@ export function TrainingInput({
     onCompleteRef.current(session);
   }, [session, ref]);
 
-  const waitingForCommit = session.matchedAt !== null && session.completedAt === null;
-  const warning = notice?.(session) ?? null;
-  const hintClass = warning ? ' is-warning' : waitingForCommit ? ' is-matched' : '';
+  const step = pendingStep(session);
+  const stepHint = { commit: matchedHint, convert: convertHint, fix: fixHint };
+  const warning = notice?.(session) ?? (step === 'fix' ? (fixHint ?? null) : null);
+  const hint = warning ?? (step ? (stepHint[step] ?? '') : '');
+  const hintClass = warning ? ' is-warning' : step ? ' is-matched' : '';
 
   return (
     <div className="trainer">
@@ -96,7 +105,7 @@ export function TrainingInput({
         aria-label={targetLabel}
       />
       <p className={`trainer-hint${hintClass}`} role="status">
-        {warning ?? (waitingForCommit ? matchedHint : '')}
+        {hint}
       </p>
     </div>
   );

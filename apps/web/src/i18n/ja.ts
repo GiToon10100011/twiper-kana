@@ -90,6 +90,7 @@ export const ja: typeof ko = {
     stage: {
       basic: '基礎',
       combo: '組み合わせ',
+      katakana: 'カタカナ',
     },
     topic: {
       dakuten: '濁音 が',
@@ -97,6 +98,8 @@ export const ja: typeof ko = {
       small: '小さい文字 ぁ',
       yoon: '拗音 きゃ',
       sokuon: '促音 っ',
+      katakana: 'カタカナ カ',
+      longVowel: '長音 ー',
     },
     locked: 'ロック中',
     best: 'ベスト {{accuracy}}%',
@@ -109,13 +112,20 @@ export const ja: typeof ko = {
     introCombo:
       '文字の行と単語の行を交互に{{count}}行打ちます。行を打ち終えて「確定」を押すと次の行に進みます。',
     introWords: '単語を1つずつ{{count}}個打ちます。打ち終えて「確定」を押すと次の単語に進みます。',
+    introKatakana:
+      'カタカナの単語を{{count}}個打ちます。カタカナに変換して確定すると次の単語に進みます。',
     howTo: {
       dakuten: '文字を打ったあと「小゛゜」を1回押すと濁点(゛)がつきます。',
       handakuten: 'は行の文字を打ったあと「小゛゜」を2回押します。1回なら ば、2回なら ぱ です。',
       small: '文字を打ったあと「小゛゜」を1回押すと小さくなります。つ は1回で っ、2回で づ です。',
       yoon: 'い段の文字のあとに や・ゆ・よ を打ち、「小゛゜」で小さくします。ぎょ のような濁音は前の文字でも1回押します。',
       sokuon: 'つ を打って「小゛゜」を1回押して っ にし、続けて次の文字を打ちます。',
+      katakana:
+        '読みどおりにひらがなで打ってから、キーボード上の候補でカタカナを押します。候補を押すとそのまま確定します。',
+      longVowel:
+        '長音 ー は わ キーを右にフリックします。ひらがなでは おかあさん のように母音で書きますが、カタカナは ー を使います。',
     },
+    candidate: '候補',
     introAll:
       '五十音の行と単語の行を交互に{{count}}行打ちます。行を打ち終えて「確定」を押すと次の行に進みます。',
     keyGuide: 'このレベルのキー',
@@ -123,6 +133,8 @@ export const ja: typeof ko = {
     progress: '{{current}}/{{total}}',
     extra: '間違えた文字の復習',
     matched: '正解です。「確定」を押すと次の行に進みます。',
+    convert: '読みは正解です。候補から {{word}} を押して確定しましょう。',
+    fix: '{{word}} と違う文字で確定しました。消して打ち直し、候補から選びましょう。',
     retryNote: '間違えた文字は数行あとにもう一度出ます。',
   },
   result: {
@@ -142,6 +154,9 @@ export const ja: typeof ko = {
       small: '小さい文字',
       direction: '方向',
       key: '別のキー',
+      'long-vowel': '長音',
+      script: '未変換',
+      conversion: '別の変換',
       extra: '打ちすぎ',
       other: 'その他',
     },

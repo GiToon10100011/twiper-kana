@@ -24,6 +24,7 @@ const done = (bestAccuracy: number) => ({
 });
 
 const BASIC = levels.filter((level) => level.stage === 'basic').length;
+const COMBO = levels.filter((level) => level.stage === 'combo').length;
 
 const renderTiles = (access: LevelAccess = levelAccess()) =>
   render(
@@ -39,17 +40,9 @@ describe('levelSymbol', () => {
   it('행 레벨은 키 글자, 50음은 「50音」, 조합은 대표 글자', () => {
     const symbol = (id: string) => levelSymbol(levels.find((level) => level.id === id)!);
 
-    expect(['L1', 'L2', 'L9', 'L10', 'L11', 'L12', 'L13', 'L14', 'L15'].map(symbol)).toEqual([
-      'あ',
-      'か',
-      'らわ',
-      '50音',
-      'が',
-      'ぱ',
-      'ぁ',
-      'きゃ',
-      'っ',
-    ]);
+    expect(
+      ['L1', 'L2', 'L9', 'L10', 'L11', 'L12', 'L13', 'L14', 'L15', 'L16', 'L17'].map(symbol),
+    ).toEqual(['あ', 'か', 'らわ', '50音', 'が', 'ぱ', 'ぁ', 'きゃ', 'っ', 'カ', 'ー']);
   });
 });
 
@@ -91,16 +84,23 @@ describe('CourseTiles', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '조합' }));
 
-    expect(screen.getAllByRole('listitem')).toHaveLength(levels.length - BASIC);
+    expect(screen.getAllByRole('listitem')).toHaveLength(COMBO);
+
+    fireEvent.click(screen.getByRole('button', { name: '가타카나' }));
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(levels.length - BASIC - COMBO);
   });
 
   it('설정에서 모두 열기를 켜면 모든 레벨이 열린다', () => {
     saveSettings({ unlockAll: true });
     renderTiles();
-    const basic = hrefs().length;
-    fireEvent.click(screen.getByRole('button', { name: '조합' }));
+    let open = 0;
+    for (const stage of ['기초', '조합', '가타카나']) {
+      fireEvent.click(screen.getByRole('button', { name: stage }));
+      open += hrefs().length;
+    }
 
-    expect(basic + hrefs().length).toBe(levels.length);
+    expect(open).toBe(levels.length);
   });
 
   it('마지막 레벨까지 끝냈으면 강조하지 않는다', () => {
