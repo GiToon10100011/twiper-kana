@@ -12,10 +12,14 @@ export interface LevelAccess {
   readonly current: string | null;
 }
 
+/** 진행 기록으로 열린 레벨과 이어서 할 레벨을 계산한다 */
+export function accessFor(progress: Progress, unlockAll = false): LevelAccess {
+  const cleared = clearedLevels(progress);
+  const unlocked = unlockedLevels(ORDER, cleared, unlockAll);
+  return { progress, unlocked, current: currentLevel(ORDER, cleared, unlocked) };
+}
+
 /** 저장된 진행과 설정으로 지금 열린 레벨을 계산한다. 화면을 그릴 때마다 새로 읽는다 */
 export function levelAccess(): LevelAccess {
-  const progress = loadProgress();
-  const cleared = clearedLevels(progress);
-  const unlocked = unlockedLevels(ORDER, cleared, loadSettings().unlockAll);
-  return { progress, unlocked, current: currentLevel(ORDER, cleared, unlocked) };
+  return accessFor(loadProgress(), loadSettings().unlockAll);
 }

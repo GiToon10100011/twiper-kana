@@ -10,6 +10,8 @@ export const ko = {
     imeLabHint: '입력 흐름 확인',
     guideCheck: '키보드 가이드 확인',
     guideCheckHint: '키 배치 대조',
+    courseTiles: '목록 시안',
+    courseTilesHint: '코스 목록 새 레이아웃',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
@@ -94,6 +96,7 @@ export const ko = {
     },
     locked: '잠김',
     best: '최고 {{accuracy}}%',
+    current: '이어서 하기',
   },
   drill: {
     exit: '나가기',

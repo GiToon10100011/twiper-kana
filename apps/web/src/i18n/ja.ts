@@ -12,6 +12,8 @@ export const ja: typeof ko = {
     imeLabHint: '入力の流れを確認',
     guideCheck: 'キーボードガイド確認',
     guideCheckHint: 'キー配置の照合',
+    courseTiles: 'リスト試案',
+    courseTilesHint: 'コース一覧の新しいレイアウト',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
@@ -97,6 +99,7 @@ export const ja: typeof ko = {
     },
     locked: 'ロック中',
     best: 'ベスト {{accuracy}}%',
+    current: '次はここ',
   },
   drill: {
     exit: 'やめる',

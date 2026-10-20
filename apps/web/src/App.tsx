@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BrowserRouter, Link, Route, Routes } from 'react-router';
 import { Opening } from './features/intro/Opening';
+import { CourseTilesLab } from './features/lab/CourseTilesLab';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
 import { Onboarding } from './features/onboarding/Onboarding';
@@ -53,6 +54,12 @@ function Home() {
             <small>{t('home.guideCheckHint')}</small>
           </Link>
         </li>
+        <li>
+          <Link to="/lab/course-tiles">
+            <span>{t('home.courseTiles')}</span>
+            <small>{t('home.courseTilesHint')}</small>
+          </Link>
+        </li>
       </ul>
     </main>
   );
@@ -76,6 +83,7 @@ export function App() {
           <Route path="/train/:levelId" element={<DrillRoute />} />
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />
+          <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
         </Routes>
       )}
     </BrowserRouter>
