@@ -4,6 +4,7 @@ import { BrowserRouter, Link, Route, Routes } from 'react-router';
 import { Opening } from './features/intro/Opening';
 import { CourseTilesLab } from './features/lab/CourseTilesLab';
 import { GuideCheck } from './features/lab/GuideCheck';
+import { HomeLab, StepsLab } from './features/lab/HomeLab';
 import { ImeLab } from './features/lab/ImeLab';
 import { Onboarding } from './features/onboarding/Onboarding';
 import { UpdatePrompt } from './features/pwa/UpdatePrompt';
@@ -66,6 +67,12 @@ function Home() {
             <small>{t('home.courseTilesHint')}</small>
           </Link>
         </li>
+        <li>
+          <Link to="/lab/home-v2">
+            <span>{t('home.homeV2')}</span>
+            <small>{t('home.homeV2Hint')}</small>
+          </Link>
+        </li>
       </ul>
     </main>
   );
@@ -91,6 +98,8 @@ export function App() {
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />
           <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
+          <Route path="/lab/home-v2" element={<HomeLab />} />
+          <Route path="/lab/home-v2/steps" element={<StepsLab />} />
         </Routes>
       )}
     </BrowserRouter>

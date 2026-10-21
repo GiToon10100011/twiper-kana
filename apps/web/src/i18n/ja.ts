@@ -15,6 +15,8 @@ export const ja: typeof ko = {
     guideCheckHint: 'キー配置の照合',
     courseTiles: 'コース一覧プレビュー',
     courseTilesHint: '進み具合ごとの表示',
+    homeV2: '新しいホームの試作',
+    homeV2Hint: '総合テスト + ステップで覚える',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
@@ -139,6 +141,29 @@ export const ja: typeof ko = {
     noHelp:
       '実力確認のレベルなので、止まっても打ち方のヘルプは出ません。自分で思い出してみましょう。',
     retryNote: '間違えた文字は数行あとにもう一度出ます。',
+  },
+  tests: {
+    title: '総合テスト',
+    note: 'すべてのレベルを終えたあとの実力確認です。ヘルプなしで、終わりなく出題されます。',
+    kana: '文字',
+    kanaHint: 'すべてのかな',
+    word: '単語',
+    wordHint: 'ひらがな・カタカナの単語',
+    short: '短文',
+    shortHint: '1〜2文',
+    long: '長文',
+    longHint: '複数の文を続けて',
+    best: '最高 {{kpm}}字/分 · {{accuracy}}%',
+    none: '記録なし',
+  },
+  steps: {
+    title: 'ステップで覚える',
+    section: 'はじめての方',
+    hint: 'チュートリアル · Lv.1–{{last}}',
+    lead: 'フリックがはじめてなら、チュートリアルから。そのあとLv.1から順に覚えます。',
+    start: 'チュートリアルからはじめる',
+    continue: 'Lv.{{number}} {{name}}の続き',
+    done: '全{{count}}レベル クリア',
   },
   stats: {
     title: '実力',
