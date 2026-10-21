@@ -8,20 +8,26 @@ import { ImeLab } from './features/lab/ImeLab';
 import { Onboarding } from './features/onboarding/Onboarding';
 import { UpdatePrompt } from './features/pwa/UpdatePrompt';
 import { Settings } from './features/settings/Settings';
+import { Stats } from './features/stats/Stats';
 import { levelAccess } from './features/training/access';
 import { CourseTiles } from './features/training/CourseTiles';
 import { DrillRoute } from './features/training/Drill';
 import { isOnboarded } from './lib/flags';
-import { GearIcon } from './ui/icons';
+import { ChartIcon, GearIcon } from './ui/icons';
 
 function Home() {
   const { t } = useTranslation();
   const access = levelAccess();
   return (
     <main className="home">
-      <Link className="icon-btn home-settings" to="/settings" aria-label={t('home.settings')}>
-        <GearIcon />
-      </Link>
+      <nav className="home-actions">
+        <Link className="icon-btn" to="/stats" aria-label={t('home.stats')}>
+          <ChartIcon />
+        </Link>
+        <Link className="icon-btn" to="/settings" aria-label={t('home.settings')}>
+          <GearIcon />
+        </Link>
+      </nav>
       <h1 className="wordmark">
         twiper<span aria-hidden="true">.</span>
       </h1>
@@ -80,6 +86,7 @@ export function App() {
           <Route path="/" element={<Home />} />
           <Route path="/tutorial" element={<Onboarding />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/stats" element={<Stats />} />
           <Route path="/train/:levelId" element={<DrillRoute />} />
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />

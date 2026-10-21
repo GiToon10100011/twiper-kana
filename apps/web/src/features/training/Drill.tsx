@@ -14,10 +14,14 @@ import {
   advanceDrill,
   attemptRecordOf,
   createDrill,
+  explainChar,
+  helpIndex,
   lineResultOf,
+  missCounts,
   summarizeDrill,
   type DrillSummary,
   type FlickDirection,
+  type InputError,
   type InputSessionState,
 } from '@twiper/core';
 import { newId, trainingRepo } from '../../lib/db';
@@ -28,6 +32,7 @@ import { FlickDiagram } from '../tutorial/FlickDiagram';
 import { ModifierHowTo } from '../tutorial/ModifierHowTo';
 import { levelAccess } from './access';
 import { DrillResult } from './DrillResult';
+import { HelpCard } from './HelpCard';
 import { levelTitle } from './levelTitle';
 import { TrainingInput } from './TrainingInput';
 
@@ -66,11 +71,14 @@ export function Drill({ level }: { level: Level }) {
   const sessionRef = useRef<{ id: string; startedAt: string } | null>(null);
   /** 같은 레벨의 지난 판 요약. undefined: 아직 모름 / null: 처음 */
   const [previous, setPrevious] = useState<DrillSummary | null | undefined>(undefined);
+  /** 이번 판에 끝낸 줄의 오류. 같은 글자를 여러 번 틀렸는지 보고 도움말을 띄운다 */
+  const [pastErrors, setPastErrors] = useState<readonly InputError[]>([]);
 
   // iOS는 사용자가 누른 그 순간에 포커스해야 키보드를 띄우므로 입력창을 동기로 그린 뒤 포커스한다.
   const start = () => {
     flushSync(() => {
       setDrill(createDrill(level.drill, newSeed()));
+      setPastErrors([]);
       setStarted(true);
     });
     shownAt.current = performance.now();
@@ -102,6 +110,7 @@ export function Drill({ level }: { level: Level }) {
     // 다음 줄은 確定 직후에 나타난다. 같은 시계(스냅샷 시각)로 재야 반응 시간이 맞는다.
     shownAt.current = session.completedAt ?? performance.now();
     setDrill((prev) => advanceDrill(prev, result));
+    setPastErrors((prev) => [...prev, ...session.errors]);
   };
 
   // 끝까지 푼 레벨을 기록해 다음 레벨을 열고, 세션 요약을 저장한 뒤 지난 판과 비교할 기록을 읽는다.
@@ -142,6 +151,15 @@ export function Drill({ level }: { level: Level }) {
     up: t('onboarding.flick.up'),
     right: t('onboarding.flick.right'),
     down: t('onboarding.flick.down'),
+  };
+
+  // 다음 글자에서 머뭇거리거나 이번 판에 여러 번 틀린 글자에 오면 치는 법을 보여 준다.
+  const help = (session: InputSessionState, stuckAt: number | null) => {
+    const misses = missCounts([...pastErrors, ...session.errors]);
+    const index = helpIndex(session, { stuckAt, misses });
+    const char = index === null ? undefined : session.target[index];
+    const steps = char === undefined ? null : explainChar(iosKana, char);
+    return char && steps ? <HelpCard char={char} steps={steps} labels={labels} /> : null;
   };
 
   const { lineCount } = level.drill;
@@ -217,6 +235,7 @@ export function Drill({ level }: { level: Level }) {
             convertHint={t('drill.convert', { word: drill.line })}
             fixHint={t('drill.fix', { word: drill.line })}
             notice={notice}
+            help={help}
             placeholder={t('training.tapInput')}
             targetLabel={title}
             inputRef={inputRef}

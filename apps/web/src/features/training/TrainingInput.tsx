@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import {
   createInputSession,
+  HELP_POLICY,
   pendingStep,
   reduceInputSession,
   type InputSessionState,
@@ -24,6 +25,11 @@ interface TrainingInputProps {
   fixHint?: string;
   /** 세션 상태에 따라 보여 줄 경고(로마자 키보드 등). 없으면 null */
   notice?: (session: InputSessionState) => string | null;
+  /**
+   * 입력창 아래에 띄울 상황별 도움말. stuckAt은 진행 없이 HELP_POLICY.idleMs가 지난 목표 글자 위치(없으면 null).
+   * 없으면 머뭇거림을 재지 않는다
+   */
+  help?: (session: InputSessionState, stuckAt: number | null) => ReactNode;
   placeholder?: string;
   targetLabel?: string;
   inputRef?: RefObject<HTMLInputElement | null>;
@@ -45,6 +51,7 @@ export function TrainingInput({
   convertHint,
   fixHint,
   notice,
+  help,
   placeholder,
   targetLabel,
   inputRef,
@@ -52,11 +59,25 @@ export function TrainingInput({
   const localRef = useRef<HTMLInputElement>(null);
   const ref = inputRef ?? localRef;
   const [session, setSession] = useState(() => newSession(target, judge));
+  const [stuckAt, setStuckAt] = useState<number | null>(null);
   const [currentKey, setCurrentKey] = useState(questionKey);
   if (currentKey !== questionKey) {
     setCurrentKey(questionKey);
     setSession(newSession(target, judge));
+    setStuckAt(null);
   }
+  // 막혔던 글자를 맞게 치고 지나가면 잊는다. 지워서 되돌아와도 다시 머뭇거려야 도움말을 띄운다.
+  // 그 글자를 치는 중(き를 치고 小゛゜를 누르기 전)에는 지나간 것이 아니므로 남겨 둔다.
+  if (stuckAt !== null && session.matched > stuckAt) setStuckAt(null);
+
+  // 스냅샷이 올 때마다 다시 잰다. 한동안 아무 입력이 없으면 그때 칠 차례였던 글자에서 막힌 것으로 본다.
+  const measuresIdle = help !== undefined;
+  useEffect(() => {
+    if (!measuresIdle || session.completedAt !== null) return;
+    const index = session.matched;
+    const timer = window.setTimeout(() => setStuckAt(index), HELP_POLICY.idleMs);
+    return () => window.clearTimeout(timer);
+  }, [session, measuresIdle]);
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -107,6 +128,7 @@ export function TrainingInput({
       <p className={`trainer-hint${hintClass}`} role="status">
         {hint}
       </p>
+      {help?.(session, stuckAt)}
     </div>
   );
 }

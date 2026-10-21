@@ -24,5 +24,10 @@ export function createMemoryRepo(): TrainingRepo {
     attemptsOf(sessionId) {
       return Promise.resolve(attempts.filter((a) => a.sessionId === sessionId));
     },
+    recentAttempts(limit) {
+      return Promise.resolve(
+        [...attempts].sort((a, b) => b.at.localeCompare(a.at)).slice(0, limit),
+      );
+    },
   };
 }

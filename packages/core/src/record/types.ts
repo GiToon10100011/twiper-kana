@@ -54,4 +54,6 @@ export interface TrainingRepo {
   finishedSessions(levelId: string, limit: number): Promise<SessionRecord[]>;
   /** 세션의 시도, 저장한 순 */
   attemptsOf(sessionId: string): Promise<AttemptRecord[]>;
+  /** 세션과 관계없이 최근 시도, 최근 순으로 limit개 (스킬 통계) */
+  recentAttempts(limit: number): Promise<AttemptRecord[]>;
 }

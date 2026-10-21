@@ -129,10 +129,11 @@ a {
 }
 
 /* 화면 오른쪽 위 모서리. 아이콘 가장자리가 본문 여백(16px)과 맞도록 버튼을 바깥으로 뺀다 */
-.home-settings {
+.home-actions {
   position: absolute;
   top: calc(env(safe-area-inset-top) + var(--space-2));
   right: calc(var(--space-4) - 0.6875rem);
+  display: flex;
 }
 
 /* 화면 왼쪽 위 뒤로 가기. 아이콘 여백만큼 당겨 본문 왼쪽 선에 맞춘다 */
@@ -862,6 +863,69 @@ a {
   color: var(--danger);
 }
 
+/* 상황별 도움말: 입력창 아래에 붙여 입력창이 밀려 움직이지 않게 한다. 키보드 위 남은 자리에 들어가도록 작게 */
+.help-card {
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  animation: help-in var(--duration-base) var(--ease);
+}
+
+.help-title {
+  margin: 0 0 var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.help-steps {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.help-note {
+  margin: var(--space-2) 0 0;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.flick.is-compact {
+  --cell: 2.125rem;
+
+  margin: 0;
+}
+
+.flick.is-compact .flick-char {
+  font-size: 1.0625rem;
+}
+
+.flick.is-compact .flick-dir {
+  display: none;
+}
+
+@keyframes help-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* 화면에는 보이지 않고 화면 읽기 프로그램만 읽는 글 */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+  border: 0;
+}
+
 /* 코스·드릴 */
 
 a.btn-quiet {
@@ -1400,4 +1464,99 @@ a.tile-row:active {
     transition-duration: 0s !important;
     animation: none !important;
   }
+}
+
+/* 내 실력 (스킬 통계) */
+
+.skill-screen .section-label {
+  margin-top: 2rem;
+}
+
+.skill-list,
+.stat-pairs {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill-line {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.skill-name {
+  font-size: 0.9375rem;
+}
+
+.skill-value {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.skill-value strong {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.skill-value.is-muted {
+  color: var(--ink-faint);
+}
+
+.skill-bar {
+  height: 4px;
+  overflow: hidden;
+  background: var(--line);
+  border-radius: var(--radius-pill);
+}
+
+.skill-bar span {
+  display: block;
+  height: 100%;
+  background: var(--ink-muted);
+  border-radius: inherit;
+}
+
+.stat-pairs {
+  gap: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.stat-pairs li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+}
+
+.stat-pairs li + li {
+  border-top: 1px solid var(--line);
+}
+
+.stat-chars {
+  font-size: 1.125rem;
+}
+
+.stat-arrow {
+  margin: 0 var(--space-2);
+  font-size: 0.875rem;
+  color: var(--ink-faint);
+}
+
+.stat-count {
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
 }

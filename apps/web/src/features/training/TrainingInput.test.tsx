@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { HELP_POLICY, type InputSessionState } from '@twiper/core';
 import { TrainingInput } from './TrainingInput';
 
 afterEach(cleanup);
@@ -98,5 +99,46 @@ describe('TrainingInput', () => {
     await compose(input, 'k');
 
     expect(screen.getByRole('status').textContent).toBe('로마자 키보드');
+  });
+
+  it('도움말: 머뭇거린 글자는 치는 중에도 남고, 지나간 뒤 지워서 돌아오면 다시 머뭇거려야 뜬다', async () => {
+    vi.useFakeTimers();
+    try {
+      const help = (session: InputSessionState, stuckAt: number | null) =>
+        stuckAt === session.matched ? <aside>도움 {stuckAt}</aside> : null;
+      render(<TrainingInput target="ぎい" onComplete={() => {}} matchedHint="" help={help} />);
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      const card = () => screen.queryByRole('complementary')?.textContent ?? null;
+      const type = async (value: string) => {
+        input.value = value;
+        input.dispatchEvent(
+          new InputEvent('input', {
+            data: value,
+            inputType: 'insertCompositionText',
+            isComposing: true,
+          }),
+        );
+        await act(() => vi.advanceTimersByTimeAsync(1));
+      };
+
+      await act(() => vi.advanceTimersByTimeAsync(HELP_POLICY.idleMs));
+      expect(card()).toBe('도움 0');
+
+      input.dispatchEvent(new CompositionEvent('compositionstart'));
+      // ぎ를 치려고 き까지 친 상태: 아직 그 글자를 치는 중
+      await type('き');
+      expect(card()).toBe('도움 0');
+
+      await type('ぎ');
+      expect(card()).toBeNull();
+
+      await type('');
+      expect(card()).toBeNull();
+
+      await act(() => vi.advanceTimersByTimeAsync(HELP_POLICY.idleMs));
+      expect(card()).toBe('도움 0');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

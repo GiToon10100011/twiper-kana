@@ -12,6 +12,8 @@ export type {
   KeyboardGuide,
 } from './guide/types';
 export { findKeyStep, guideClaims } from './guide/claims';
+export { explainChar } from './guide/explain';
+export { HELP_POLICY, helpIndex, missCounts, type HelpPolicy } from './help/help';
 export type {
   CharStatus,
   InputError,
@@ -39,4 +41,15 @@ export type { AttemptFlag, AttemptRecord, SessionRecord, TrainingRepo } from './
 export { attemptRecordOf, type AttemptMeta } from './record/attempt';
 export { createMemoryRepo } from './record/memoryRepo';
 export { ulid } from './record/ulid';
+export {
+  confusions,
+  SKILL_ORDER,
+  skillsOf,
+  skillStats,
+  slowUnits,
+  STATS_MIN_SAMPLES,
+  type SkillId,
+  type SkillStat,
+  type TopicSkill,
+} from './stats/skills';
 export { normalizeBase, normalizeForCompare } from './text/normalize';

@@ -7,6 +7,7 @@ export const ja: typeof ko = {
     tutorialHint: 'キーボードの準備・フリック・確定',
     tutorialFirst: 'はじめての方はここから',
     settings: '設定',
+    stats: '実力',
     devTools: '開発ツール',
     imeLab: 'IMEスパイク',
     imeLabHint: '入力の流れを確認',
@@ -136,6 +137,25 @@ export const ja: typeof ko = {
     convert: '読みは正解です。候補から {{word}} を押して確定しましょう。',
     fix: '{{word}} と違う文字で確定しました。消して打ち直し、候補から選びましょう。',
     retryNote: '間違えた文字は数行あとにもう一度出ます。',
+  },
+  stats: {
+    title: '実力',
+    lead: '最近の記録から、ルールごとの初回正答率と1文字あたりの時間を表示します。各ルール直近60回までを見ます。',
+    empty:
+      'まだ記録がありません。レベルをひとつ終えると、ここにルールごとの正答率と速さが表示されます。',
+    measuring: '測定中 {{samples}}/{{needed}}',
+    measuringShort: '測定中',
+    perChar: '1文字 {{sec}}秒',
+    confusions: 'よく間違える文字',
+    confusionLabel: '{{expected}}のところに{{actual}}、{{count}}回',
+    times: '{{count}}回',
+    slow: '時間がかかる文字',
+  },
+  help: {
+    title: '{{char}}の打ち方',
+    key: '{{key}}キーを{{dir}}',
+    modifier: '{{label}}を{{times}}回',
+    reading: '読み：{{reading}}。単語を打ち終えたら候補からカタカナを選びます。',
   },
   result: {
     title: '{{level}} 完了',
