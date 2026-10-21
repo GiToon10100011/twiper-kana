@@ -19,33 +19,47 @@ function renderAt(path: string) {
 }
 
 describe('HomeLab (새 홈 시안)', () => {
-  it('종합 테스트 4종을 먼저 보여 주고, 그 아래 단계별 익히기로 이어서 할 레벨을 보여 준다', () => {
+  it('종합 테스트를 먼저 보여 주고, 그 아래 단계별 익히기로 이어서 할 레벨을 보여 준다', () => {
     renderAt('/lab/home-v2?state=midway');
 
     const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
     expect(headings.slice(0, 2)).toEqual(['종합 테스트', '처음이라면']);
-    for (const name of ['글자', '단어', '짧은 글', '긴 글']) {
-      expect(screen.getByRole('button', { name: new RegExp(`^${name}`) })).toBeTruthy();
-    }
     expect(screen.getByText('Lv.4 た행 이어서 하기')).toBeTruthy();
   });
 
-  it('처음이면 튜토리얼부터, 다 끝냈으면 끝냈다고 보여 주고 테스트 기록을 보인다', () => {
-    renderAt('/lab/home-v2?state=fresh');
-    expect(screen.getByText('튜토리얼부터 시작하기')).toBeTruthy();
-    expect(screen.getAllByText('기록 없음')).toHaveLength(4);
-    cleanup();
+  it('A. 시험지형: 종목과 시간을 고르면 패널과 시작 버튼이 바뀌고, 시작하면 아직 만들기 전이라고 알려 준다', () => {
+    renderAt('/lab/home-v2?state=allDone&layout=panel');
+    const modes = screen.getByRole('group', { name: '종목' });
+    expect(modes.querySelectorAll('button')).toHaveLength(4);
+    expect(screen.getByRole('region', { name: '글자' })).toBeTruthy();
+    expect(screen.getByText('12회')).toBeTruthy();
 
-    renderAt('/lab/home-v2?state=allDone&layout=list');
-    expect(screen.getByText('17개 레벨 모두 끝냄')).toBeTruthy();
-    expect(screen.getByText('최고 132가나/분 · 97%')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '긴 글' }));
+    fireEvent.click(screen.getByRole('button', { name: '3분' }));
+    expect(screen.getByRole('region', { name: '긴 글' })).toBeTruthy();
+    expect(screen.getByText('0회')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: '3분 테스트 시작' }));
+    expect(screen.getByRole('status').textContent).toMatch(/「긴 글」 3분 테스트는 아직/);
   });
 
-  it('테스트를 누르면 아직 만들기 전이라고 알려 준다', () => {
-    renderAt('/lab/home-v2');
-    fireEvent.click(screen.getByRole('button', { name: /^긴 글/ }));
+  it('B. 기록판형: 종목마다 최고 속도를 보여 주고, 기록이 없으면 기록 없음', () => {
+    renderAt('/lab/home-v2?state=allDone&layout=board');
 
-    expect(screen.getByRole('status').textContent).toMatch(/「긴 글」 테스트는 아직/);
+    expect(screen.getByRole('button', { name: /^글자.*132/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^긴 글.*기록 없음/ })).toBeTruthy();
+    cleanup();
+
+    renderAt('/lab/home-v2?state=fresh&layout=board');
+    expect(screen.getAllByText('기록 없음')).toHaveLength(4);
+    expect(screen.getByText('튜토리얼부터 시작하기')).toBeTruthy();
+  });
+
+  it('다 끝냈으면 단계별 익히기는 강조 없이 끝냈다고 보여 준다', () => {
+    renderAt('/lab/home-v2?state=allDone');
+
+    expect(screen.getByText('17개 레벨 모두 끝냄')).toBeTruthy();
+    expect(document.querySelector('.tile-item.is-current')).toBeNull();
   });
 
   it('단계별 익히기 시안은 튜토리얼과 코스 목록을 보여 준다', () => {

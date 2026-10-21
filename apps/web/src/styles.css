@@ -1561,84 +1561,198 @@ a.tile-row:active {
   color: var(--ink-muted);
 }
 
-/* 새 홈 시안: 종합 테스트 카드 (/lab/home-v2) */
+/* 새 홈 시안: 종합 테스트 (/lab/home-v2) */
 
-.test-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
+.stage-tabs.is-small {
+  gap: var(--space-1);
   margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
-.test-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  width: 100%;
-  min-height: 7rem;
+.stage-tabs.is-small .stage-tab {
+  min-height: 1.75rem;
+  padding: 0 var(--space-3);
+  font-size: 0.8125rem;
+}
+
+.test-tags {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.icon-inline {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-play {
+  flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
+  fill: currentColor;
+}
+
+/* A. 시험지형: 종목 탭 아래 패널 하나 */
+.test-panel {
   padding: var(--space-4);
-  font: inherit;
-  color: var(--ink);
-  text-align: start;
-  cursor: pointer;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  transition:
-    background var(--duration-fast) var(--ease),
-    border-color var(--duration-fast) var(--ease);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .test-card:hover {
-    border-color: var(--line-strong);
-  }
+.test-panel-top,
+.test-board-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
 }
 
-.test-card:active {
-  background: var(--line);
-}
-
-.test-name {
-  font-weight: 600;
-}
-
-.test-sample {
+/* 칠 첫 줄. 훈련 화면처럼 첫 글자만 잉크색 + 마젠타 밑줄, 길면 오른쪽으로 흐려지며 이어진다 */
+.test-preview {
+  display: flex;
+  gap: 0.06em;
+  margin: 1.75rem 0 1.5rem;
   overflow: hidden;
-  font-size: 1.0625rem;
-  color: var(--ink-muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.test-record {
-  margin-top: auto;
-  font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
+  font-size: 1.75rem;
+  line-height: 1.33;
   color: var(--ink-faint);
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(to right, #000 80%, transparent);
+  mask-image: linear-gradient(to right, #000 80%, transparent);
 }
 
-/* 목록형 시안: 테스트 줄은 버튼이라 a.tile-row와 모양을 맞춘다 */
-button.tile-row {
-  width: calc(100% + var(--space-2) * 2);
+.test-preview span {
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+}
+
+.test-preview .is-next {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+.test-stats {
+  margin-bottom: var(--space-4);
+}
+
+.test-stats div {
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg);
+}
+
+.test-stats dd {
+  font-size: 1.25rem;
+}
+
+.test-stats dd small {
+  margin-inline-start: 2px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+
+.test-start {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* B. 기록판형: 종목마다 최고 속도를 크게 */
+.test-board-top {
+  margin-bottom: var(--space-3);
+}
+
+.test-board {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.test-board li + li {
+  border-top: 1px solid var(--line);
+}
+
+.test-board-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
   font: inherit;
+  color: var(--ink);
   text-align: start;
   cursor: pointer;
   background: none;
   border: 0;
+  transition: background var(--duration-fast) var(--ease);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  button.tile-row:hover {
+  .test-board-row:hover {
     background: var(--line);
   }
 }
 
-button.tile-row:active {
+.test-board-row:active {
   background: var(--line);
+}
+
+.test-board-name {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.test-board-name strong {
+  font-weight: 600;
+}
+
+.test-board-name small {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  color: var(--ink-faint);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.test-board-score {
+  display: grid;
+  justify-items: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.test-board-score strong {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.test-board-score small {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.test-board-row .icon-play {
+  color: var(--ink-muted);
 }
 
 .section-note {
