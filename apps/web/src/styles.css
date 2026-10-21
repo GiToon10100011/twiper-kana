@@ -59,6 +59,8 @@ body {
   -webkit-text-size-adjust: 100%;
   /* 설치형 앱에서 화면 끝을 당겨도 튕기지 않게 */
   overscroll-behavior: none;
+  /* iOS의 회색 탭 덮개 대신 각 요소의 :active로 누름을 보여 준다 */
+  -webkit-tap-highlight-color: transparent;
 }
 
 :lang(ja) {
@@ -103,7 +105,15 @@ a {
     color var(--duration-fast) var(--ease);
 }
 
-.icon-btn:hover {
+/* 호버는 마우스가 있는 기기에서만. 터치 기기는 탭한 뒤에도 :hover가 남아 강조가 붙어 있게 된다 */
+@media (hover: hover) and (pointer: fine) {
+  .icon-btn:hover {
+    color: var(--ink);
+    background: var(--line);
+  }
+}
+
+.icon-btn:active {
   color: var(--ink);
   background: var(--line);
 }
@@ -184,7 +194,13 @@ a {
   transition: background var(--duration-fast) var(--ease);
 }
 
-.nav-list a:hover {
+@media (hover: hover) and (pointer: fine) {
+  .nav-list a:hover {
+    background: var(--accent-soft);
+  }
+}
+
+.nav-list a:active {
   background: var(--accent-soft);
 }
 
@@ -349,8 +365,10 @@ a {
     transform var(--duration-fast) var(--ease);
 }
 
-.lab button:hover {
-  border-color: var(--ink-muted);
+@media (hover: hover) and (pointer: fine) {
+  .lab button:hover {
+    border-color: var(--ink-muted);
+  }
 }
 
 .lab button:active {
@@ -371,9 +389,11 @@ a {
   border-color: var(--accent);
 }
 
-.lab button.primary:hover {
-  background: var(--accent-strong);
-  border-color: var(--accent-strong);
+@media (hover: hover) and (pointer: fine) {
+  .lab button.primary:hover {
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
+  }
 }
 
 .lab button.primary:disabled {
@@ -562,7 +582,14 @@ a {
   border-color: var(--accent);
 }
 
-.btn-primary:hover {
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover {
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
+  }
+}
+
+.btn-primary:active {
   background: var(--accent-strong);
   border-color: var(--accent-strong);
 }
@@ -575,6 +602,10 @@ a {
   color: var(--ink-muted);
   background: none;
   border: 0;
+}
+
+.btn-quiet:active {
+  color: var(--ink);
 }
 
 .home .btn {
@@ -787,6 +818,11 @@ a {
   border-radius: var(--radius-pill);
 }
 
+.dir-tab:active {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
 .dir-tab.is-active {
   font-weight: 600;
   color: var(--accent-strong);
@@ -927,7 +963,12 @@ a.btn-quiet {
   transition: background var(--duration-fast) var(--ease);
 }
 
-a.tile-row:hover,
+@media (hover: hover) and (pointer: fine) {
+  a.tile-row:hover {
+    background: var(--line);
+  }
+}
+
 a.tile-row:active {
   background: var(--line);
 }
@@ -1036,6 +1077,11 @@ a.tile-row:active {
   transition:
     background var(--duration-fast) var(--ease),
     color var(--duration-fast) var(--ease);
+}
+
+.stage-tabs .stage-tab:not([aria-pressed='true']):active {
+  color: var(--ink);
+  background: var(--line-strong);
 }
 
 .stage-tabs .stage-tab[aria-pressed='true'] {
@@ -1407,6 +1453,10 @@ a.tile-row:active {
   color: var(--accent);
   background: none;
   border: 0;
+}
+
+.toast-action:active {
+  color: var(--accent-strong);
 }
 
 @media (prefers-reduced-motion: reduce) {
