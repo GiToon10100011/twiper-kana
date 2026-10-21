@@ -603,6 +603,10 @@ a {
   border: 0;
 }
 
+.btn-quiet:active {
+  color: var(--ink);
+}
+
 .home .btn {
   margin-top: 2rem;
 }
@@ -813,6 +817,11 @@ a {
   border-radius: var(--radius-pill);
 }
 
+.dir-tab:active {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
 .dir-tab.is-active {
   font-weight: 600;
   color: var(--accent-strong);
@@ -1004,6 +1013,11 @@ a.tile-row:active {
   transition:
     background var(--duration-fast) var(--ease),
     color var(--duration-fast) var(--ease);
+}
+
+.stage-tabs .stage-tab:not([aria-pressed='true']):active {
+  color: var(--ink);
+  background: var(--line-strong);
 }
 
 .stage-tabs .stage-tab[aria-pressed='true'] {
@@ -1375,6 +1389,10 @@ a.tile-row:active {
   color: var(--accent);
   background: none;
   border: 0;
+}
+
+.toast-action:active {
+  color: var(--accent-strong);
 }
 
 @media (prefers-reduced-motion: reduce) {
