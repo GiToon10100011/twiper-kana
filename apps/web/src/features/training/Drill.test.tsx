@@ -181,6 +181,41 @@ describe('Drill', () => {
     }
   });
 
+  it('실력 확인용 레벨(50음 랜덤)은 오래 멈추거나 여러 번 틀려도 도움말을 띄우지 않는다', async () => {
+    vi.useFakeTimers();
+    try {
+      renderDrill('L10');
+      expect(screen.getByText(/도움말이 나오지 않아요/)).toBeTruthy();
+      fireEvent.click(screen.getByRole('button', { name: '시작' }));
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      const compose = async (value: string) => {
+        input.value = value;
+        input.dispatchEvent(
+          new InputEvent('input', {
+            data: value,
+            inputType: 'insertCompositionText',
+            isComposing: true,
+          }),
+        );
+        await act(() => vi.advanceTimersByTimeAsync(1));
+      };
+
+      await act(() => vi.advanceTimersByTimeAsync(HELP_POLICY.idleMs * 3));
+      expect(screen.queryByRole('complementary')).toBeNull();
+
+      // 첫 글자 자리에 다른 글자를 쳤다가 지우기를 두 번
+      const wrong = Array.from(currentLine())[0] === 'ん' ? 'あ' : 'ん';
+      input.dispatchEvent(new CompositionEvent('compositionstart'));
+      await compose(wrong);
+      await compose('');
+      await compose(wrong);
+      await compose('');
+      expect(screen.queryByRole('complementary')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('이번 판에서 두 번 틀린 글자는 기다리지 않고 바로 치는 법을 보여 준다', async () => {
     renderDrill('L1');
     fireEvent.click(screen.getByRole('button', { name: '시작' }));

@@ -9,7 +9,8 @@ export interface HelpPolicy {
   readonly repeatMisses: number;
 }
 
-export const HELP_POLICY: HelpPolicy = { idleMs: 2500, repeatMisses: 2 };
+// 2.5초는 줄을 읽거나 잠깐 생각하는 사이에도 떠서 짧았다 (2026-10-22 사용자 실기 의견)
+export const HELP_POLICY: HelpPolicy = { idleMs: 5000, repeatMisses: 2 };
 
 /**
  * 목표 글자마다 틀린 횟수. 이번 판에 끝낸 줄과 지금 줄의 오류를 모두 넘긴다.

@@ -184,6 +184,7 @@ export function Drill({ level }: { level: Level }) {
           <p className="screen-body">
             {t(introKey(level), { count: lineCount, length: level.drill.lineLength })}
           </p>
+          {level.assessment ? <p className="screen-body">{t('drill.noHelp')}</p> : null}
           {level.topic ? (
             <>
               <p className="screen-body">{t(`drill.howTo.${level.topic}`)}</p>
@@ -235,7 +236,7 @@ export function Drill({ level }: { level: Level }) {
             convertHint={t('drill.convert', { word: drill.line })}
             fixHint={t('drill.fix', { word: drill.line })}
             notice={notice}
-            help={help}
+            help={level.assessment ? undefined : help}
             placeholder={t('training.tapInput')}
             targetLabel={title}
             inputRef={inputRef}
