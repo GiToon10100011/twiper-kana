@@ -1,6 +1,5 @@
-import type { LineResult } from '../drill/types';
 import { pendingStep } from '../input/session';
-import type { InputSessionState } from '../input/types';
+import type { InputError, InputSessionState } from '../input/types';
 
 /** 상황별 도움말을 띄우는 기준 (계획 §6 Contextual Help) */
 export interface HelpPolicy {
@@ -13,23 +12,15 @@ export interface HelpPolicy {
 export const HELP_POLICY: HelpPolicy = { idleMs: 2500, repeatMisses: 2 };
 
 /**
- * 이번 판에서 목표 글자마다 틀린 횟수.
- * 끝낸 줄은 틀린 자리마다 1번, 지금 줄은 기록된 오류마다 1번 센다. 목표를 넘어선 초과 입력은 뺀다.
+ * 목표 글자마다 틀린 횟수. 이번 판에 끝낸 줄과 지금 줄의 오류를 모두 넘긴다.
+ * 한 자리에서 두 번 틀렸으면 두 번으로 센다. 목표를 넘어선 초과 입력(expected '')은 뺀다.
  */
-export function missCounts(
-  results: readonly LineResult[],
-  session?: InputSessionState,
-): Map<string, number> {
+export function missCounts(errors: readonly Pick<InputError, 'expected'>[]): Map<string, number> {
   const counts = new Map<string, number>();
-  const add = (char: string | undefined) => {
-    if (!char) return;
-    counts.set(char, (counts.get(char) ?? 0) + 1);
-  };
-  for (const result of results) {
-    const chars = Array.from(result.target);
-    for (const index of result.missedIndexes) add(chars[index]);
+  for (const { expected } of errors) {
+    if (expected === '') continue;
+    counts.set(expected, (counts.get(expected) ?? 0) + 1);
   }
-  for (const error of session?.errors ?? []) add(error.expected);
   return counts;
 }
 

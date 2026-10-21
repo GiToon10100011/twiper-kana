@@ -2,9 +2,8 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { AttemptRecord } from '@twiper/core';
+import { createMemoryRepo, type AttemptRecord, type TrainingRepo } from '@twiper/core';
 import '../../i18n';
-import { trainingRepo } from '../../lib/db';
 import { Stats } from './Stats';
 
 afterEach(cleanup);
@@ -38,10 +37,11 @@ function attempt(target: string, mistakes: [number, string][] = []): AttemptReco
   };
 }
 
-const renderStats = () =>
+/** 테스트마다 새 메모리 저장소로 그린다 */
+const renderStats = (repo: TrainingRepo = createMemoryRepo()) =>
   render(
     <MemoryRouter>
-      <Stats />
+      <Stats repo={repo} />
     </MemoryRouter>,
   );
 
@@ -51,17 +51,18 @@ describe('Stats', () => {
 
     expect(await screen.findByText(/아직 기록이 없어요/)).toBeTruthy();
     expect(screen.getByRole('link', { name: '홈으로' })).toBeTruthy();
+    expect(screen.getByRole('main').getAttribute('aria-busy')).toBe('false');
   });
 
   it('규칙마다 정확도와 글자당 시간을, 표본이 적으면 측정 중으로 보여 준다', async () => {
-    const repo = trainingRepo();
+    const repo = createMemoryRepo();
     // あ행 10줄(50글자) 중 え를 한 번 う로 틀림, 탁음은 한 줄(2글자)
     for (let i = 0; i < 10; i += 1) {
       await repo.saveAttempt(attempt('あいうえお', i === 0 ? [[3, 'う']] : []));
     }
     await repo.saveAttempt(attempt('がぎ'));
 
-    renderStats();
+    renderStats(repo);
 
     const aRow = await screen.findByRole('meter', { name: 'あ행' });
     // 최근 60번까지라 50글자 모두, 49/50 = 98%

@@ -66,6 +66,9 @@ export function TrainingInput({
     setSession(newSession(target, judge));
     setStuckAt(null);
   }
+  // 막혔던 글자를 맞게 치고 지나가면 잊는다. 지워서 되돌아와도 다시 머뭇거려야 도움말을 띄운다.
+  // 그 글자를 치는 중(き를 치고 小゛゜를 누르기 전)에는 지나간 것이 아니므로 남겨 둔다.
+  if (stuckAt !== null && session.matched > stuckAt) setStuckAt(null);
 
   // 스냅샷이 올 때마다 다시 잰다. 한동안 아무 입력이 없으면 그때 칠 차례였던 글자에서 막힌 것으로 본다.
   const measuresIdle = help !== undefined;

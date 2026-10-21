@@ -9,6 +9,7 @@ import {
   type AttemptRecord,
   type SkillId,
   type SkillStat,
+  type TrainingRepo,
 } from '@twiper/core';
 import { trainingRepo } from '../../lib/db';
 import { BackIcon } from '../../ui/icons';
@@ -63,21 +64,19 @@ function SkillRow({ stat, label }: { stat: SkillStat; label: string }) {
 }
 
 /** 규칙(행·탁음·요음·가타카나 …)별 첫 시도 정확도와 속도, 자주 틀리는 글자, 오래 걸리는 글자 */
-export function Stats() {
+export function Stats({ repo }: { repo?: TrainingRepo }) {
   const { t } = useTranslation();
   const [attempts, setAttempts] = useState<AttemptRecord[] | null>(null);
 
   useEffect(() => {
     let alive = true;
-    void trainingRepo()
-      .recentAttempts(RECENT_ATTEMPTS)
-      .then((list) => {
-        if (alive) setAttempts(list);
-      });
+    void (repo ?? trainingRepo()).recentAttempts(RECENT_ATTEMPTS).then((list) => {
+      if (alive) setAttempts(list);
+    });
     return () => {
       alive = false;
     };
-  }, []);
+  }, [repo]);
 
   const skillLabel = (skill: SkillId) =>
     skill.startsWith('row:')
@@ -89,7 +88,7 @@ export function Stats() {
   const slow = attempts ? slowUnits(attempts) : [];
 
   return (
-    <main className="screen skill-screen">
+    <main className="screen skill-screen" aria-busy={attempts === null}>
       <header className="screen-header">
         <Link className="icon-btn header-back" to="/" aria-label={t('settings.home')}>
           <BackIcon />

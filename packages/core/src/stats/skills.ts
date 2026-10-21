@@ -192,7 +192,9 @@ export function slowUnits(
     for (const { unit, ms } of occurrencesOf(attempt)) {
       if (ms === null || skillsOf(unit).length === 0) continue;
       const key = toHiragana(unit);
-      times.set(key, [...(times.get(key) ?? []), ms]);
+      const list = times.get(key);
+      if (list) list.push(ms);
+      else times.set(key, [ms]);
     }
   }
   return [...times.entries()]

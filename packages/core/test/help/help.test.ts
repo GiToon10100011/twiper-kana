@@ -5,39 +5,33 @@ import {
   missCounts,
   replayInputSession,
   type InputSnapshot,
-  type LineResult,
 } from '../../src/index';
 
 function snaps(values: string[], composing = true): InputSnapshot[] {
   return values.map((value, i) => ({ t: (i + 1) * 100, value, composing }));
 }
 
-const line = (target: string, missedIndexes: number[]): LineResult => ({
-  target,
-  units: Array.from(target).length,
-  firstTryUnits: Array.from(target).length - missedIndexes.length,
-  missed: [],
-  missedIndexes,
-  mistakeKinds: {},
-  reactionMs: null,
-  elapsedMs: null,
-  romajiSuspected: false,
-  toggleSuspected: false,
-});
-
 describe('missCounts', () => {
-  it('끝낸 줄은 틀린 자리마다, 지금 줄은 기록된 오류마다 목표 글자로 센다', () => {
+  it('넘긴 오류마다 목표 글자로 센다', () => {
+    // か를 두고 다음 글자를 쳐서 が 1번
     const current = replayInputSession('がぎ', snaps(['か', 'かぎ', 'か', 'が']));
-    const counts = missCounts([line('がぐ', [0]), line('ぎが', [1])], current);
+    const done = replayInputSession('ぎが', snaps(['ぎ', 'ぎか', 'ぎかか', 'ぎ', 'ぎが']));
+    const counts = missCounts([...done.errors, ...current.errors]);
 
-    // が: 끝낸 줄 2번 + 지금 줄 1번(か를 두고 다음 글자를 침)
-    expect(counts.get('が')).toBe(3);
+    expect(counts.get('が')).toBe(2);
     expect(counts.get('ぎ')).toBeUndefined();
+  });
+
+  it('한 자리에서 두 번 틀렸으면 두 번으로 센다', () => {
+    const done = replayInputSession('あい', snaps(['か', '', 'か', '', 'あ', 'あい']));
+
+    expect(done.errors.map((e) => e.index)).toEqual([0, 0]);
+    expect(missCounts(done.errors).get('あ')).toBe(2);
   });
 
   it('목표보다 길게 친 초과분은 세지 않는다', () => {
     const current = replayInputSession('あ', snaps(['あい', 'あ']));
-    expect([...missCounts([], current).keys()]).toEqual([]);
+    expect([...missCounts(current.errors).keys()]).toEqual([]);
   });
 });
 
