@@ -23,6 +23,8 @@ export interface Level {
   readonly keys: readonly string[];
   /** 조합·가타카나 레벨의 규칙 */
   readonly topic?: LevelTopic;
+  /** 실력 확인용 종합 레벨. 스스로 떠올리도록 상황별 도움말을 띄우지 않는다 */
+  readonly assessment?: boolean;
   readonly drill: DrillSpec;
 }
 
@@ -157,6 +159,7 @@ export const levels: readonly Level[] = [
     stage: 'basic',
     kind: 'all',
     keys: [],
+    assessment: true,
     drill: {
       focus: allKana,
       review: [],

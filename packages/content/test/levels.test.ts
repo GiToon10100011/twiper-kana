@@ -142,6 +142,10 @@ describe('levels', () => {
     }
   });
 
+  it('실력 확인용(도움말 없음) 레벨은 지금은 50음 랜덤 L10뿐이다', () => {
+    expect(levels.filter((level) => level.assessment).map((level) => level.id)).toEqual(['L10']);
+  });
+
   it('findLevel·nextLevel', () => {
     expect(findLevel('L3')?.keys).toEqual(['さ']);
     expect(findLevel('L99')).toBeUndefined();

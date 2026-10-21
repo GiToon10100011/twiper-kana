@@ -38,6 +38,10 @@ describe('missCounts', () => {
 describe('helpIndex', () => {
   const none = new Map<string, number>();
 
+  it('기준: 5초 동안 진행이 없거나, 이번 판에서 같은 글자를 2번 틀렸을 때', () => {
+    expect(HELP_POLICY).toEqual({ idleMs: 5000, repeatMisses: 2 });
+  });
+
   it('다음에 칠 글자에서 머뭇거렸으면 그 위치를 돌려준다', () => {
     const state = replayInputSession('あいう', snaps(['あ']));
     expect(helpIndex(state, { stuckAt: 1, misses: none })).toBe(1);
