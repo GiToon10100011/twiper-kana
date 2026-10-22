@@ -92,7 +92,15 @@ export function ExamRun({
   const finished = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  /** 타이머가 늦게 돌아도 끝난 시각 뒤의 입력은 세지 않는다 */
+  const pastDeadline = (time: number) => startedAt !== null && time - startedAt >= durationMs;
+
   const onProgress = (session: InputSessionState) => {
+    if (finished.current) return;
+    if (pastDeadline(performance.now())) {
+      finishRef.current();
+      return;
+    }
     latest.current = session;
     if (startedAt !== null || session.startedAt === null) return;
     // 첫 글자를 친 순간부터 잰다. 입력 스냅샷과 같은 시계(performance.now)를 쓴다
@@ -110,7 +118,11 @@ export function ExamRun({
   };
 
   const onComplete = (session: InputSessionState) => {
-    if (outcome) return;
+    if (finished.current) return;
+    if (pastDeadline(session.completedAt ?? performance.now())) {
+      finishRef.current();
+      return;
+    }
     results.current.push(lineResultOf(session, shownAt.current));
     if (sessionRef.current) {
       const meta = {
@@ -154,14 +166,18 @@ export function ExamRun({
     finishRef.current = finish;
   });
 
+  // 끝나는 시각에 맞춰 한 번 끝내고, 남은 시간 표시는 따로 자주 고친다
   useEffect(() => {
     if (startedAt === null || outcome) return;
-    const timer = window.setInterval(() => {
-      const time = performance.now();
-      if (time - startedAt >= durationMs) finishRef.current();
-      else setNow(time);
-    }, 200);
-    return () => window.clearInterval(timer);
+    const end = window.setTimeout(
+      () => finishRef.current(),
+      Math.max(0, startedAt + durationMs - performance.now()),
+    );
+    const tick = window.setInterval(() => setNow(performance.now()), 200);
+    return () => {
+      window.clearTimeout(end);
+      window.clearInterval(tick);
+    };
   }, [startedAt, outcome, durationMs]);
 
   // 결과에서 다시 하기: iOS는 누른 그 순간에 포커스해야 키보드를 띄우므로 입력창을 동기로 그린 뒤 포커스한다

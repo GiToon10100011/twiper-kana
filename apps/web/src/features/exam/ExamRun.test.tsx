@@ -88,6 +88,28 @@ describe('ExamRun (종합 테스트)', () => {
     expect(saved.some((a) => a.levelId === 'test-kana' && a.target === first.line.text)).toBe(true);
   });
 
+  it('첫 글자를 친 때부터 정확히 시간이 다 되면 끝낸다', async () => {
+    renderAt('/test/word?min=1&seed=3');
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    input.dispatchEvent(new CompositionEvent('compositionstart'));
+    input.value = 'か';
+    input.dispatchEvent(
+      new InputEvent('input', {
+        data: 'か',
+        inputType: 'insertCompositionText',
+        isComposing: true,
+      }),
+    );
+    // 스냅샷은 다음 작업에서 나가고(1ms) 그때부터 1분을 잰다
+    await tick(1);
+
+    await tick(59_998);
+    expect(screen.getByRole('timer')).toBeTruthy();
+    await tick(2);
+    expect(screen.queryByRole('timer')).toBeNull();
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('단어 테스트 끝 · 1분');
+  });
+
   it('긴 글은 다음 줄을 미리 보여 주고, 짧은 글·긴 글은 어절 사이에 틈을 둔다', () => {
     renderAt('/test/long?min=3&seed=2');
     const exam = createExam(examSource('long'), 2);
