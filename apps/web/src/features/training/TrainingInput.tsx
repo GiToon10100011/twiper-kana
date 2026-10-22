@@ -30,6 +30,12 @@ interface TrainingInputProps {
    * 없으면 머뭇거림을 재지 않는다
    */
   help?: (session: InputSessionState, stuckAt: number | null) => ReactNode;
+  /** 이 글자 위치 뒤에 틈을 두어 어절을 나눠 보인다 (종합 테스트의 문장) */
+  gapsAfter?: readonly number[];
+  /** 목표 바로 아래에 둘 것 (긴 글의 다음 줄 미리보기) */
+  afterTarget?: ReactNode;
+  /** 입력 세션이 바뀔 때마다 알린다 (종합 테스트의 시간 재기) */
+  onProgress?: (session: InputSessionState) => void;
   placeholder?: string;
   targetLabel?: string;
   inputRef?: RefObject<HTMLInputElement | null>;
@@ -52,6 +58,9 @@ export function TrainingInput({
   fixHint,
   notice,
   help,
+  gapsAfter,
+  afterTarget,
+  onProgress,
   placeholder,
   targetLabel,
   inputRef,
@@ -84,6 +93,14 @@ export function TrainingInput({
     onCompleteRef.current = onComplete;
   });
 
+  const onProgressRef = useRef(onProgress);
+  useEffect(() => {
+    onProgressRef.current = onProgress;
+  });
+  useEffect(() => {
+    onProgressRef.current?.(session);
+  }, [session]);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -110,7 +127,8 @@ export function TrainingInput({
 
   return (
     <div className="trainer">
-      <TargetText session={session} label={targetLabel} />
+      <TargetText session={session} label={targetLabel} gapsAfter={gapsAfter} />
+      {afterTarget}
       <input
         ref={ref}
         className="text-input"

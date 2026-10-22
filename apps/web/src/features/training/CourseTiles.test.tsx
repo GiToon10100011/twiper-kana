@@ -115,16 +115,16 @@ describe('DrillRoute', () => {
     render(
       <MemoryRouter initialEntries={[path]}>
         <Routes>
-          <Route path="/" element={<p>홈 화면</p>} />
+          <Route path="/steps" element={<p>단계별 익히기 화면</p>} />
           <Route path="/train/:levelId" element={<DrillRoute />} />
         </Routes>
       </MemoryRouter>,
     );
 
-  it('잠긴 레벨 주소로 들어오면 홈으로 보낸다', () => {
+  it('잠긴 레벨 주소로 들어오면 단계별 익히기(코스 목록)로 보낸다', () => {
     renderRoute('/train/L3');
 
-    expect(screen.getByText('홈 화면')).toBeTruthy();
+    expect(screen.getByText('단계별 익히기 화면')).toBeTruthy();
   });
 
   it('열린 레벨은 준비 화면을 보여 준다', () => {

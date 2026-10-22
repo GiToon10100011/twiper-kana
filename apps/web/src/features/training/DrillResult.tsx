@@ -115,8 +115,8 @@ export function DrillResult({ title, summary, previous, next, onAgain }: DrillRe
             {t('result.next', { level: levelTitle(next, t) })}
           </Link>
         ) : null}
-        <Link className="btn-quiet" to="/">
-          {t('result.home')}
+        <Link className="btn-quiet" to="/steps">
+          {t('result.steps')}
         </Link>
       </div>
     </section>

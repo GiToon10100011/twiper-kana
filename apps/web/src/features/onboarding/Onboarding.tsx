@@ -150,8 +150,8 @@ export function Onboarding() {
             <Link className="btn btn-primary" to="/train/L1">
               {t('onboarding.done.start')}
             </Link>
-            <Link className="btn-quiet" to="/">
-              {t('onboarding.done.home')}
+            <Link className="btn-quiet" to="/steps">
+              {t('onboarding.done.steps')}
             </Link>
           </div>
         </section>

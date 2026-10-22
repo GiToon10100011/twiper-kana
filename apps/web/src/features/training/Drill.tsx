@@ -170,7 +170,7 @@ export function Drill({ level }: { level: Level }) {
   return (
     <main className="screen">
       <header className="screen-header">
-        <Link className="icon-btn header-back" to="/" aria-label={t('drill.exit')}>
+        <Link className="icon-btn header-back" to="/steps" aria-label={t('drill.exit')}>
           <BackIcon />
         </Link>
         {started && !drill.done ? <span>{progress}</span> : null}
@@ -252,6 +252,6 @@ export function Drill({ level }: { level: Level }) {
 export function DrillRoute() {
   const { levelId = '' } = useParams();
   const level = findLevel(levelId);
-  if (!level || !levelAccess().unlocked.has(level.id)) return <Navigate to="/" replace />;
+  if (!level || !levelAccess().unlocked.has(level.id)) return <Navigate to="/steps" replace />;
   return <Drill key={level.id} level={level} />;
 }

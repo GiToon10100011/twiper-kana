@@ -11,3 +11,5 @@ export { iosKana } from './guides/iosKana';
 export { dakutenWords, handakutenWords, sokuonWords, yoonWords } from './words/combos';
 export { hiraganaWords } from './words/hiragana';
 export { katakanaWords, longVowelWords } from './words/katakana';
+export { EXAM_MODES, examKanaUnits, examSource, examWords } from './exams/exams';
+export { longPassages, shortSentences } from './exams/sentences';

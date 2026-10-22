@@ -20,6 +20,26 @@ export function ChartIcon() {
   );
 }
 
+/** 초시계 (Lucide "timer", ISC). 시간 제한이 있는 테스트 */
+export function TimerIcon() {
+  return (
+    <svg className="icon-inline" viewBox="0 0 24 24" aria-hidden="true">
+      <line x1="10" x2="14" y1="2" y2="2" />
+      <line x1="12" x2="15" y1="14" y2="11" />
+      <circle cx="12" cy="14" r="8" />
+    </svg>
+  );
+}
+
+/** 재생 삼각형 (Lucide "play", ISC). 눌러서 바로 시작하는 항목 */
+export function PlayIcon() {
+  return (
+    <svg className="icon-play" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 3.5v17a1 1 0 0 0 1.5.86l14-8.5a1 1 0 0 0 0-1.72l-14-8.5A1 1 0 0 0 6 3.5z" />
+    </svg>
+  );
+}
+
 /** 오른쪽 꺾쇠 (Lucide "chevron-right", ISC). 목록에서 들어갈 수 있는 항목 */
 export function ForwardIcon() {
   return (
