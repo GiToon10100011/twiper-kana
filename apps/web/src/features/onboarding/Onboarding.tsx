@@ -7,12 +7,22 @@ import type { FlickDirection, InputSessionState } from '@twiper/core';
 import { markOnboarded } from '../../lib/flags';
 import { TrainingInput } from '../training/TrainingInput';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
+import { KeyboardKeys } from '../tutorial/KeyboardKeys';
 import { LayoutTour, VowelTour } from '../tutorial/tours';
 
-type Step = 'setup' | 'flick' | 'try' | 'layout' | 'vowels' | 'check' | 'done';
+type Step = 'setup' | 'flick' | 'try' | 'layout' | 'vowels' | 'check' | 'keys' | 'done';
 type TypingStep = 'try' | 'check';
 
-const STEPS: readonly Step[] = ['setup', 'flick', 'try', 'layout', 'vowels', 'check', 'done'];
+const STEPS: readonly Step[] = [
+  'setup',
+  'flick',
+  'try',
+  'layout',
+  'vowels',
+  'check',
+  'keys',
+  'done',
+];
 /** try: 같은 키, 다섯 방향 / check: 다른 키, 같은 방향(왼쪽 = い단) */
 const PRACTICE: Record<TypingStep, string> = { try: 'あいうえお', check: 'きしちにひ' };
 const A_KEY = iosKana.layers.kana.keys.find((key) => key.id === 'a');
@@ -20,7 +30,7 @@ const A_KEY = iosKana.layers.kana.keys.find((key) => key.id === 'a');
 /**
  * 튜토리얼 (Part 0–3). 홈에서 언제든 다시 볼 수 있다.
  * 키보드 준비 → 플릭의 개념 → 직접 입력하며 確定 후 넘어가는 규칙 익히기
- * → 12키 배치(50음 순서) → 방향 = 모음 → 다른 키를 같은 방향으로 쳐 보기.
+ * → 12키 배치(50음 순서) → 방향 = 모음 → 다른 키를 같은 방향으로 쳐 보기 → 글자 키 말고 다른 키들.
  */
 export function Onboarding() {
   const { t } = useTranslation();
@@ -131,7 +141,7 @@ export function Onboarding() {
           <TrainingInput
             target={PRACTICE[step]}
             questionKey={step}
-            onComplete={() => (step === 'try' ? setStep('layout') : finish())}
+            onComplete={() => setStep(step === 'try' ? 'layout' : 'keys')}
             matchedHint={t('onboarding.matched')}
             notice={notice}
             placeholder={t('training.tapInput')}
@@ -139,6 +149,17 @@ export function Onboarding() {
             inputRef={inputRef}
           />
           <p className="screen-note">{t('onboarding.commitRule')}</p>
+        </section>
+      ) : null}
+
+      {step === 'keys' ? (
+        <section>
+          <h1 className="screen-title">{t('keys.title')}</h1>
+          <p className="screen-body">{t('keys.lead')}</p>
+          <KeyboardKeys />
+          <button type="button" className="btn btn-primary" onClick={finish}>
+            {t('keys.next')}
+          </button>
         </section>
       ) : null}
 

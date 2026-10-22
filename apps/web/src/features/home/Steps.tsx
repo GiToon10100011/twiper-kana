@@ -26,6 +26,12 @@ export function Steps() {
             <small>{isOnboarded() ? t('home.tutorialHint') : t('home.tutorialFirst')}</small>
           </Link>
         </li>
+        <li>
+          <Link to="/keys">
+            <span>{t('keys.manual')}</span>
+            <small>{t('keys.manualHint')}</small>
+          </Link>
+        </li>
       </ul>
 
       <h2 className="section-label">{t('course.title')}</h2>
