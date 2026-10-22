@@ -15,8 +15,6 @@ export const ja: typeof ko = {
     guideCheckHint: 'キー配置の照合',
     courseTiles: 'コース一覧プレビュー',
     courseTilesHint: '進み具合ごとの表示',
-    homeV2: '新しいホームの試作',
-    homeV2Hint: '総合テスト + ステップで覚える',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
@@ -74,7 +72,7 @@ export const ja: typeof ko = {
       title: '準備完了',
       body: 'フリックと確定をどちらも試しました。次は行ごとにキーの位置を覚えましょう。',
       start: '最初のレベルをはじめる',
-      home: 'ホームへ',
+      steps: 'ステップ一覧へ',
     },
   },
   training: {
@@ -141,6 +139,17 @@ export const ja: typeof ko = {
     noHelp:
       '実力確認のレベルなので、止まっても打ち方のヘルプは出ません。自分で思い出してみましょう。',
     retryNote: '間違えた文字は数行あとにもう一度出ます。',
+  },
+  exam: {
+    title: '{{name}}テスト',
+    timer: '残り時間',
+    ready: '最初の文字を打つと時間が進みます。ヘルプは出ません。',
+    next: '次の行',
+    done: '{{name}}テスト 終了',
+    lines: '終えた行',
+    linesValue: '{{count}}行',
+    newBest: '自己ベストです！',
+    best: 'これまでの最高 {{kpm}}字/分',
   },
   tests: {
     title: '総合テスト',
@@ -230,6 +239,7 @@ export const ja: typeof ko = {
     again: 'もう一度',
     next: '次へ: {{level}}',
     home: 'ホームへ',
+    steps: 'ステップ一覧へ',
   },
   pwa: {
     update: '新しいバージョンがあります。',

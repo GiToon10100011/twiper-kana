@@ -1761,13 +1761,46 @@ a.tile-row:active {
   color: var(--ink-muted);
 }
 
-.lab-panel {
-  margin-top: 4rem;
-  border-top: 1px dashed var(--line-strong);
+/* 어절: 종합 테스트의 문장을 어절째 줄바꿈하고 사이에 틈을 둔다 (목표에는 공백이 없다) */
+.target-text .ch-word {
+  display: inline-flex;
+  gap: 0.12em;
+  padding: 0;
+  margin-inline-end: 0.3em;
+  white-space: nowrap;
+  border: 0;
 }
 
-.lab-message {
-  margin: var(--space-2) 0 0;
-  font-size: 0.8125rem;
+.test-preview .is-gap {
+  margin-inline-end: 0.3em;
+}
+
+/* 종합 테스트 화면 */
+.exam .target-text {
+  justify-content: flex-start;
+  font-size: 1.75rem;
+}
+
+.exam-timer {
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 긴 글의 다음 줄 */
+.exam-upcoming {
+  margin: calc(-1 * var(--space-1)) 0 var(--space-3);
+  font-size: 1.125rem;
+  color: var(--ink-faint);
+}
+
+.exam-best {
+  margin: 0 0 var(--space-3);
+  font-size: 0.875rem;
   color: var(--ink-muted);
+}
+
+.exam-best.is-new {
+  font-weight: 600;
+  color: var(--accent);
 }

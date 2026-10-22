@@ -13,8 +13,6 @@ export const ko = {
     guideCheckHint: '키 배치 대조',
     courseTiles: '목록 상태 미리보기',
     courseTilesHint: '진행 상태별 코스 목록',
-    homeV2: '새 홈 시안',
-    homeV2Hint: '종합 테스트 + 단계별 익히기',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
@@ -71,7 +69,7 @@ export const ko = {
       title: '준비 끝',
       body: '플릭과 確定을 모두 해 봤어요. 이제 행별로 키 위치를 익혀요.',
       start: '첫 레벨 시작하기',
-      home: '홈으로',
+      steps: '단계별 익히기로',
     },
   },
   training: {
@@ -139,6 +137,17 @@ export const ko = {
     fix: '{{word}}와 다르게 確定됐어요. 지우고 다시 친 다음 후보에서 골라 주세요.',
     noHelp: '실력 확인용 레벨이라 막혀도 치는 법 도움말이 나오지 않아요. 스스로 떠올려 보세요.',
     retryNote: '틀린 글자는 몇 줄 뒤에 다시 나와요.',
+  },
+  exam: {
+    title: '{{name}} 테스트',
+    timer: '남은 시간',
+    ready: '첫 글자를 치면 시간이 흘러요. 도움말은 나오지 않아요.',
+    next: '다음 줄',
+    done: '{{name}} 테스트 끝',
+    lines: '끝낸 줄',
+    linesValue: '{{count}}줄',
+    newBest: '최고 기록이에요!',
+    best: '지금까지 최고 {{kpm}}가나/분',
   },
   tests: {
     title: '종합 테스트',
@@ -225,6 +234,7 @@ export const ko = {
     again: '다시 하기',
     next: '다음: {{level}}',
     home: '홈으로',
+    steps: '단계별 익히기로',
   },
   pwa: {
     update: '새 버전이 있어요.',
