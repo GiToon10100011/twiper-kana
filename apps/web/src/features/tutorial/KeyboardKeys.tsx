@@ -62,7 +62,8 @@ const SIDE: Record<Mode, readonly Cell[]> = {
 const RIGHT: readonly Cell[] = [
   { id: 'delete', label: <DeleteIcon />, row: 0, col: 4 },
   { id: 'space', label: '空白', row: 1, col: 4 },
-  { id: 'return', label: '確定', row: 2, col: 4, tall: true },
+  // 그림은 아무것도 치지 않은 상태라(^^, 空白) 이 키도 「改行」. 치는 중에는 「確定」이 된다
+  { id: 'return', label: '改行', row: 2, col: 4, tall: true },
 ];
 
 /** 가운데 3열: 가이드의 글자 키와 「小゛゜」 키 (아무것도 치지 않았을 때는 「^^」로 보인다) */
