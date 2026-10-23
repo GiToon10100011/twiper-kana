@@ -87,6 +87,7 @@ describe('Steps (단계별 익히기)', () => {
     expect(screen.getByRole('heading', { level: 1, name: '단계별 익히기' })).toBeTruthy();
     expect(screen.getByRole('link', { name: /튜토리얼/ }).getAttribute('href')).toBe('/tutorial');
     expect(screen.getByRole('link', { name: /키보드 설명서/ }).getAttribute('href')).toBe('/keys');
+    expect(screen.getByRole('link', { name: /글자 찾기/ }).getAttribute('href')).toBe('/find');
     expect(screen.getByRole('link', { name: /あ행/ }).getAttribute('href')).toBe('/train/L1');
     expect(screen.getByRole('link', { name: '홈으로' }).getAttribute('href')).toBe('/');
     expect(screen.getByRole('heading', { name: '개발 도구' })).toBeTruthy();

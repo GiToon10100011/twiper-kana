@@ -13,3 +13,4 @@ export { hiraganaWords } from './words/hiragana';
 export { katakanaWords, longVowelWords } from './words/katakana';
 export { EXAM_MODES, examKanaUnits, examSource, examWords } from './exams/exams';
 export { longPassages, shortSentences } from './exams/sentences';
+export { charTables, type CharTable, type CharTableId } from './guides/charTables';
