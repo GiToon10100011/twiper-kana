@@ -12,6 +12,7 @@ import { UpdatePrompt } from './features/pwa/UpdatePrompt';
 import { Settings } from './features/settings/Settings';
 import { Stats } from './features/stats/Stats';
 import { DrillRoute } from './features/training/Drill';
+import { FindPage } from './features/tutorial/FindPage';
 import { KeysPage } from './features/tutorial/KeysPage';
 
 /** 홈으로 앱을 열었을 때만 오프닝을 보여 준다. 다른 주소로 바로 들어오면 건너뛴다 */
@@ -37,6 +38,7 @@ export function App() {
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />
           <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
+          <Route path="/lab/find" element={<FindPage />} />
         </Routes>
       )}
     </BrowserRouter>

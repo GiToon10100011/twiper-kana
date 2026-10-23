@@ -24,7 +24,7 @@ export type {
   KeyboardGuide,
 } from './guide/types';
 export { findKeyStep, guideClaims } from './guide/claims';
-export { explainChar } from './guide/explain';
+export { explainChar, explainText, lookupChar, type TextPart } from './guide/explain';
 export { HELP_POLICY, helpIndex, missCounts, type HelpPolicy } from './help/help';
 export type {
   CharStatus,

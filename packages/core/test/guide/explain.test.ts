@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { explainChar, type KeyboardGuide } from '../../src/index';
+import { explainChar, explainText, lookupChar, type KeyboardGuide } from '../../src/index';
 
 const guide: KeyboardGuide = {
   id: 'test',
@@ -67,5 +67,76 @@ describe('explainChar', () => {
     expect(explainChar(guide, '亀')).toBeNull();
     expect(explainChar(guide, 'っ')).toBeNull();
     expect(explainChar(guide, '')).toBeNull();
+  });
+});
+
+/** ☆123·ABC 자판에도 키가 있는 가이드. 「는 かな(や ←)와 ☆123(7 ←) 양쪽에 있다 */
+const withLayers: KeyboardGuide = {
+  ...guide,
+  layers: {
+    kana: {
+      ...guide.layers.kana,
+      keys: [
+        ...guide.layers.kana.keys.filter((key) => key.id !== 'ya'),
+        { id: 'ya', label: 'や', row: 2, col: 1, outputs: { tap: 'や', left: '「' } },
+      ],
+    },
+    number: {
+      switchLabel: '☆123',
+      keys: [
+        { id: '7', label: '7', row: 2, col: 0, outputs: { tap: '7', left: '「' } },
+        { id: '8', label: '8', row: 2, col: 1, outputs: { tap: '8', up: '々' } },
+      ],
+    },
+    alpha: {
+      switchLabel: 'ABC',
+      keys: [{ id: 'wxyz', label: 'WXYZ', row: 2, col: 2, outputs: { tap: 'w', left: 'x' } }],
+    },
+  },
+};
+
+describe('lookupChar', () => {
+  it('かな 자판에 있으면 explainChar와 같다', () => {
+    expect(lookupChar(withLayers, 'ぎ')).toEqual(explainChar(withLayers, 'ぎ'));
+    expect(lookupChar(withLayers, '「')?.[0]).toMatchObject({ layer: 'kana', keyId: 'ya' });
+  });
+
+  it('かな 자판에 없으면 ☆123, ABC 자판 순서로 찾는다', () => {
+    expect(lookupChar(withLayers, '々')).toEqual([
+      { kind: 'key', layer: 'number', keyId: '8', label: '8', dir: 'up', out: '々' },
+    ]);
+    expect(lookupChar(withLayers, 'x')).toEqual([
+      { kind: 'key', layer: 'alpha', keyId: 'wxyz', label: 'WXYZ', dir: 'left', out: 'x' },
+    ]);
+  });
+
+  it('어느 자판에도 없으면 null이다', () => {
+    expect(lookupChar(withLayers, '亀')).toBeNull();
+    expect(lookupChar(withLayers, 'X')).toBeNull();
+  });
+});
+
+describe('explainText', () => {
+  it('작은 글자는 앞 글자와 한 단위로 묶고, 글자마다 치는 동작을 붙인다', () => {
+    const parts = explainText(guide, 'きゃー');
+    expect(parts.map((part) => part.text)).toEqual(['きゃ', 'ー']);
+    expect(parts[0]?.chars.map((c) => c.steps?.at(-1)?.out)).toEqual(['き', 'ゃ']);
+    expect(parts.every((part) => !part.convert)).toBe(true);
+  });
+
+  it('가타카나 단위는 변환이 필요하다고 표시한다', () => {
+    const parts = explainText(guide, 'キャー');
+    expect(parts.map((part) => [part.text, part.convert])).toEqual([
+      ['キャ', true],
+      ['ー', false],
+    ]);
+    expect(parts[0]?.chars[1]?.steps).toEqual(explainChar(guide, 'ゃ'));
+  });
+
+  it('공백은 건너뛰고, 칠 수 없는 글자는 동작이 null이다', () => {
+    const parts = explainText(guide, ' 亀 き\n');
+    expect(parts.map((part) => part.text)).toEqual(['亀', 'き']);
+    expect(parts[0]?.chars[0]?.steps).toBeNull();
+    expect(explainText(guide, '  ')).toEqual([]);
   });
 });
