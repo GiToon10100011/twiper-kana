@@ -29,14 +29,13 @@ describe('todayFrom', () => {
       attempt('B', local(24, 10), 'かき', 2000),
     ];
     const times = [local(22, 23), local(23, 0), local(23, 21), ...todays.map((a) => a.at)];
-    const data = todayFrom(times, todays, [], new Date(2026, 9, 24, 12));
+    const data = todayFrom(times, todays, new Date(2026, 9, 24, 12));
 
     expect(data.today).toBe('2026-10-24');
     expect([...data.days].sort()).toEqual(['2026-10-22', '2026-10-23', '2026-10-24']);
     expect(data.streak).toEqual({ current: 3, best: 3, today: true });
     expect(data.todayMs).toBe(6000);
     expect(data.todayChars).toBe(7);
-    expect(data.weakest).toBeNull();
   });
 });
 

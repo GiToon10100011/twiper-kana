@@ -4,11 +4,9 @@ import {
   skillsOf,
   skillStats,
   slowUnits,
-  weakestSkill,
   type AttemptFlag,
   type AttemptRecord,
   type MistakeKind,
-  type SkillStat,
 } from '../../src/index';
 
 let serial = 0;
@@ -184,32 +182,5 @@ describe('slowUnits', () => {
       { unit: 'き', medianMs: 1000, samples: 2 },
       { unit: 'か', medianMs: 500, samples: 3 },
     ]);
-  });
-});
-
-describe('weakestSkill', () => {
-  const stat = (skill: SkillStat['skill'], samples: number, accuracy: number): SkillStat => ({
-    skill,
-    samples,
-    firstTry: Math.round(samples * accuracy),
-    accuracy,
-    medianMs: null,
-  });
-
-  it('표본이 충분하고 90%보다 낮은 규칙 중 가장 낮은 것을 고른다', () => {
-    const stats = [stat('row:か', 20, 0.85), stat('dakuten', 12, 0.7), stat('small', 30, 0.95)];
-    expect(weakestSkill(stats)?.skill).toBe('dakuten');
-  });
-
-  it('표본이 적은 규칙은 고르지 않는다', () => {
-    expect(weakestSkill([stat('yoon', 7, 0.2), stat('row:さ', 8, 0.8)])?.skill).toBe('row:さ');
-  });
-
-  it('정확도가 같으면 먼저 나온(먼저 배우는) 규칙을 고른다', () => {
-    expect(weakestSkill([stat('row:あ', 10, 0.8), stat('row:か', 10, 0.8)])?.skill).toBe('row:あ');
-  });
-
-  it('모두 90% 이상이면 null이다', () => {
-    expect(weakestSkill([stat('row:あ', 40, 0.9), stat('katakana', 40, 1)])).toBeNull();
   });
 });

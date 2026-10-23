@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
-import { addDays, streakOf, type SkillStat } from '@twiper/core';
+import { addDays, streakOf } from '@twiper/core';
 import '../../i18n';
 import type { TodayData } from '../../lib/today';
-import { Today, type TodayVariant } from './Today';
+import { Today } from './Today';
 
 afterEach(cleanup);
 
@@ -19,66 +19,62 @@ function data(daysAgo: number[], extra: Partial<TodayData> = {}): TodayData {
     streak: streakOf(days, TODAY),
     todayMs: 0,
     todayChars: 0,
-    weakest: null,
     ...extra,
   };
 }
 
-const dakuten: SkillStat = {
-  skill: 'dakuten',
-  samples: 30,
-  firstTry: 22,
-  accuracy: 0.73,
-  medianMs: 900,
-};
-
-const show = (value: TodayData, variant: TodayVariant = 'strip') =>
+const show = (value: TodayData) =>
   render(
     <MemoryRouter>
-      <Today data={value} variant={variant} />
+      <Today data={value} />
     </MemoryRouter>,
   );
-const today = () => screen.getByRole('region', { name: '오늘' });
+const strip = () => screen.getByRole('link', { name: /연습한 날 보기/ });
+const dots = () => Array.from(document.querySelectorAll('.today-day'));
 
-describe('Today (홈 「오늘」)', () => {
-  it('최근 7일을 보여 주고, 오늘 연습했으면 이어진 날 수와 오늘 친 양을 보여 준다', () => {
+describe('Today (홈 「오늘」 띠)', () => {
+  it('누르면 연습한 날 달력으로 간다', () => {
+    show(data([0]));
+    expect(strip().getAttribute('href')).toBe('/calendar');
+  });
+
+  it('최근 7일 점을 보여 주고, 오늘 연습했으면 이어진 날 수와 오늘 친 양을 읽어 준다', () => {
     show(data([0, 1, 2, 3, 4, 6], { todayMs: 260_000, todayChars: 128 }));
-    const week = within(today()).getByRole('list', { name: '최근 7일' });
 
-    expect(within(week).getAllByRole('listitem')).toHaveLength(7);
-    expect(within(week).getAllByRole('listitem').at(-1)?.getAttribute('aria-label')).toBe(
-      '오늘 연습함',
-    );
-    expect(today().textContent).toMatch(/5일 연속/);
-    expect(today().textContent).toMatch(/오늘 4분 · 128자/);
+    expect(dots()).toHaveLength(7);
+    expect(dots().map((dot) => dot.classList.contains('is-done'))).toEqual([
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+    ]);
+    expect(dots().at(-1)?.classList.contains('is-today')).toBe(true);
+    expect(strip().getAttribute('aria-label')).toBe('5일 연속, 오늘 4분 · 128자, 연습한 날 보기');
   });
 
   it('오늘 아직이면 어제까지 이어진 날 수와 오늘 치면 며칠째인지 보여 준다', () => {
     show(data([1, 2, 3]));
-    expect(today().textContent).toMatch(/3일 연속/);
-    expect(today().textContent).toMatch(/오늘 치면 4일째/);
+    expect(strip().textContent).toMatch(/3일 연속/);
+    expect(strip().textContent).toMatch(/오늘 치면 4일째/);
   });
 
   it('끊겼으면 다시 시작하자고 하고 가장 길었던 기록을 보여 준다', () => {
     show(data([3, 4, 5, 6, 10, 11, 12, 13, 14]));
-    expect(today().textContent).toMatch(/다시 시작해요/);
-    expect(today().textContent).toMatch(/최고 5일 연속/);
+    expect(strip().textContent).toMatch(/다시 시작해요/);
+    expect(strip().textContent).toMatch(/최고 5일 연속/);
   });
 
   it('기록이 없으면 첫 줄을 치면 기록된다고 알린다', () => {
     show(data([]));
-    expect(today().textContent).toMatch(/첫 줄을 치면 기록돼요/);
-    expect(today().textContent).not.toMatch(/연속/);
+    expect(strip().textContent).toMatch(/첫 줄을 치면 기록돼요/);
+    expect(strip().textContent).not.toMatch(/연속/);
   });
 
-  it('카드(B안)는 가장 약한 규칙의 레벨로 가는 오늘 추천을 붙이고, 띠(A안)는 붙이지 않는다', () => {
-    show(data([0], { weakest: dakuten }), 'card');
-    const pick = within(today()).getByRole('link', { name: /다시 하기/ });
-    expect(pick.getAttribute('href')).toBe('/train/L11');
-    expect(pick.textContent).toMatch(/첫 시도 73%/);
-
-    cleanup();
-    show(data([0], { weakest: dakuten }), 'strip');
-    expect(within(today()).queryByRole('link')).toBeNull();
+  it('1분이 안 되면 「1분 미만」으로 보여 준다', () => {
+    show(data([0], { todayMs: 42_000, todayChars: 15 }));
+    expect(strip().textContent).toMatch(/오늘 1분 미만 · 15자/);
   });
 });

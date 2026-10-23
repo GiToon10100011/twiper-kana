@@ -61,8 +61,6 @@ export {
   skillStats,
   slowUnits,
   STATS_MIN_SAMPLES,
-  WEAK_ACCURACY,
-  weakestSkill,
   type SkillId,
   type SkillStat,
   type TopicSkill,

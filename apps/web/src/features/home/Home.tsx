@@ -1,13 +1,16 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { EXAM_MODES, examSource, findLevel, levels } from '@twiper/content';
-import { createExam, type ExamMode } from '@twiper/core';
+import { createExam, type ExamMode, type TrainingRepo } from '@twiper/core';
+import { trainingRepo } from '../../lib/db';
 import { loadExamRecords, type ExamRecords } from '../../lib/examRecords';
+import { loadToday, type TodayData } from '../../lib/today';
 import { ChartIcon, ForwardIcon, GearIcon, PlayIcon, TimerIcon } from '../../ui/icons';
 import { EXAM_MINUTES, newExamSeed, type ExamMinutes } from '../exam/ExamRun';
 import { levelAccess, type LevelAccess } from '../training/access';
 import { levelName, levelSymbol } from '../training/levelTitle';
+import { Today } from './Today';
 
 /** 알약 탭 묶음 (종목·시간 고르기) */
 function Pills<T extends string | number>({
@@ -153,10 +156,31 @@ function StepsEntry({ access }: { access: LevelAccess }) {
 }
 
 /**
- * 홈: 맨 위에 종합 테스트, 아직 칠 줄 모르는 사람을 위한 단계별 익히기는 그 아래.
- * top은 소개 문구 바로 아래에 둘 내용 (「오늘」 시안을 실제 홈 위에서 보기 위해)
+ * 「오늘」 띠. 기록은 IndexedDB에서 비동기로 읽으므로, 다 읽을 때까지 같은 높이의 빈자리를 둬
+ * 아래 종합 테스트가 밀려 움직이지 않게 한다. 읽지 못하면 빈자리로 남는다.
  */
-export function Home({ top }: { top?: ReactNode }) {
+function TodaySlot({ repo }: { repo?: TrainingRepo }) {
+  const [data, setData] = useState<TodayData | null>(null);
+  useEffect(() => {
+    let alive = true;
+    loadToday(repo ?? trainingRepo()).then(
+      (loaded) => {
+        if (alive) setData(loaded);
+      },
+      () => undefined,
+    );
+    return () => {
+      alive = false;
+    };
+  }, [repo]);
+  return <div className="today-slot">{data ? <Today data={data} /> : null}</div>;
+}
+
+/**
+ * 홈: 소개 아래 「오늘」 띠, 그 아래 종합 테스트, 아직 칠 줄 모르는 사람을 위한 단계별 익히기.
+ * repo는 테스트에서 기록 저장소를 바꿔 끼울 때 쓴다
+ */
+export function Home({ repo }: { repo?: TrainingRepo }) {
   const { t } = useTranslation();
   return (
     <main className="home">
@@ -172,7 +196,7 @@ export function Home({ top }: { top?: ReactNode }) {
         twiper<span aria-hidden="true">.</span>
       </h1>
       <p className="lead">{t('home.lead')}</p>
-      {top}
+      <TodaySlot repo={repo} />
 
       <h2 className="section-label">{t('tests.title')}</h2>
       <ExamPanel records={loadExamRecords()} />

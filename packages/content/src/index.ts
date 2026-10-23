@@ -1,6 +1,5 @@
 export {
   findLevel,
-  levelForSkill,
   levels,
   nextLevel,
   type ComboTopic,

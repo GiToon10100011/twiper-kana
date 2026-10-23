@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import { ExamRoute } from './features/exam/ExamRun';
+import { CalendarPage } from './features/home/CalendarPage';
 import { Home } from './features/home/Home';
 import { Steps } from './features/home/Steps';
 import { Opening } from './features/intro/Opening';
 import { CourseTilesLab } from './features/lab/CourseTilesLab';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
-import { TodayLab } from './features/lab/TodayLab';
 import { Onboarding } from './features/onboarding/Onboarding';
 import { UpdatePrompt } from './features/pwa/UpdatePrompt';
 import { Settings } from './features/settings/Settings';
@@ -36,11 +36,11 @@ export function App() {
           <Route path="/find" element={<FindPage />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/stats" element={<Stats />} />
+          <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/train/:levelId" element={<DrillRoute />} />
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />
           <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
-          <Route path="/lab/today" element={<TodayLab />} />
         </Routes>
       )}
     </BrowserRouter>

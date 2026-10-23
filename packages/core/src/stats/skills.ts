@@ -159,25 +159,6 @@ export function skillStats(
   });
 }
 
-/** 이보다 첫 시도 정확도가 낮으면 「약한 규칙」으로 보고 다시 연습하기를 권한다 */
-export const WEAK_ACCURACY = 0.9;
-
-/**
- * 다시 연습할 만한 가장 약한 규칙. 표본이 충분한 규칙 중 정확도가 WEAK_ACCURACY보다 낮고 가장 낮은 것.
- * 같으면 SKILL_ORDER에서 앞선(먼저 배우는) 규칙. 없으면 null
- */
-export function weakestSkill(
-  stats: readonly SkillStat[],
-  { minSamples = STATS_MIN_SAMPLES, below = WEAK_ACCURACY } = {},
-): SkillStat | null {
-  let weakest: SkillStat | null = null;
-  for (const stat of stats) {
-    if (stat.samples < minSamples || stat.accuracy >= below) continue;
-    if (weakest === null || stat.accuracy < weakest.accuracy) weakest = stat;
-  }
-  return weakest;
-}
-
 /** 자주 틀린 글자 쌍 (목표 → 친 글자). 많은 순, 같으면 최근에 틀린 순. 변환·초과 입력은 뺀다 */
 export function confusions(
   attempts: readonly AttemptRecord[],
