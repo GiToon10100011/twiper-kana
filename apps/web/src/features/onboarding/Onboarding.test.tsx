@@ -25,13 +25,13 @@ async function typeAndCommit(input: HTMLInputElement, text: string) {
 }
 
 describe('튜토리얼', () => {
-  it('준비 → 플릭 → あいうえお → 배치 → 방향 → きしちにひ → 끝 순서로 진행한다', async () => {
+  it('준비 → 플릭 → あいうえお → 배치 → 방향 → きしちにひ → 다른 키 → 끝 순서로 진행한다', async () => {
     render(
       <MemoryRouter>
         <Onboarding />
       </MemoryRouter>,
     );
-    expect(screen.getByText('1/7')).toBeTruthy();
+    expect(screen.getByText('1/8')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: '준비했어요' }));
     fireEvent.click(screen.getByRole('button', { name: '직접 쳐 보기' }));
@@ -44,8 +44,12 @@ describe('튜토리얼', () => {
     expect(screen.getByRole('heading', { name: '방향은 모음이에요' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '직접 쳐 보기' }));
     expect(document.activeElement).toBe(screen.getByRole('textbox'));
-    expect(screen.getByText('6/7')).toBeTruthy();
+    expect(screen.getByText('6/8')).toBeTruthy();
     await typeAndCommit(screen.getByRole('textbox'), 'きしちにひ');
+
+    expect(screen.getByRole('heading', { name: '키보드의 다른 키' })).toBeTruthy();
+    expect(screen.getByText('7/8')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '다음' }));
 
     expect(screen.getByRole('heading', { name: '준비 끝' })).toBeTruthy();
     expect(localStorage.getItem('twiper.onboarded')).toBe('1');

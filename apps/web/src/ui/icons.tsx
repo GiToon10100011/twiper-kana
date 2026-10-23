@@ -20,6 +20,73 @@ export function ChartIcon() {
   );
 }
 
+/* 키보드 설명서에 그리는 iPhone かな 키보드의 기능 키 (Lucide, ISC) */
+
+/** 오른쪽 화살표 (Lucide "arrow-right"). 「→」 문자 보내기 */
+export function ArrowRightIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
+  );
+}
+
+/** 반시계 화살표 (Lucide "rotate-ccw"). 「↺」 거꾸로 */
+export function RotateCcwIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+    </svg>
+  );
+}
+
+/** 웃는 얼굴 (Lucide "smile"). 이모지 키 */
+export function SmileIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+      <line x1="9" x2="9.01" y1="9" y2="9" />
+      <line x1="15" x2="15.01" y1="9" y2="9" />
+    </svg>
+  );
+}
+
+/** 지우기 (Lucide "delete") */
+export function DeleteIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z" />
+      <path d="m12 9 6 6" />
+      <path d="m18 9-6 6" />
+    </svg>
+  );
+}
+
+/** 지구본 (Lucide "globe"). 키보드 바꾸기 */
+export function GlobeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+      <path d="M2 12h20" />
+    </svg>
+  );
+}
+
+/** 마이크 (Lucide "mic"). 받아쓰기 */
+export function MicIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 19v3" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <rect x="9" y="2" width="6" height="13" rx="3" />
+    </svg>
+  );
+}
+
 /** 초시계 (Lucide "timer", ISC). 시간 제한이 있는 테스트 */
 export function TimerIcon() {
   return (
