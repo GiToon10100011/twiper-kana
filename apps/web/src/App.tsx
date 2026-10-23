@@ -32,13 +32,13 @@ export function App() {
           <Route path="/test/:mode" element={<ExamRoute />} />
           <Route path="/tutorial" element={<Onboarding />} />
           <Route path="/keys" element={<KeysPage />} />
+          <Route path="/find" element={<FindPage />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/train/:levelId" element={<DrillRoute />} />
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />
           <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
-          <Route path="/lab/find" element={<FindPage />} />
         </Routes>
       )}
     </BrowserRouter>

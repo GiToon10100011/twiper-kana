@@ -40,6 +40,16 @@ describe('CharFinder (글자 찾기)', () => {
     expect(result.textContent).not.toMatch(/コーヒーと/);
   });
 
+  it('키에 없는 글자가 한자가 아니면 한자 안내 대신 아직 보여 주지 못한다고 알린다', () => {
+    render(<CharFinder />);
+    fireEvent.change(input(), { target: { value: 'Xa' } });
+    const result = screen.getByRole('region', { name: 'Xa 치는 법' });
+
+    expect(result.textContent).toMatch(/아직 치는 법을 보여 주지 못해요/);
+    expect(result.textContent).not.toMatch(/한자는/);
+    expect(result.textContent).toMatch(/ABC 자판 · ABC 키 탭/);
+  });
+
   it('☆123 자판의 기호와 키에 없는 한자도 알려 준다', () => {
     render(<CharFinder />);
     fireEvent.change(input(), { target: { value: '人々' } });
@@ -48,6 +58,7 @@ describe('CharFinder (글자 찾기)', () => {
     expect(result.textContent).toMatch(/키에 없는 글자예요/);
     expect(result.textContent).toMatch(/☆123 자판 · 8 키 위/);
     expect(result.textContent).toMatch(/한자는 읽는 법을/);
+    expect(result.textContent).not.toMatch(/아직 치는 법을/);
   });
 
   it('표에서 글자를 누르면 그 줄 아래에 치는 법을 펼치고, 다시 누르면 접는다', () => {

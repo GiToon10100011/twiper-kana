@@ -15,6 +15,9 @@ const MAX_PARTS = 20;
 
 type Labels = Record<FlickDirection, string>;
 
+/** 키에 없는 글자 중 한자에만 "읽기를 쳐서 변환" 안내를 붙인다 */
+const isKanji = (char: string) => /^\p{Script=Han}$/u.test(char);
+
 /** 한 글자를 치는 동작: (다른 자판이면 그 자판) + 키 도해 + 「小゛゜」 횟수 = 나오는 글자 */
 function CharSteps({ steps, labels }: { steps: readonly InputStep[]; labels: Labels }) {
   const { t } = useTranslation();
@@ -85,12 +88,14 @@ function HowToType({ text, labels }: { text: string; labels: Labels }) {
   if (parts.length === 0) return null;
 
   const chars = parts.flatMap((part) => part.chars);
+  const missing = chars.filter((c) => c.steps === null).map((c) => c.char);
   const runs = katakanaRuns(parts);
   const notes = [
     runs.length > 0
       ? t('find.convert', { pairs: runs.map((run) => `${toHiragana(run)} → ${run}`).join(', ') })
       : null,
-    chars.some((c) => c.steps === null) ? t('find.missing') : null,
+    missing.some(isKanji) ? t('find.kanji') : null,
+    missing.some((char) => !isKanji(char)) ? t('find.unknown') : null,
     chars.some((c) => c.steps?.[0]?.kind === 'key' && c.steps[0].layer !== 'kana')
       ? t('find.layerNote')
       : null,

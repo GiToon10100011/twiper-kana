@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { BackIcon } from '../../ui/icons';
 import { CharFinder } from './CharFinder';
 
-/** 글자 찾기 화면. 디자인 검수 전이라 /lab/find에 둔다 */
+/** 글자 찾기 (/find): 단계별 익히기에서 언제든 여는 「이 글자 어떻게 쳐요?」 */
 export function FindPage() {
   const { t } = useTranslation();
   return (

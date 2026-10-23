@@ -32,6 +32,12 @@ export function Steps() {
             <small>{t('keys.manualHint')}</small>
           </Link>
         </li>
+        <li>
+          <Link to="/find">
+            <span>{t('find.title')}</span>
+            <small>{t('find.hint')}</small>
+          </Link>
+        </li>
       </ul>
 
       <h2 className="section-label">{t('course.title')}</h2>
@@ -55,12 +61,6 @@ export function Steps() {
           <Link to="/lab/course-tiles">
             <span>{t('home.courseTiles')}</span>
             <small>{t('home.courseTilesHint')}</small>
-          </Link>
-        </li>
-        <li>
-          <Link to="/lab/find">
-            <span>{t('find.lab')}</span>
-            <small>{t('find.labHint')}</small>
           </Link>
         </li>
       </ul>

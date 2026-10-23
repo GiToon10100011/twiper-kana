@@ -1896,7 +1896,7 @@ a.tile-row:active {
   width: auto;
 }
 
-/* 글자 찾기 (/lab/find): 붙여 넣은 글이나 표에서 고른 글자를 치는 법 */
+/* 글자 찾기 (/find): 붙여 넣은 글이나 표에서 고른 글자를 치는 법 */
 
 .find-input {
   height: 3.25rem;
