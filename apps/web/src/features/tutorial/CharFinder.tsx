@@ -13,6 +13,11 @@ import { FlickDiagram } from './FlickDiagram';
 /** 붙여 넣은 글이 길 때 보여 줄 소리 단위 수 */
 const MAX_PARTS = 20;
 
+/** 표 탭. all은 모든 표를 차례로 보여 준다 */
+type TableFilter = CharTableId | 'all';
+
+const TABLE_FILTERS: readonly TableFilter[] = ['all', ...charTables.map((table) => table.id)];
+
 type Labels = Record<FlickDirection, string>;
 
 /** 키에 없는 글자 중 한자에만 "읽기를 쳐서 변환" 안내를 붙인다 */
@@ -141,9 +146,11 @@ export function CharFinder() {
   const { t } = useTranslation();
   const inputId = useId();
   const [query, setQuery] = useState('');
-  const [tableId, setTableId] = useState<CharTableId>('basic');
+  // 처음에는 모든 표를 보여 준다. 탭이 있는 줄 모르고 기본 표만 보는 일이 없도록
+  const [tableId, setTableId] = useState<TableFilter>('all');
   const [picked, setPicked] = useState<string | null>(null);
-  const table = charTables.find((candidate) => candidate.id === tableId) ?? charTables[0];
+  const shown =
+    tableId === 'all' ? charTables : charTables.filter((candidate) => candidate.id === tableId);
 
   const labels: Labels = {
     tap: t('onboarding.flick.tap'),
@@ -153,7 +160,7 @@ export function CharFinder() {
     down: t('onboarding.flick.down'),
   };
 
-  const changeTable = (next: CharTableId) => {
+  const changeTable = (next: TableFilter) => {
     setTableId(next);
     setPicked(null);
   };
@@ -181,41 +188,51 @@ export function CharFinder() {
 
       <h2 className="section-label">{t('find.tables')}</h2>
       <div className="stage-tabs is-small" role="group" aria-label={t('find.tables')}>
-        {charTables.map((candidate) => (
+        {TABLE_FILTERS.map((id) => (
           <button
-            key={candidate.id}
+            key={id}
             type="button"
             className="stage-tab"
-            aria-pressed={candidate.id === tableId}
-            onClick={() => changeTable(candidate.id)}
+            aria-pressed={id === tableId}
+            onClick={() => changeTable(id)}
           >
-            {t(`find.table.${candidate.id}`)}
+            {t(`find.table.${id}`)}
           </button>
         ))}
       </div>
-      <div className="find-table" role="group" aria-label={t(`find.table.${tableId}`)}>
-        {table?.rows.map((row) => (
-          <Fragment key={row.join('')}>
-            <div className="find-row">
-              {row.map((cell) => (
-                <button
-                  key={cell}
-                  type="button"
-                  className="find-cell"
-                  lang="ja"
-                  aria-pressed={picked === cell}
-                  onClick={() => setPicked((current) => (current === cell ? null : cell))}
-                >
-                  {cell}
-                </button>
-              ))}
-            </div>
-            {picked !== null && row.includes(picked) ? (
-              <HowToType text={picked} labels={labels} />
-            ) : null}
-          </Fragment>
-        ))}
-      </div>
+      {shown.map((table) => (
+        <div
+          key={table.id}
+          className="find-table"
+          role="group"
+          aria-label={t(`find.table.${table.id}`)}
+        >
+          {tableId === 'all' ? (
+            <h3 className="find-table-title">{t(`find.table.${table.id}`)}</h3>
+          ) : null}
+          {table.rows.map((row) => (
+            <Fragment key={row.join('')}>
+              <div className="find-row">
+                {row.map((cell) => (
+                  <button
+                    key={cell}
+                    type="button"
+                    className="find-cell"
+                    lang="ja"
+                    aria-pressed={picked === cell}
+                    onClick={() => setPicked((current) => (current === cell ? null : cell))}
+                  >
+                    {cell}
+                  </button>
+                ))}
+              </div>
+              {picked !== null && row.includes(picked) ? (
+                <HowToType text={picked} labels={labels} />
+              ) : null}
+            </Fragment>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }

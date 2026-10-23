@@ -1971,6 +1971,14 @@ a.tile-row:active {
   margin: var(--space-3) 0 0;
 }
 
+/* 「모두」에서 표마다 붙이는 작은 제목 */
+.find-table-title {
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
 .find-row {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

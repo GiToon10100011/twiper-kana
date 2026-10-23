@@ -47,12 +47,14 @@ describe('levelSymbol', () => {
 });
 
 describe('CourseTiles', () => {
-  it('처음에는 기초 단계에서 Lv.1만 열려 있고 「이어서 하기」로 강조한다', () => {
+  it('처음에는 「모두」에서 모든 레벨을 보여 주고, Lv.1만 열려 「이어서 하기」로 강조한다', () => {
     renderTiles();
 
+    expect(screen.getByRole('button', { name: '모두' }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getAllByRole('listitem')).toHaveLength(levels.length);
     expect(hrefs()).toEqual(['/train/L1']);
     expect(current()[0]?.textContent).toContain('이어서 하기');
-    expect(screen.getAllByText('잠김')).toHaveLength(BASIC - 1);
+    expect(screen.getAllByText('잠김')).toHaveLength(levels.length - 1);
   });
 
   it('끝낸 레벨은 최고 기록을 보여 주고 다음 레벨이 열린다', () => {
@@ -70,37 +72,34 @@ describe('CourseTiles', () => {
     expect(current().map((link) => link.getAttribute('href'))).toEqual(['/train/L4']);
   });
 
-  it('최고 진도가 조합 단계면 조합 탭부터 보여 준다', () => {
+  it('최고 진도가 조합 단계여도 「모두」에서 그 레벨 하나만 강조한다', () => {
     renderTiles(accessFor({ L10: done(0.95) }, true));
 
-    expect(screen.getByRole('button', { name: '조합' }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByRole('button', { name: '모두' }).getAttribute('aria-pressed')).toBe('true');
     expect(current().map((link) => link.getAttribute('href'))).toEqual(['/train/L11']);
   });
 
-  it('탭을 누르면 그 단계의 레벨만 보여 준다', () => {
+  it('탭을 누르면 그 단계의 레벨만 보여 주고, 「모두」를 누르면 다시 전부 보여 준다', () => {
     renderTiles(accessFor({}, true));
 
+    fireEvent.click(screen.getByRole('button', { name: '기초' }));
     expect(screen.getAllByRole('listitem')).toHaveLength(BASIC);
 
     fireEvent.click(screen.getByRole('button', { name: '조합' }));
-
     expect(screen.getAllByRole('listitem')).toHaveLength(COMBO);
 
     fireEvent.click(screen.getByRole('button', { name: '가타카나' }));
-
     expect(screen.getAllByRole('listitem')).toHaveLength(levels.length - BASIC - COMBO);
+
+    fireEvent.click(screen.getByRole('button', { name: '모두' }));
+    expect(screen.getAllByRole('listitem')).toHaveLength(levels.length);
   });
 
   it('설정에서 모두 열기를 켜면 모든 레벨이 열린다', () => {
     saveSettings({ unlockAll: true });
     renderTiles();
-    let open = 0;
-    for (const stage of ['기초', '조합', '가타카나']) {
-      fireEvent.click(screen.getByRole('button', { name: stage }));
-      open += hrefs().length;
-    }
 
-    expect(open).toBe(levels.length);
+    expect(hrefs()).toHaveLength(levels.length);
   });
 
   it('마지막 레벨까지 끝냈으면 강조하지 않는다', () => {
