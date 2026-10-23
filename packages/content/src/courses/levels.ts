@@ -1,4 +1,4 @@
-import type { DrillSpec } from '@twiper/core';
+import type { DrillSpec, SkillId } from '@twiper/core';
 import { dakutenWords, handakutenWords, sokuonWords, yoonWords } from '../words/combos';
 import { hiraganaWords } from '../words/hiragana';
 import { katakanaWords, longVowelWords } from '../words/katakana';
@@ -175,6 +175,15 @@ export const levels: readonly Level[] = [
 
 export function findLevel(id: string): Level | undefined {
   return levels.find((level) => level.id === id);
+}
+
+/** 규칙을 연습하는 레벨. 기본 가나(row:か)는 그 키의 행별 레벨, 조합·가타카나는 같은 주제의 레벨 */
+export function levelForSkill(skill: SkillId): Level | undefined {
+  if (skill.startsWith('row:')) {
+    const key = skill.slice('row:'.length);
+    return levels.find((level) => level.kind === 'row' && level.keys.includes(key));
+  }
+  return levels.find((level) => level.topic === skill);
 }
 
 /** 다음 레벨. 마지막이면 undefined */

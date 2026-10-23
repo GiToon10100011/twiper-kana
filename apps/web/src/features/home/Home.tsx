@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { EXAM_MODES, examSource, findLevel, levels } from '@twiper/content';
@@ -152,8 +152,11 @@ function StepsEntry({ access }: { access: LevelAccess }) {
   );
 }
 
-/** 홈: 맨 위에 종합 테스트, 아직 칠 줄 모르는 사람을 위한 단계별 익히기는 그 아래 */
-export function Home() {
+/**
+ * 홈: 맨 위에 종합 테스트, 아직 칠 줄 모르는 사람을 위한 단계별 익히기는 그 아래.
+ * top은 소개 문구 바로 아래에 둘 내용 (「오늘」 시안을 실제 홈 위에서 보기 위해)
+ */
+export function Home({ top }: { top?: ReactNode }) {
   const { t } = useTranslation();
   return (
     <main className="home">
@@ -169,6 +172,7 @@ export function Home() {
         twiper<span aria-hidden="true">.</span>
       </h1>
       <p className="lead">{t('home.lead')}</p>
+      {top}
 
       <h2 className="section-label">{t('tests.title')}</h2>
       <ExamPanel records={loadExamRecords()} />

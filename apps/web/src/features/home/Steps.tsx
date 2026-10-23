@@ -63,6 +63,12 @@ export function Steps() {
             <small>{t('home.courseTilesHint')}</small>
           </Link>
         </li>
+        <li>
+          <Link to="/lab/today">
+            <span>{t('today.lab')}</span>
+            <small>{t('today.labHint')}</small>
+          </Link>
+        </li>
       </ul>
     </main>
   );

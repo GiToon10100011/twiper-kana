@@ -2001,3 +2001,132 @@ a.tile-row:active {
   background: var(--accent-soft);
   border-color: var(--accent);
 }
+
+/* 홈 「오늘」: 최근 7일 중 연습한 날과 연속 기록. 마젠타는 오늘 표시에만 쓴다 */
+
+.today {
+  margin: var(--space-4) 0 0;
+}
+
+.today.is-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.today-main {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.today.is-card .today-main {
+  padding: var(--space-3) var(--space-4);
+}
+
+.today-week {
+  display: flex;
+  flex: none;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.today-day {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  width: 1.5rem;
+}
+
+.today-dow {
+  font-size: 0.6875rem;
+  line-height: 1;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.today-day.is-today .today-dow {
+  font-weight: 600;
+  color: var(--accent-strong);
+}
+
+.today-dot {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+}
+
+.today-day.is-done .today-dot {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.today-day.is-today .today-dot {
+  border-color: var(--accent);
+}
+
+.today-day.is-today.is-done .today-dot {
+  background: var(--accent);
+}
+
+.today-text {
+  display: grid;
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.today-text strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.today-text span {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+/* 오늘 추천 (B안): 가장 약한 규칙의 레벨로 가는 줄 */
+.today-pick {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+  transition: background var(--duration-fast) var(--ease);
+}
+
+.today-pick:active {
+  background: var(--line);
+}
+
+.today-pick-label {
+  flex: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.today-pick-body {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.today-pick-body small {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+/* 시안 화면의 고르기 줄 (/lab/today) */
+.lab-controls {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px dashed var(--line-strong);
+}

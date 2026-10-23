@@ -1,5 +1,13 @@
 import type { TFunction } from 'i18next';
 import type { Level, LevelTopic } from '@twiper/content';
+import type { SkillId } from '@twiper/core';
+
+/** 통계의 규칙 이름: 「か행」「탁음 ゛」 (레벨 이름과 같은 말을 쓴다) */
+export function skillName(skill: SkillId, t: TFunction): string {
+  return skill.startsWith('row:')
+    ? t('course.row', { keys: skill.slice('row:'.length) })
+    : t(`course.topic.${skill as Exclude<SkillId, `row:${string}`>}`);
+}
 
 /** 「さ행」「ら・わ행」「50음 랜덤」「탁음 ゛」 */
 export function levelName(level: Level, t: TFunction): string {

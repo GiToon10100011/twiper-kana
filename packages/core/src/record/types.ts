@@ -56,4 +56,8 @@ export interface TrainingRepo {
   attemptsOf(sessionId: string): Promise<AttemptRecord[]>;
   /** 세션과 관계없이 최근 시도, 최근 순으로 limit개 (스킬 통계) */
   recentAttempts(limit: number): Promise<AttemptRecord[]>;
+  /** 모든 시도의 끝낸 시각(at), 오래된 순 (연속 기록) */
+  attemptTimes(): Promise<string[]>;
+  /** at 이후(같은 시각 포함)에 끝낸 시도, 오래된 순 (오늘 연습한 양) */
+  attemptsSince(at: string): Promise<AttemptRecord[]>;
 }

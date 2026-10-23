@@ -169,4 +169,28 @@ describe('createMemoryRepo', () => {
 
     expect((await repo.recentAttempts(2)).map((a) => a.id)).toEqual(['A3', 'A2']);
   });
+
+  it('모든 시도의 끝낸 시각과, 어느 시각 이후의 시도를 오래된 순으로 돌려준다', async () => {
+    const repo = createMemoryRepo();
+    const attempt = attemptRecordOf(createInputSession('か'), {
+      id: 'A1',
+      sessionId: 'S',
+      levelId: 'L1',
+      shownAt: 0,
+      at: new Date(Date.UTC(2026, 9, 21, 0, 1)),
+    });
+    await repo.saveAttempt({ ...attempt, id: 'A3', at: '2026-10-21T00:03:00.000Z' });
+    await repo.saveAttempt(attempt);
+    await repo.saveAttempt({ ...attempt, id: 'A2', at: '2026-10-21T00:02:00.000Z' });
+
+    expect(await repo.attemptTimes()).toEqual([
+      '2026-10-21T00:01:00.000Z',
+      '2026-10-21T00:02:00.000Z',
+      '2026-10-21T00:03:00.000Z',
+    ]);
+    expect((await repo.attemptsSince('2026-10-21T00:02:00.000Z')).map((a) => a.id)).toEqual([
+      'A2',
+      'A3',
+    ]);
+  });
 });
