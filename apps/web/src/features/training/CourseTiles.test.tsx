@@ -40,9 +40,8 @@ describe('levelSymbol', () => {
   it('행 레벨은 키 글자, 50음은 「50音」, 조합은 대표 글자', () => {
     const symbol = (id: string) => levelSymbol(levels.find((level) => level.id === id)!);
 
-    expect(
-      ['L1', 'L2', 'L9', 'L10', 'L11', 'L12', 'L13', 'L14', 'L15', 'L16', 'L17', 'L18'].map(symbol),
-    ).toEqual(['あ', 'か', 'らわ', '50音', 'が', 'ぱ', 'ぁ', 'きゃ', 'っ', 'カ', 'ー', 'ティ']);
+    expect(['L1', 'L2', 'L9'].map(symbol)).toEqual(['あ', 'か', 'らわ']);
+    expect(levels.slice(9).map(levelSymbol).join(' ')).toBe('50音 が ぱ ぁ きゃ っ カ ー ティ ヴ');
   });
 });
 
