@@ -65,7 +65,11 @@ export function FlickDiagram({ keyDef, labels, active, compact = false }: FlickD
   }).join(', ');
 
   return (
-    <div className={`flick${compact ? ' is-compact' : ''}`} role="img" aria-label={summary}>
+    <div
+      className={`flick${compact ? ' is-compact' : ''}${keyDef.outputs.down === undefined ? ' is-no-down' : ''}`}
+      role="img"
+      aria-label={summary}
+    >
       {ORDER.map((dir) => {
         const char = keyDef.outputs[dir];
         if (char === undefined) return null;
