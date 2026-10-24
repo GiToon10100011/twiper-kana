@@ -1342,6 +1342,11 @@ a.tile-row:active {
   --cell: 3.25rem;
 }
 
+/* 줄인 칸에서는 손가락 표시가 글자와 방향 이름을 가린다. 작은 도해처럼 강조한 칸만으로 방향을 보여 준다 */
+.key-guide.is-multi .flick-finger {
+  display: none;
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
