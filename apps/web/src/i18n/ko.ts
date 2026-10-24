@@ -86,6 +86,7 @@ export const ko = {
     allHint: '50음 + 단어',
     stages: '단계',
     stage: {
+      all: '모두',
       basic: '기초',
       combo: '조합',
       katakana: '가타카나',
@@ -199,6 +200,7 @@ export const ko = {
     placeholder: '붙여 넣기 (예: きゃ, コーヒー)',
     tables: '글자 표',
     table: {
+      all: '모두',
       basic: '기본',
       voiced: '탁음·반탁음',
       small: '작은 글자',

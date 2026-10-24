@@ -7,7 +7,9 @@ import { CharFinder } from './CharFinder';
 afterEach(cleanup);
 
 const input = () => screen.getByLabelText('찾을 글자');
-const table = () => screen.getByRole('group', { name: /^(기본|탁음·반탁음|작은 글자|요음|기호)$/ });
+const TABLE_NAMES = /^(기본|탁음·반탁음|작은 글자|요음|기호)$/;
+/** 한 표만 보고 있을 때 그 표 */
+const table = () => screen.getByRole('group', { name: TABLE_NAMES });
 
 describe('CharFinder (글자 찾기)', () => {
   it('붙여 넣은 글을 소리 단위로 나눠 키와 방향, 小゛゜ 횟수를 보여 준다', () => {
@@ -76,12 +78,28 @@ describe('CharFinder (글자 찾기)', () => {
     expect(screen.queryByRole('region', { name: 'ぱ 치는 법' })).toBeNull();
   });
 
-  it('표를 바꾸면 펼친 설명을 닫는다', () => {
+  it('처음에는 「모두」를 골라 모든 표를 제목과 함께 차례로 보여 준다', () => {
     render(<CharFinder />);
-    fireEvent.click(within(table()).getByRole('button', { name: 'き' }));
+
+    expect(screen.getByRole('button', { name: '모두' }).getAttribute('aria-pressed')).toBe('true');
+    const tables = screen.getAllByRole('group', { name: TABLE_NAMES });
+    expect(tables.map((group) => group.getAttribute('aria-label'))).toEqual([
+      '기본',
+      '탁음·반탁음',
+      '작은 글자',
+      '요음',
+      '기호',
+    ]);
+    expect(screen.getByRole('heading', { level: 3, name: '요음' })).toBeTruthy();
+  });
+
+  it('표를 바꾸면 펼친 설명을 닫고, 한 표만 볼 때는 표 제목을 붙이지 않는다', () => {
+    render(<CharFinder />);
+    fireEvent.click(screen.getByRole('button', { name: 'き' }));
     fireEvent.click(screen.getByRole('button', { name: '요음' }));
 
     expect(screen.queryByRole('region', { name: 'き 치는 법' })).toBeNull();
     expect(within(table()).getByRole('button', { name: 'きゃ' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { level: 3 })).toBeNull();
   });
 });
