@@ -89,6 +89,7 @@ export const ja: typeof ko = {
     allHint: '五十音 + 単語',
     stages: 'ステージ',
     stage: {
+      all: 'すべて',
       basic: '基礎',
       combo: '組み合わせ',
       katakana: 'カタカナ',
@@ -201,6 +202,7 @@ export const ja: typeof ko = {
     placeholder: '貼り付け（例：きゃ、コーヒー）',
     tables: '文字の表',
     table: {
+      all: 'すべて',
       basic: '基本',
       voiced: '濁音・半濁音',
       small: '小さい文字',

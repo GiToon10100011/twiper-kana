@@ -6,32 +6,30 @@ import { ForwardIcon, LockIcon } from '../../ui/icons';
 import type { LevelAccess } from './access';
 import { levelName, levelPreview, levelSymbol } from './levelTitle';
 
-type Stage = Level['stage'];
+/** 단계 탭. all은 모든 단계 */
+type StageFilter = Level['stage'] | 'all';
 
-const STAGES: readonly Stage[] = ['basic', 'combo', 'katakana'];
-
-const stageOf = (id: string | null): Stage =>
-  levels.find((level) => level.id === id)?.stage ?? 'basic';
+const FILTERS: readonly StageFilter[] = ['all', 'basic', 'combo', 'katakana'];
 
 /**
- * 홈의 코스 목록. 단계를 알약 탭으로 고르고, 각 레벨은 왼쪽 타일에 대표 글자를 크게 둔다.
- * 처음에는 최고 진도(access.current)가 있는 단계를 보여 주고, 그 레벨 하나만 강조한다.
- * 앞 레벨을 끝내야 다음 레벨이 열린다 (설정에서 모두 열 수 있음).
+ * 코스 목록. 단계를 알약 탭으로 고르고, 각 레벨은 왼쪽 타일에 대표 글자를 크게 둔다.
+ * 처음에는 「모두」를 보여 준다. 탭이 있는 줄 모르고 첫 단계만 보는 일이 없도록 (사용자 요청 2026-10-24).
+ * 최고 진도(access.current) 하나만 강조하고, 앞 레벨을 끝내야 다음 레벨이 열린다 (설정에서 모두 열 수 있음).
  */
 export function CourseTiles({ access }: { access: LevelAccess }) {
   const { t } = useTranslation();
-  const [stage, setStage] = useState<Stage>(() => stageOf(access.current));
+  const [filter, setFilter] = useState<StageFilter>('all');
 
   return (
     <>
       <div className="stage-tabs" role="group" aria-label={t('course.stages')}>
-        {STAGES.map((s) => (
+        {FILTERS.map((s) => (
           <button
             key={s}
             type="button"
             className="stage-tab"
-            aria-pressed={s === stage}
-            onClick={() => setStage(s)}
+            aria-pressed={s === filter}
+            onClick={() => setFilter(s)}
           >
             {t(`course.stage.${s}`)}
           </button>
@@ -39,7 +37,7 @@ export function CourseTiles({ access }: { access: LevelAccess }) {
       </div>
       <ol className="tile-list">
         {levels
-          .filter((level) => level.stage === stage)
+          .filter((level) => filter === 'all' || level.stage === filter)
           .map((level) => (
             <TileItem key={level.id} level={level} access={access} />
           ))}
