@@ -7,7 +7,15 @@ import type { AttemptRecord } from '../record/types';
 
 /** 조합·가타카나 규칙. 이름은 콘텐츠의 레벨 주제와 같다 */
 export type TopicSkill =
-  'dakuten' | 'handakuten' | 'small' | 'yoon' | 'sokuon' | 'katakana' | 'longVowel' | 'foreign';
+  | 'dakuten'
+  | 'handakuten'
+  | 'small'
+  | 'yoon'
+  | 'sokuon'
+  | 'katakana'
+  | 'longVowel'
+  | 'foreign'
+  | 'vu';
 
 /** 통계를 내는 규칙. 기본 가나는 키(행)마다 'row:あ'처럼 나눈다 */
 export type SkillId = `row:${string}` | TopicSkill;
@@ -25,6 +33,7 @@ export const SKILL_ORDER: readonly SkillId[] = [
   'katakana',
   'longVowel',
   'foreign',
+  'vu',
 ];
 
 /** 이보다 표본이 적으면 화면에 「측정 중」으로 보인다 */
@@ -40,6 +49,7 @@ const NOT_FLICK: ReadonlySet<MistakeKind> = new Set(['script', 'conversion', 'ex
  * 입력 단위(tokenizeKana) 하나가 속한 규칙.
  * 기본 가나는 그 키의 행, 변형은 탁음·반탁음·작은 글자, 요음은 요음(+탁음 등)이다.
  * い단 + ゃゅょ가 아닌 묶음(ティ ファ シェ)은 외래음이다.
+ * ゔ(ヴ)는 탁음과 달리 「小゛゜」를 두 번 눌러야 해서(う→ぅ→ゔ) 따로 센다.
  * 가타카나는 가타카나에 더해 같은 읽기의 규칙에도 센다. 플릭은 히라가나와 똑같기 때문이다.
  */
 export function skillsOf(unit: string): SkillId[] {
@@ -58,6 +68,7 @@ export function skillsOf(unit: string): SkillId[] {
     skills.push(yoon ? 'yoon' : 'foreign');
   }
   if (kana === 'っ') return [...skills, 'sokuon'];
+  if (kana === 'ゔ') return [...skills, 'vu'];
   if (variantBase(kana) !== kana) {
     skills.push(HANDAKUTEN.has(kana) ? 'handakuten' : SMALL.has(kana) ? 'small' : 'dakuten');
   } else if (chars.length === 1) {

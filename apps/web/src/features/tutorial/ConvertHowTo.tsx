@@ -7,10 +7,11 @@ const EXAMPLES: Record<KatakanaTopic, readonly string[]> = {
   katakana: ['カメラ', 'キャベツ', 'ベッド'],
   longVowel: ['コーヒー', 'ゲーム'],
   foreign: ['ティ', 'ファ', 'シェ'],
+  vu: ['ヴ', 'ヴァ', 'ヴォ'],
 };
 
-/** 읽기를 치는 순서까지 풀어 보여 줄 규칙: 작은 ァィゥェォ를 어떻게 만드는지가 요점이다 */
-const SPELLED: ReadonlySet<KatakanaTopic> = new Set(['foreign']);
+/** 읽기를 치는 순서까지 풀어 보여 줄 규칙: 작은 ァィゥェォ와 ゔ를 어떻게 만드는지가 요점이다 */
+const SPELLED: ReadonlySet<KatakanaTopic> = new Set(['foreign', 'vu']);
 
 /** 가타카나 레벨 준비 화면: 읽기를 히라가나로 친 다음 후보에서 가타카나를 고른다는 것을 보여 준다 */
 export function ConvertHowTo({
@@ -32,13 +33,15 @@ export function ConvertHowTo({
           ) : (
             <span className="howto-key">{toHiragana(word)}</span>
           )}
-          <span className="howto-plus" aria-hidden="true">
-            →
+          <span className="howto-pick">
+            <span className="howto-plus" aria-hidden="true">
+              →
+            </span>
+            <span className="howto-note" lang="ko">
+              {candidateLabel}
+            </span>
+            <span className="howto-key is-mod">{word}</span>
           </span>
-          <span className="howto-note" lang="ko">
-            {candidateLabel}
-          </span>
-          <span className="howto-key is-mod">{word}</span>
         </li>
       ))}
     </ol>
