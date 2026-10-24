@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { findLevel } from '@twiper/content';
 import { HELP_POLICY, toHiragana, variantBase } from '@twiper/core';
 import '../../i18n';
+import { DEFAULT_SETTINGS, saveSettings } from '../../lib/settings';
 import { Drill } from './Drill';
 
 afterEach(() => {
@@ -192,6 +193,22 @@ describe('Drill', () => {
       const card = screen.getByRole('complementary', { name: `${first} 치는 법` });
       // 탁음이면 기본 글자를 친 뒤 「小゛゜」를 누르라고 보여 준다
       expect(card.textContent?.includes('小゛゜')).toBe(variantBase(first) !== first);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('설정에서 고른 시간만큼 멈추면 도움말을 띄운다', async () => {
+    saveSettings({ ...DEFAULT_SETTINGS, helpIdleMs: 30_000 });
+    vi.useFakeTimers();
+    try {
+      renderDrill('L12');
+      fireEvent.click(screen.getByRole('button', { name: '시작' }));
+
+      await act(() => vi.advanceTimersByTimeAsync(29_900));
+      expect(screen.queryByRole('complementary')).toBeNull();
+      await act(() => vi.advanceTimersByTimeAsync(100));
+      expect(screen.queryByRole('complementary')).not.toBeNull();
     } finally {
       vi.useRealTimers();
     }

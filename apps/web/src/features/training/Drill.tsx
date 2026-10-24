@@ -26,6 +26,7 @@ import {
 } from '@twiper/core';
 import { newId, trainingRepo } from '../../lib/db';
 import { recordLevel } from '../../lib/progress';
+import { loadSettings } from '../../lib/settings';
 import { BackIcon } from '../../ui/icons';
 import { ConvertHowTo } from '../tutorial/ConvertHowTo';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
@@ -65,6 +66,7 @@ export function Drill({ level }: { level: Level }) {
   const title = levelTitle(level, t);
   const [started, setStarted] = useState(false);
   const [drill, setDrill] = useState(() => createDrill(level.drill, newSeed()));
+  const [{ helpIdleMs }] = useState(loadSettings);
   const shownAt = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
   /** 지금 판의 세션 기록 */
@@ -237,6 +239,7 @@ export function Drill({ level }: { level: Level }) {
             fixHint={t('drill.fix', { word: drill.line })}
             notice={notice}
             help={level.assessment ? undefined : help}
+            idleMs={helpIdleMs}
             placeholder={t('training.tapInput')}
             targetLabel={title}
             inputRef={inputRef}

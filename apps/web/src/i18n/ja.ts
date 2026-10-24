@@ -357,6 +357,12 @@ export const ja: typeof ko = {
     title: '設定',
     unlockAll: 'すべてのレッスンを開く',
     unlockAllHint: '前のレベルを終えなくても、すべてのレベルをすぐに始められます。',
+    helpIdle: 'ヒントを出すまでの時間',
+    helpIdleHint:
+      '練習中、次の文字でこの時間止まっていると打ち方を表示します。同じ文字を2回まちがえたときは時間に関係なく表示します。初期設定は3分です。',
+    idleSeconds: '{{count}}秒',
+    idleMinutes: '{{count}}分',
+    idleOff: 'オフ',
     home: 'ホームへ',
   },
 };

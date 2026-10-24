@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { levels } from '@twiper/content';
 import '../../i18n';
 import { recordLevel } from '../../lib/progress';
-import { saveSettings } from '../../lib/settings';
+import { DEFAULT_SETTINGS, saveSettings } from '../../lib/settings';
 import { accessFor, levelAccess, type LevelAccess } from './access';
 import { CourseTiles } from './CourseTiles';
 import { DrillRoute } from './Drill';
@@ -96,7 +96,7 @@ describe('CourseTiles', () => {
   });
 
   it('설정에서 모두 열기를 켜면 모든 레벨이 열린다', () => {
-    saveSettings({ unlockAll: true });
+    saveSettings({ ...DEFAULT_SETTINGS, unlockAll: true });
     renderTiles();
 
     expect(hrefs()).toHaveLength(levels.length);

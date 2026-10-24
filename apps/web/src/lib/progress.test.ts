@@ -37,19 +37,28 @@ describe('progress', () => {
 });
 
 describe('settings', () => {
-  it('기본값은 순서대로 열기', () => {
-    expect(loadSettings()).toEqual({ unlockAll: false });
+  it('기본값은 순서대로 열기, 도움말은 3분 멈추면', () => {
+    expect(loadSettings()).toEqual({ unlockAll: false, helpIdleMs: 180_000 });
   });
 
-  it('모두 열기를 저장하고 읽는다', () => {
-    saveSettings({ unlockAll: true });
+  it('모두 열기와 도움말 기다리는 시간을 저장하고 읽는다', () => {
+    saveSettings({ unlockAll: true, helpIdleMs: 0 });
 
-    expect(loadSettings()).toEqual({ unlockAll: true });
+    expect(loadSettings()).toEqual({ unlockAll: true, helpIdleMs: 0 });
   });
 
-  it('true가 아닌 값은 꺼진 것으로 본다', () => {
-    localStorage.setItem('twiper.settings.v1', JSON.stringify({ unlockAll: 'yes' }));
+  it('true가 아닌 값은 꺼진 것으로, 고를 수 없는 시간은 기본값으로 본다', () => {
+    localStorage.setItem(
+      'twiper.settings.v1',
+      JSON.stringify({ unlockAll: 'yes', helpIdleMs: 5000 }),
+    );
 
-    expect(loadSettings()).toEqual({ unlockAll: false });
+    expect(loadSettings()).toEqual({ unlockAll: false, helpIdleMs: 180_000 });
+  });
+
+  it('도움말 시간이 없던 예전 설정은 기본값으로 읽는다', () => {
+    localStorage.setItem('twiper.settings.v1', JSON.stringify({ unlockAll: true }));
+
+    expect(loadSettings()).toEqual({ unlockAll: true, helpIdleMs: 180_000 });
   });
 });
