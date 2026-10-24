@@ -1,5 +1,5 @@
 import { classifyMistake, type MistakeKind } from '../kana/classify';
-import { KANA_KEY_ROWS, keyRowOf } from '../kana/rows';
+import { KANA_KEY_ROWS, danOf, keyRowOf } from '../kana/rows';
 import { toHiragana } from '../kana/script';
 import { tokenizeKana } from '../kana/tokenize';
 import { variantBase } from '../kana/variants';
@@ -7,7 +7,7 @@ import type { AttemptRecord } from '../record/types';
 
 /** 조합·가타카나 규칙. 이름은 콘텐츠의 레벨 주제와 같다 */
 export type TopicSkill =
-  'dakuten' | 'handakuten' | 'small' | 'yoon' | 'sokuon' | 'katakana' | 'longVowel';
+  'dakuten' | 'handakuten' | 'small' | 'yoon' | 'sokuon' | 'katakana' | 'longVowel' | 'foreign';
 
 /** 통계를 내는 규칙. 기본 가나는 키(행)마다 'row:あ'처럼 나눈다 */
 export type SkillId = `row:${string}` | TopicSkill;
@@ -24,6 +24,7 @@ export const SKILL_ORDER: readonly SkillId[] = [
   'sokuon',
   'katakana',
   'longVowel',
+  'foreign',
 ];
 
 /** 이보다 표본이 적으면 화면에 「측정 중」으로 보인다 */
@@ -31,12 +32,14 @@ export const STATS_MIN_SAMPLES = 8;
 
 const HANDAKUTEN = new Set(Array.from('ぱぴぷぺぽ'));
 const SMALL = new Set(Array.from('ぁぃぅぇぉゃゅょゎ'));
+const SMALL_YA = new Set(Array.from('ゃゅょ'));
 /** 플릭이 아니라 변환·초과 입력 문제인 실수 */
 const NOT_FLICK: ReadonlySet<MistakeKind> = new Set(['script', 'conversion', 'extra']);
 
 /**
  * 입력 단위(tokenizeKana) 하나가 속한 규칙.
  * 기본 가나는 그 키의 행, 변형은 탁음·반탁음·작은 글자, 요음은 요음(+탁음 등)이다.
+ * い단 + ゃゅょ가 아닌 묶음(ティ ファ シェ)은 외래음이다.
  * 가타카나는 가타카나에 더해 같은 읽기의 규칙에도 센다. 플릭은 히라가나와 똑같기 때문이다.
  */
 export function skillsOf(unit: string): SkillId[] {
@@ -47,9 +50,13 @@ export function skillsOf(unit: string): SkillId[] {
 
   const skills: SkillId[] = [];
   if (chars.some((char) => toHiragana(char) !== char)) skills.push('katakana');
-  if (chars.length > 1) skills.push('yoon');
 
   const kana = toHiragana(head);
+  const small = chars[1];
+  if (small !== undefined) {
+    const yoon = SMALL_YA.has(toHiragana(small)) && danOf(variantBase(kana)) === 'i';
+    skills.push(yoon ? 'yoon' : 'foreign');
+  }
   if (kana === 'っ') return [...skills, 'sokuon'];
   if (variantBase(kana) !== kana) {
     skills.push(HANDAKUTEN.has(kana) ? 'handakuten' : SMALL.has(kana) ? 'small' : 'dakuten');

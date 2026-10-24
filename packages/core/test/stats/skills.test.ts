@@ -65,6 +65,15 @@ describe('skillsOf', () => {
     expect(skillsOf('ッ')).toEqual(['katakana', 'sokuon']);
   });
 
+  it('い단 + ゃゅょ가 아닌 묶음은 외래음이다 (탁음이면 탁음에도 센다)', () => {
+    expect(skillsOf('ティ')).toEqual(['katakana', 'foreign']);
+    expect(skillsOf('ファ')).toEqual(['katakana', 'foreign']);
+    expect(skillsOf('ウィ')).toEqual(['katakana', 'foreign']);
+    expect(skillsOf('ジェ')).toEqual(['katakana', 'foreign', 'dakuten']);
+    expect(skillsOf('デュ')).toEqual(['katakana', 'foreign', 'dakuten']);
+    expect(skillsOf('ジャ')).toEqual(['katakana', 'yoon', 'dakuten']);
+  });
+
   it('가나가 아니면 어떤 규칙에도 넣지 않는다', () => {
     expect(skillsOf('、')).toEqual([]);
     expect(skillsOf('')).toEqual([]);
