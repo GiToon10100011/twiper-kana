@@ -214,7 +214,8 @@ describe('Drill', () => {
   it('☆123 기호 레벨은 준비 화면에 ☆123 자판의 1·4·0 키 도해를 보여 준다', () => {
     renderDrill('L21');
 
-    expect(screen.getByText(/「☆123」 키로 자판을 바꿔서/)).toBeTruthy();
+    // 「フリックのみ」가 꺼져 있을 때의 길(ABC → ☆123)도 알려 준다 (글자 찾기의 안내와 같게)
+    expect(screen.getByText(/「☆123」 키로 자판을 바꿔서.*ABC 키를 누른 뒤 ☆123/)).toBeTruthy();
     expect(keyDiagrams()).toEqual([
       '탭 1, 왼쪽 ☆, 위 ♪, 오른쪽 →',
       '탭 4, 왼쪽 ○, 위 ＊, 오른쪽 ・',
