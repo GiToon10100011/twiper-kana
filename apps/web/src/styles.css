@@ -698,6 +698,19 @@ a {
   transition: transform var(--duration-base) var(--ease);
 }
 
+/* 아래 방향 글자가 없는 키(わ·、。?!·☆123의 숫자 키)는 빈 아랫줄을 두지 않는다 */
+.flick.is-no-down {
+  grid-template-areas:
+    '. up .'
+    'left center right';
+  grid-template-rows: repeat(2, var(--cell));
+}
+
+/* 가운데 칸이 이제 아래쪽 줄이라 손가락 표시를 반 칸 내린다 */
+.flick.is-no-down .flick-finger {
+  top: calc(50% + (var(--cell) + var(--space-1)) / 2);
+}
+
 /* 「小゛゜」 사용법 (조합 레벨 준비 화면) */
 
 .howto {
@@ -1325,13 +1338,24 @@ a.tile-row:active {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
+  /* 아랫줄이 없는 키가 옆 키 높이로 늘어나면 손가락 표시가 어긋난다 */
+  align-items: flex-start;
   justify-content: center;
   margin: 0 0 var(--space-4);
 }
 
-/* ら·わ처럼 키가 둘이면 나란히 들어가도록 줄인다 */
+/* ら·わ처럼 키가 둘 이상이면 375px 폭에도 두 개씩 나란히 들어가도록 줄인다 */
+.key-guide.is-multi {
+  gap: var(--space-3);
+}
+
 .key-guide.is-multi .flick {
   --cell: 3.25rem;
+}
+
+/* 줄인 칸에서는 손가락 표시가 글자와 방향 이름을 가린다. 작은 도해처럼 강조한 칸만으로 방향을 보여 준다 */
+.key-guide.is-multi .flick-finger {
+  display: none;
 }
 
 .stats {

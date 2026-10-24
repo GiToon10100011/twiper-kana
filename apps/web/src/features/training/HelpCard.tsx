@@ -6,24 +6,28 @@ import { FlickDiagram } from '../tutorial/FlickDiagram';
 interface HelpCardProps {
   /** 막힌 목표 글자 */
   char: string;
-  /** 그 글자를 치는 동작 (explainChar) */
+  /** 그 글자를 치는 동작 (lookupChar) */
   steps: readonly InputStep[];
   labels: Record<FlickDirection, string>;
 }
 
 /**
  * 상황별 도움말: 막힌 글자를 어느 키로 어느 방향에 치고, 「小゛゜」를 몇 번 누르는지 보여 준다.
+ * ☆123 자판의 기호면 자판을 바꾸라는 표시를 앞에 붙인다.
  * 키보드가 화면 아래를 덮으므로 입력창 바로 아래에 작게 띄운다.
  */
 export function HelpCard({ char, steps, labels }: HelpCardProps) {
   const { t } = useTranslation();
   const keyStep = steps.find((step) => step.kind === 'key');
   const modStep = steps.find((step) => step.kind === 'modifier');
-  const keyDef = keyStep && iosKana.layers.kana.keys.find((key) => key.id === keyStep.keyId);
-  if (!keyStep || !keyDef) return null;
+  const layer = keyStep ? iosKana.layers[keyStep.layer] : undefined;
+  const keyDef = keyStep && layer?.keys.find((key) => key.id === keyStep.keyId);
+  if (!keyStep || !layer || !keyDef) return null;
 
+  const otherLayer = keyStep.layer !== 'kana';
   const reading = steps[steps.length - 1]?.out ?? char;
   const description = [
+    otherLayer ? t('find.layer', { label: layer.switchLabel }) : null,
     t('help.key', { key: keyStep.label, dir: labels[keyStep.dir] }),
     modStep ? t('help.modifier', { label: iosKana.modifier.label, times: modStep.times }) : null,
   ]
@@ -35,6 +39,12 @@ export function HelpCard({ char, steps, labels }: HelpCardProps) {
       <p className="help-title">{t('help.title', { char })}</p>
       <p className="visually-hidden">{description}</p>
       <div className="help-steps" aria-hidden="true">
+        {otherLayer ? (
+          <>
+            <span className="howto-key is-layer">{layer.switchLabel}</span>
+            <span className="howto-plus">›</span>
+          </>
+        ) : null}
         <FlickDiagram keyDef={keyDef} labels={labels} active={keyStep.dir} compact />
         {modStep ? (
           <>

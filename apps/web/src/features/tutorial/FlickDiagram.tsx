@@ -36,7 +36,7 @@ function usePrefersReducedMotion(): boolean {
 interface FlickDiagramProps {
   keyDef: GuideKey;
   labels: Record<FlickDirection, string>;
-  /** 강조할 방향. 지정하지 않으면 탭 → ← → ↑ → → → ↓를 차례로 보여 준다 */
+  /** 강조할 방향. 지정하지 않으면 탭 → ← → ↑ → → → ↓ 중 글자가 있는 방향만 차례로 보여 준다 */
   active?: FlickDirection;
   /** 작게 그리고 방향 이름을 숨긴다 (훈련 중 도움 카드) */
   compact?: boolean;
@@ -51,13 +51,15 @@ export function FlickDiagram({ keyDef, labels, active, compact = false }: FlickD
   const animate = active === undefined && !reduced;
   const [step, setStep] = useState(0);
 
+  // わ 키(↓ 없음)·☆123의 0 키(→↓ 없음)처럼 글자가 없는 방향으로는 움직이지 않는다
+  const directions = ORDER.filter((dir) => keyDef.outputs[dir] !== undefined);
   useEffect(() => {
     if (!animate) return;
-    const timer = window.setInterval(() => setStep((s) => (s + 1) % ORDER.length), STEP_MS);
+    const timer = window.setInterval(() => setStep((s) => s + 1), STEP_MS);
     return () => window.clearInterval(timer);
   }, [animate]);
 
-  const current = active ?? (animate ? (ORDER[step] ?? 'tap') : null);
+  const current = active ?? (animate ? (directions[step % directions.length] ?? 'tap') : null);
   const [dx, dy] = current ? OFFSET[current] : OFFSET.tap;
   const summary = ORDER.flatMap((dir) => {
     const char = keyDef.outputs[dir];
@@ -65,7 +67,11 @@ export function FlickDiagram({ keyDef, labels, active, compact = false }: FlickD
   }).join(', ');
 
   return (
-    <div className={`flick${compact ? ' is-compact' : ''}`} role="img" aria-label={summary}>
+    <div
+      className={`flick${compact ? ' is-compact' : ''}${keyDef.outputs.down === undefined ? ' is-no-down' : ''}`}
+      role="img"
+      aria-label={summary}
+    >
       {ORDER.map((dir) => {
         const char = keyDef.outputs[dir];
         if (char === undefined) return null;
