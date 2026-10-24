@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { examSource } from '@twiper/content';
 import {
   attemptRecordOf,
@@ -30,6 +30,16 @@ async function renderHome(repo: TrainingRepo = createMemoryRepo()) {
   );
   return screen.findByRole('link', { name: /연습한 날 보기/ });
 }
+
+/** at에 끝낸 한 줄 기록 */
+const attemptAt = (at: Date) =>
+  attemptRecordOf(createInputSession('あいう'), {
+    id: `A${at.getTime()}`,
+    sessionId: 'S',
+    levelId: 'L1',
+    shownAt: 0,
+    at,
+  });
 
 const startLink = () => screen.getByRole('link', { name: /테스트 시작/ });
 const seedOf = (href: string | null) =>
@@ -60,6 +70,34 @@ describe('Home', () => {
 
     expect(strip.getAttribute('href')).toBe('/calendar');
     expect(strip.getAttribute('aria-label')).toMatch(/^1일 연속, 오늘 /);
+  });
+
+  it('다른 앱에 갔다가 돌아오면 「오늘」 기록을 다시 읽는다', async () => {
+    const repo = createMemoryRepo();
+    await renderHome(repo);
+    expect(screen.getByRole('link', { name: /첫 줄을 치면 기록돼요/ })).toBeTruthy();
+
+    await repo.saveAttempt(attemptAt(new Date()));
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    expect(await screen.findByRole('link', { name: /^1일 연속, 오늘 / })).toBeTruthy();
+  });
+
+  it('켜 둔 채 자정을 넘기면 오늘이 바뀐 기록으로 다시 읽는다', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      vi.setSystemTime(new Date(2026, 9, 24, 23, 59, 30));
+      const repo = createMemoryRepo();
+      await repo.saveAttempt(attemptAt(new Date(2026, 9, 24, 23, 0)));
+      await renderHome(repo);
+      expect(screen.getByRole('link', { name: /^1일 연속, 오늘 / })).toBeTruthy();
+
+      await vi.advanceTimersByTimeAsync(40_000);
+
+      expect(await screen.findByRole('link', { name: /^1일 연속, 오늘 치면 2일째/ })).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('미리보기 첫 줄은 시작 버튼이 넘기는 씨앗으로 만든 첫 줄과 같다', async () => {

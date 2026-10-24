@@ -1,16 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { EXAM_MODES, examSource, findLevel, levels } from '@twiper/content';
 import { createExam, type ExamMode, type TrainingRepo } from '@twiper/core';
-import { trainingRepo } from '../../lib/db';
 import { loadExamRecords, type ExamRecords } from '../../lib/examRecords';
-import { loadToday, type TodayData } from '../../lib/today';
 import { ChartIcon, ForwardIcon, GearIcon, PlayIcon, TimerIcon } from '../../ui/icons';
 import { EXAM_MINUTES, newExamSeed, type ExamMinutes } from '../exam/ExamRun';
 import { levelAccess, type LevelAccess } from '../training/access';
 import { levelName, levelSymbol } from '../training/levelTitle';
 import { Today } from './Today';
+import { useToday } from './useToday';
 
 /** 알약 탭 묶음 (종목·시간 고르기) */
 function Pills<T extends string | number>({
@@ -160,19 +159,7 @@ function StepsEntry({ access }: { access: LevelAccess }) {
  * 아래 종합 테스트가 밀려 움직이지 않게 한다. 읽지 못하면 빈자리로 남는다.
  */
 function TodaySlot({ repo }: { repo?: TrainingRepo }) {
-  const [data, setData] = useState<TodayData | null>(null);
-  useEffect(() => {
-    let alive = true;
-    loadToday(repo ?? trainingRepo()).then(
-      (loaded) => {
-        if (alive) setData(loaded);
-      },
-      () => undefined,
-    );
-    return () => {
-      alive = false;
-    };
-  }, [repo]);
+  const data = useToday(repo);
   return <div className="today-slot">{data ? <Today data={data} /> : null}</div>;
 }
 

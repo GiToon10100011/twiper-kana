@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState, type TouchEvent } from 'react';
+import { useRef, useState, type TouchEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { dayKey, type TrainingRepo } from '@twiper/core';
-import { trainingRepo } from '../../lib/db';
-import { loadToday, type TodayData } from '../../lib/today';
+import type { TodayData } from '../../lib/today';
 import { BackIcon, ForwardIcon } from '../../ui/icons';
 import { fromDayKey } from './Today';
+import { useToday } from './useToday';
 
 /** 이만큼(px) 이상 옆으로 밀어야 달을 넘긴다. 세로로 더 많이 움직였으면 스크롤로 본다 */
 const SWIPE_PX = 48;
@@ -155,19 +155,9 @@ function Month({ month, data, from, canPrev, canNext, onGo }: MonthProps) {
  */
 export function CalendarPage({ repo, now }: { repo?: TrainingRepo; now?: Date }) {
   const { t } = useTranslation();
-  const [data, setData] = useState<TodayData | null>(null);
+  const data = useToday(repo, now);
   // 보고 있는 달과 넘겨 온 쪽. 처음에는 이번 달
   const [view, setView] = useState<{ month: string; from: number } | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-    void loadToday(repo ?? trainingRepo(), now).then((loaded) => {
-      if (alive) setData(loaded);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [repo, now]);
 
   const thisMonth = data?.today.slice(0, 7) ?? '';
   const firstMonth = data ? ([...data.days].sort()[0] ?? data.today).slice(0, 7) : '';
