@@ -44,6 +44,7 @@ const TOPIC_SYMBOL: Record<LevelTopic, string> = {
   katakana: 'カ',
   longVowel: 'ー',
   foreign: 'ティ',
+  vu: 'ヴ',
 };
 
 /** 목록 타일에 크게 보일 대표 글자: 「あ」「らわ」「50音」「が」 */

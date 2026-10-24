@@ -764,6 +764,13 @@ a {
   color: var(--ink-muted);
 }
 
+/* 「→ 후보 ヴァ」: 줄이 넘치면 후보만 떨어지지 않고 함께 다음 줄로 */
+.howto-pick {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
 /* 12키 배치 도해 (튜토리얼) */
 
 .kb-grid {

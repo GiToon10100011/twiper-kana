@@ -2,7 +2,7 @@ import type { ExamMode, ExamSource } from '@twiper/core';
 import { levels } from '../courses/levels';
 import { dakutenWords, handakutenWords, sokuonWords, yoonWords } from '../words/combos';
 import { hiraganaWords } from '../words/hiragana';
-import { foreignWords, katakanaWords, longVowelWords } from '../words/katakana';
+import { foreignWords, katakanaWords, longVowelWords, vuWords } from '../words/katakana';
 import { longPassages, shortSentences } from './sentences';
 
 export const EXAM_MODES: readonly ExamMode[] = ['kana', 'word', 'short', 'long'];
@@ -29,6 +29,7 @@ export const examWords: readonly string[] = [
     ...katakanaWords,
     ...longVowelWords,
     ...foreignWords,
+    ...vuWords,
   ]),
 ];
 

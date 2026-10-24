@@ -179,6 +179,21 @@ describe('Drill', () => {
     expect(screen.getAllByLabelText('이 레벨의 키')).toHaveLength(2);
   });
 
+  it('ヴ 레벨은 준비 화면에 う + 小゛゜×2로 ゔ를 만드는 순서를 보여 준다', () => {
+    renderDrill('L19');
+
+    expect(screen.getByText(/「小゛゜」를 두 번 눌러 ゔ로/)).toBeTruthy();
+    const [howTo] = screen.getAllByLabelText('이 레벨의 키');
+    const rows = [...(howTo?.querySelectorAll('li') ?? [])].map((li) =>
+      li.textContent?.replace(/\s+/g, ''),
+    );
+    expect(rows).toEqual([
+      'う+小゛゜×2→후보ヴ',
+      'う+小゛゜×2+あ+小゛゜→후보ヴァ',
+      'う+小゛゜×2+お+小゛゜→후보ヴォ',
+    ]);
+  });
+
   it('다음 글자에서 한동안 진행이 없으면 그 글자를 치는 법을 입력창 아래에 보여 준다', async () => {
     vi.useFakeTimers();
     try {

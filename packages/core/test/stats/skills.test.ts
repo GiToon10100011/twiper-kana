@@ -49,7 +49,7 @@ describe('skillsOf', () => {
     expect(skillsOf('か')).toEqual(['row:か']);
     expect(skillsOf('を')).toEqual(['row:わ']);
     expect(skillsOf('が')).toEqual(['dakuten']);
-    expect(skillsOf('ゔ')).toEqual(['dakuten']);
+    expect(skillsOf('ゔ')).toEqual(['vu']);
     expect(skillsOf('ぱ')).toEqual(['handakuten']);
     expect(skillsOf('ぁ')).toEqual(['small']);
     expect(skillsOf('っ')).toEqual(['sokuon']);
@@ -72,6 +72,11 @@ describe('skillsOf', () => {
     expect(skillsOf('ジェ')).toEqual(['katakana', 'foreign', 'dakuten']);
     expect(skillsOf('デュ')).toEqual(['katakana', 'foreign', 'dakuten']);
     expect(skillsOf('ジャ')).toEqual(['katakana', 'yoon', 'dakuten']);
+  });
+
+  it('ヴ는 「小゛゜」를 두 번 누르는 규칙이라 탁음과 따로 센다', () => {
+    expect(skillsOf('ヴ')).toEqual(['katakana', 'vu']);
+    expect(skillsOf('ヴァ')).toEqual(['katakana', 'foreign', 'vu']);
   });
 
   it('가나가 아니면 어떤 규칙에도 넣지 않는다', () => {

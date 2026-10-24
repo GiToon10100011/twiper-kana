@@ -41,8 +41,14 @@ const newSeed = () => Math.floor(Math.random() * 2 ** 31);
 
 const keyOf = (char: string) => iosKana.layers.kana.keys.find((key) => key.outputs.tap === char);
 
-const isKatakanaTopic = (topic: LevelTopic): topic is KatakanaTopic =>
-  topic === 'katakana' || topic === 'longVowel' || topic === 'foreign';
+const KATAKANA_TOPICS: ReadonlySet<LevelTopic> = new Set<KatakanaTopic>([
+  'katakana',
+  'longVowel',
+  'foreign',
+  'vu',
+]);
+
+const isKatakanaTopic = (topic: LevelTopic): topic is KatakanaTopic => KATAKANA_TOPICS.has(topic);
 
 /** 준비 화면 안내문: 가타카나 단어 / 단어만 / 50음+단어 / 조합+단어 / 글자 줄 */
 function introKey(
