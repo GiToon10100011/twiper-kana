@@ -162,6 +162,22 @@ describe('Drill', () => {
     expect(screen.getByText('こーひー')).toBeTruthy();
   });
 
+  it('외래음 레벨은 준비 화면에 작은 모음을 만드는 순서(て + い + 小゛゜ → ティ)와 あ 키 도해를 보여 준다', () => {
+    renderDrill('L18');
+
+    expect(screen.getByText(/작은 ァィゥェォ가 붙는 소리/)).toBeTruthy();
+    const [howTo] = screen.getAllByLabelText('이 레벨의 키');
+    const rows = [...(howTo?.querySelectorAll('li') ?? [])].map((li) =>
+      li.textContent?.replace(/\s+/g, ''),
+    );
+    expect(rows).toEqual([
+      'て+い+小゛゜→후보ティ',
+      'ふ+あ+小゛゜→후보ファ',
+      'し+え+小゛゜→후보シェ',
+    ]);
+    expect(screen.getAllByLabelText('이 레벨의 키')).toHaveLength(2);
+  });
+
   it('다음 글자에서 한동안 진행이 없으면 그 글자를 치는 법을 입력창 아래에 보여 준다', async () => {
     vi.useFakeTimers();
     try {

@@ -12,6 +12,7 @@ import {
 import {
   dakutenWords,
   findLevel,
+  foreignWords,
   handakutenWords,
   hiraganaWords,
   katakanaWords,
@@ -38,19 +39,30 @@ const INTRODUCES: Record<ComboTopic, string> = {
   sokuon: '',
 };
 
-/** 이 레벨까지 배운 글자. 가타카나 레벨은 그때까지 배운 히라가나의 가타카나를, 장음 레벨은 ー를 더한다 */
+/** 외래음 레벨에서 배우는 작은 모음 */
+const SMALL_VOWELS = 'ァィゥェォ';
+
+/**
+ * 이 레벨까지 배운 글자. 가타카나 레벨은 그때까지 배운 히라가나의 가타카나를, 장음 레벨은 ー를,
+ * 외래음 레벨은 작은 ァィゥェォ를 더한다
+ */
 function allowedFor(level: Level): Set<string> {
   const allowed = new Set(BASIC_KANA);
   for (const prev of levels.slice(0, levels.indexOf(level) + 1)) {
     if (prev.topic === 'katakana') for (const char of [...allowed]) allowed.add(toKatakana(char));
     else if (prev.topic === 'longVowel') allowed.add('\u{30FC}');
+    else if (prev.topic === 'foreign') for (const char of SMALL_VOWELS) allowed.add(char);
     else if (prev.topic) for (const char of INTRODUCES[prev.topic]) allowed.add(char);
   }
   return allowed;
 }
 
-/** 다음 단계(외래음)에서 배우는 글자: 작은 ァィゥェォ와 ヴ */
-const FOREIGN = 'ァィゥェォヴ';
+/** 외래음 레벨 전에는 쓰지 않는 글자: 작은 ァィゥェォ와 ヴ */
+const FOREIGN = `${SMALL_VOWELS}ヴ`;
+
+/** 작은 ァィゥェォ가 앞 글자에 붙은 소리 (ティ ファ ウィ) */
+const hasForeignSound = (word: string) =>
+  tokenizeKana(word).some((unit) => unit.length > 1 && SMALL_VOWELS.includes(unit.slice(-1)));
 
 const perfect = (line: string): LineResult => ({
   target: line,
@@ -66,16 +78,17 @@ const perfect = (line: string): LineResult => ({
 });
 
 describe('levels', () => {
-  it('L1부터 L17까지 번호와 id가 차례로 이어지고, 기초 10개·조합 5개·가타카나 2개다', () => {
+  it('L1부터 L18까지 번호와 id가 차례로 이어지고, 기초 10개·조합 5개·가타카나 3개다', () => {
     expect(levels.map((level) => level.id)).toEqual(
-      Array.from({ length: 17 }, (_, i) => `L${i + 1}`),
+      Array.from({ length: 18 }, (_, i) => `L${i + 1}`),
     );
     expect(levels.map((level) => level.number)).toEqual(
-      Array.from({ length: 17 }, (_, i) => i + 1),
+      Array.from({ length: 18 }, (_, i) => i + 1),
     );
     expect(levels.filter((level) => level.stage === 'katakana').map((l) => l.topic)).toEqual([
       'katakana',
       'longVowel',
+      'foreign',
     ]);
     expect(levels.filter((level) => level.stage === 'basic')).toHaveLength(10);
     expect(levels.filter((level) => level.stage === 'combo').map((l) => l.topic)).toEqual([
@@ -152,7 +165,8 @@ describe('levels', () => {
     expect(nextLevel('L9')?.id).toBe('L10');
     expect(nextLevel('L10')?.id).toBe('L11');
     expect(nextLevel('L15')?.id).toBe('L16');
-    expect(nextLevel('L17')).toBeUndefined();
+    expect(nextLevel('L17')?.id).toBe('L18');
+    expect(nextLevel('L18')).toBeUndefined();
   });
 });
 
@@ -165,6 +179,7 @@ describe('단어 목록', () => {
     ['sokuonWords', sokuonWords, 30],
     ['katakanaWords', katakanaWords, 40],
     ['longVowelWords', longVowelWords, 40],
+    ['foreignWords', foreignWords, 40],
   ] as const)('%s: 겹치는 단어가 없고 %#번째 기준 개수 이상', (_, words, min) => {
     expect(new Set(words).size).toBe(words.length);
     expect(words.length).toBeGreaterThanOrEqual(min);
@@ -208,13 +223,22 @@ describe('단어 목록', () => {
     expect(longVowelWords.filter((w) => !w.includes('\u{30FC}'))).toEqual([]);
   });
 
+  it('외래음 단어는 가타카나와 ー로만 쓰고, 모두 작은 ァィゥェォ가 붙은 소리를 담고, ヴ는 아직 쓰지 않는다', () => {
+    const katakanaOnly = (word: string) =>
+      Array.from(word).every((c) => isKana(c) && (c === '\u{30FC}' || toHiragana(c) !== c));
+
+    expect(foreignWords.filter((w) => !katakanaOnly(w))).toEqual([]);
+    expect(foreignWords.filter((w) => !hasForeignSound(w))).toEqual([]);
+    expect(foreignWords.filter((w) => w.includes('ヴ'))).toEqual([]);
+  });
+
   it('가타카나 레벨은 단어만 내고 確定한 결과로 채점한다', () => {
-    for (const id of ['L16', 'L17']) {
+    for (const id of ['L16', 'L17', 'L18']) {
       const drill = findLevel(id)?.drill;
 
       expect(drill?.judge).toBe('commit');
       expect(drill?.focus).toEqual([]);
     }
-    expect(levels.filter((level) => level.drill.judge === 'commit')).toHaveLength(2);
+    expect(levels.filter((level) => level.drill.judge === 'commit')).toHaveLength(3);
   });
 });

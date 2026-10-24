@@ -23,7 +23,7 @@ type Stage = 'basic' | 'combo' | 'katakana';
 const stageOf = (skill: SkillId): Stage =>
   skill.startsWith('row:')
     ? 'basic'
-    : skill === 'katakana' || skill === 'longVowel'
+    : skill === 'katakana' || skill === 'longVowel' || skill === 'foreign'
       ? 'katakana'
       : 'combo';
 

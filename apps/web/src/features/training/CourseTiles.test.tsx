@@ -41,8 +41,8 @@ describe('levelSymbol', () => {
     const symbol = (id: string) => levelSymbol(levels.find((level) => level.id === id)!);
 
     expect(
-      ['L1', 'L2', 'L9', 'L10', 'L11', 'L12', 'L13', 'L14', 'L15', 'L16', 'L17'].map(symbol),
-    ).toEqual(['あ', 'か', 'らわ', '50音', 'が', 'ぱ', 'ぁ', 'きゃ', 'っ', 'カ', 'ー']);
+      ['L1', 'L2', 'L9', 'L10', 'L11', 'L12', 'L13', 'L14', 'L15', 'L16', 'L17', 'L18'].map(symbol),
+    ).toEqual(['あ', 'か', 'らわ', '50音', 'が', 'ぱ', 'ぁ', 'きゃ', 'っ', 'カ', 'ー', 'ティ']);
   });
 });
 
