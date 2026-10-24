@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { iosKana, type ComboTopic } from '@twiper/content';
 
-type Step = { kind: 'key'; char: string } | { kind: 'mod'; times: number };
+export type Step = { kind: 'key'; char: string } | { kind: 'mod'; times: number };
 
 const { modifier } = iosKana;
 
@@ -42,29 +42,42 @@ const EXAMPLES: Record<ComboTopic, readonly { steps: readonly Step[]; out: strin
   sokuon: [{ steps: [key('き'), key('つ'), mod('つ', 'っ'), key('て')], out: 'きって' }],
 };
 
+/** 히라가나 읽기를 키 입력 순서로 푼다: てぃ → て + い + 「小゛゜」 */
+export function spell(reading: string): Step[] {
+  return Array.from(reading).flatMap((char) => {
+    const base = modifier.cycles.find((c) => c.chars.indexOf(char) > 0)?.chars[0];
+    return base === undefined ? [key(char)] : [key(base), mod(base, char)];
+  });
+}
+
+/** 「き + や + 小゛゜」 */
+export function HowToSteps({ steps }: { steps: readonly Step[] }) {
+  return steps.map((step, i) => (
+    <Fragment key={i}>
+      {i > 0 ? (
+        <span className="howto-plus" aria-hidden="true">
+          +
+        </span>
+      ) : null}
+      {step.kind === 'key' ? (
+        <span className="howto-key">{step.char}</span>
+      ) : (
+        <span className="howto-key is-mod">
+          {modifier.label}
+          {step.times > 1 ? <small>×{step.times}</small> : null}
+        </span>
+      )}
+    </Fragment>
+  ));
+}
+
 /** 조합 레벨 준비 화면: 「小゛゜」를 언제, 몇 번 누르는지 보여 준다 */
 export function ModifierHowTo({ topic, label }: { topic: ComboTopic; label: string }) {
   return (
     <ol className="howto" aria-label={label} lang="ja">
       {EXAMPLES[topic].map(({ steps, out }) => (
         <li key={out}>
-          {steps.map((step, i) => (
-            <Fragment key={i}>
-              {i > 0 ? (
-                <span className="howto-plus" aria-hidden="true">
-                  +
-                </span>
-              ) : null}
-              {step.kind === 'key' ? (
-                <span className="howto-key">{step.char}</span>
-              ) : (
-                <span className="howto-key is-mod">
-                  {modifier.label}
-                  {step.times > 1 ? <small>×{step.times}</small> : null}
-                </span>
-              )}
-            </Fragment>
-          ))}
+          <HowToSteps steps={steps} />
           <span className="howto-eq" aria-hidden="true">
             =
           </span>

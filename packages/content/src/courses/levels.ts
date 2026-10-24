@@ -1,13 +1,13 @@
 import type { DrillSpec } from '@twiper/core';
 import { dakutenWords, handakutenWords, sokuonWords, yoonWords } from '../words/combos';
 import { hiraganaWords } from '../words/hiragana';
-import { katakanaWords, longVowelWords } from '../words/katakana';
+import { foreignWords, katakanaWords, longVowelWords } from '../words/katakana';
 
 /** 조합 단계에서 다루는 규칙. 모두 「小゛゜」 키로 만든다 */
 export type ComboTopic = 'dakuten' | 'handakuten' | 'small' | 'yoon' | 'sokuon';
 
 /** 가타카나 단계에서 다루는 규칙. 읽는 대로 친 뒤 변환 후보에서 골라 確定한다 */
-export type KatakanaTopic = 'katakana' | 'longVowel';
+export type KatakanaTopic = 'katakana' | 'longVowel' | 'foreign';
 
 export type LevelTopic = ComboTopic | KatakanaTopic;
 
@@ -143,12 +143,14 @@ const word = (
 });
 
 /**
- * 가타카나 단계 L16–L17. 가타카나 모드가 없으므로 히라가나로 읽기를 친 뒤 후보에서 고른다.
+ * 가타카나 단계 L16–L18. 가타카나 모드가 없으므로 히라가나로 읽기를 친 뒤 후보에서 고른다.
  * 그래서 확정한 결과로 채점한다(commit). 장음 ー는 わ 키 → 라 도해를 보여 준다.
+ * 외래음의 작은 ァィゥェォ는 あ 키로 친 뒤 「小゛゜」로 작게 만들어 あ 키 도해를 보여 준다.
  */
 const katakanaLevels: Level[] = [
   word(16, 'katakana', katakanaWords),
   word(17, 'longVowel', longVowelWords, ['わ']),
+  word(18, 'foreign', foreignWords, ['あ']),
 ];
 
 export const levels: readonly Level[] = [
