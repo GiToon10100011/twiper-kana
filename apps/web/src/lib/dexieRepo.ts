@@ -40,5 +40,12 @@ export function createDexieRepo(name = 'twiper'): TrainingRepo {
     recentAttempts(limit) {
       return db.attempts.orderBy('at').reverse().limit(limit).toArray();
     },
+    async attemptTimes() {
+      // 색인 값만 읽어 기록 본문은 불러오지 않는다
+      return (await db.attempts.orderBy('at').keys()).map(String);
+    },
+    attemptsSince(at) {
+      return db.attempts.where('at').aboveOrEqual(at).sortBy('at');
+    },
   };
 }

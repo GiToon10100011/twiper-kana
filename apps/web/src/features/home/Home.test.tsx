@@ -1,9 +1,15 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { examSource } from '@twiper/content';
-import { createExam } from '@twiper/core';
+import {
+  attemptRecordOf,
+  createExam,
+  createInputSession,
+  createMemoryRepo,
+  type TrainingRepo,
+} from '@twiper/core';
 import '../../i18n';
 import { recordLevel } from '../../lib/progress';
 import { recordExam } from '../../lib/examRecords';
@@ -15,28 +21,87 @@ afterEach(() => {
   localStorage.clear();
 });
 
-const renderHome = () =>
+/** 홈을 그리고 「오늘」 띠(기록을 비동기로 읽는다)가 나타날 때까지 기다린다 */
+async function renderHome(repo: TrainingRepo = createMemoryRepo()) {
   render(
     <MemoryRouter>
-      <Home />
+      <Home repo={repo} />
     </MemoryRouter>,
   );
+  return screen.findByRole('link', { name: /연습한 날 보기/ });
+}
+
+/** at에 끝낸 한 줄 기록 */
+const attemptAt = (at: Date) =>
+  attemptRecordOf(createInputSession('あいう'), {
+    id: `A${at.getTime()}`,
+    sessionId: 'S',
+    levelId: 'L1',
+    shownAt: 0,
+    at,
+  });
 
 const startLink = () => screen.getByRole('link', { name: /테스트 시작/ });
 const seedOf = (href: string | null) =>
   Number(new URL(href ?? '', 'http://x').searchParams.get('seed'));
 
 describe('Home', () => {
-  it('맨 위에 종합 테스트, 그 아래 단계별 익히기를 둔다', () => {
-    renderHome();
+  it('맨 위에 종합 테스트, 그 아래 단계별 익히기를 둔다', async () => {
+    await renderHome();
 
     const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
     expect(headings).toEqual(['종합 테스트', '처음이라면']);
     expect(screen.getByRole('link', { name: /단계별 익히기/ }).getAttribute('href')).toBe('/steps');
   });
 
-  it('미리보기 첫 줄은 시작 버튼이 넘기는 씨앗으로 만든 첫 줄과 같다', () => {
-    renderHome();
+  it('소개 아래 「오늘」 띠가 오늘 연습한 것을 보여 주고, 누르면 연습한 날 달력으로 간다', async () => {
+    const repo = createMemoryRepo();
+    const session = createInputSession('あいう');
+    await repo.saveAttempt(
+      attemptRecordOf(session, {
+        id: 'A',
+        sessionId: 'S',
+        levelId: 'L1',
+        shownAt: 0,
+        at: new Date(),
+      }),
+    );
+    const strip = await renderHome(repo);
+
+    expect(strip.getAttribute('href')).toBe('/calendar');
+    expect(strip.getAttribute('aria-label')).toMatch(/^1일 연속, 오늘 /);
+  });
+
+  it('다른 앱에 갔다가 돌아오면 「오늘」 기록을 다시 읽는다', async () => {
+    const repo = createMemoryRepo();
+    await renderHome(repo);
+    expect(screen.getByRole('link', { name: /첫 줄을 치면 기록돼요/ })).toBeTruthy();
+
+    await repo.saveAttempt(attemptAt(new Date()));
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    expect(await screen.findByRole('link', { name: /^1일 연속, 오늘 / })).toBeTruthy();
+  });
+
+  it('켜 둔 채 자정을 넘기면 오늘이 바뀐 기록으로 다시 읽는다', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      vi.setSystemTime(new Date(2026, 9, 24, 23, 59, 30));
+      const repo = createMemoryRepo();
+      await repo.saveAttempt(attemptAt(new Date(2026, 9, 24, 23, 0)));
+      await renderHome(repo);
+      expect(screen.getByRole('link', { name: /^1일 연속, 오늘 / })).toBeTruthy();
+
+      await vi.advanceTimersByTimeAsync(40_000);
+
+      expect(await screen.findByRole('link', { name: /^1일 연속, 오늘 치면 2일째/ })).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('미리보기 첫 줄은 시작 버튼이 넘기는 씨앗으로 만든 첫 줄과 같다', async () => {
+    await renderHome();
     const seed = seedOf(startLink().getAttribute('href'));
 
     expect(screen.getByLabelText('첫 줄 미리보기').textContent).toBe(
@@ -44,8 +109,8 @@ describe('Home', () => {
     );
   });
 
-  it('종목과 시간을 고르면 시작 주소와 버튼이 바뀐다', () => {
-    renderHome();
+  it('종목과 시간을 고르면 시작 주소와 버튼이 바뀐다', async () => {
+    await renderHome();
     fireEvent.click(screen.getByRole('button', { name: '긴 글' }));
     fireEvent.click(screen.getByRole('button', { name: '5분' }));
 
@@ -54,23 +119,23 @@ describe('Home', () => {
     expect(screen.getByRole('region', { name: '긴 글' })).toBeTruthy();
   });
 
-  it('종목별 최고 기록과 응시 횟수를 보여 준다', () => {
+  it('종목별 최고 기록과 응시 횟수를 보여 준다', async () => {
     recordExam('kana', { kpm: 131.6, accuracy: 0.97 }, 1);
     recordExam('kana', { kpm: 90, accuracy: 0.99 }, 3);
-    renderHome();
+    await renderHome();
 
     expect(screen.getByText('132')).toBeTruthy();
     expect(screen.getByText('97%')).toBeTruthy();
     expect(screen.getByText('2회')).toBeTruthy();
   });
 
-  it('단계별 익히기: 처음이면 튜토리얼부터, 진행 중이면 이어서 할 레벨을 강조한다', () => {
-    renderHome();
+  it('단계별 익히기: 처음이면 튜토리얼부터, 진행 중이면 이어서 할 레벨을 강조한다', async () => {
+    await renderHome();
     expect(screen.getByText('튜토리얼부터 시작하기')).toBeTruthy();
     cleanup();
 
     recordLevel('L1', { accuracy: 0.95, kpm: 40 });
-    renderHome();
+    await renderHome();
     expect(screen.getByText('Lv.2 か행 이어서 하기')).toBeTruthy();
     expect(document.querySelector('.tile-item.is-current')).toBeTruthy();
   });

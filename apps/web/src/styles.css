@@ -2009,3 +2009,223 @@ a.tile-row:active {
   background: var(--accent-soft);
   border-color: var(--accent);
 }
+
+/* 홈 「오늘」 띠: 최근 7일 중 연습한 날과 연속 기록. 누르면 달력. 마젠타는 오늘 표시에만 쓴다 */
+
+/* 기록을 읽는 동안에도 띠 높이만큼 비워 둬, 띠가 나타날 때 아래 내용이 밀리지 않게 한다 */
+.today-slot {
+  min-height: 3.75rem;
+  margin: var(--space-4) 0 0;
+}
+
+.today {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2);
+  margin: 0 calc(-1 * var(--space-2));
+  color: var(--ink);
+  border-radius: var(--radius-lg);
+  transition: background var(--duration-fast) var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .today:hover {
+    background: var(--line);
+  }
+}
+
+.today:active {
+  background: var(--line);
+}
+
+.today-week {
+  display: flex;
+  flex: none;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.today-day {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  width: 1.5rem;
+}
+
+.today-dow {
+  font-size: 0.6875rem;
+  line-height: 1;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.today-day.is-today .today-dow {
+  font-weight: 600;
+  color: var(--accent-strong);
+}
+
+.today-dot {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+}
+
+.today-day.is-done .today-dot {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.today-day.is-today .today-dot {
+  border-color: var(--accent);
+}
+
+.today-day.is-today.is-done .today-dot {
+  background: var(--accent);
+}
+
+.today-text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.today-text strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.today-text span {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+/* 연습한 날 달력 (/calendar): 연습한 날은 잉크색 원, 오늘은 마젠타 테두리 */
+
+/* 위 숫자 카드와 달력 사이, 달 제목과 달력 사이를 넉넉히 띄운다 (사용자 피드백 2026-10-24) */
+.cal-month {
+  margin: 2rem 0 0;
+  /* 좌우로 밀어 달을 넘기는 동안 세로 스크롤만 브라우저에 맡긴다 */
+  touch-action: pan-y;
+}
+
+/* ‹ 2026년 10월 › — 가운데 제목 아래에 그달 연습한 날 수 */
+.cal-nav {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-2);
+  align-items: center;
+  /* 제목 줄과 달력 사이는 넉넉히 (16px도 좁다는 피드백 2026-10-24) */
+  margin: 0 calc(-1 * var(--space-2)) 1.75rem;
+}
+
+.cal-nav .icon-btn {
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.cal-nav .icon-btn:disabled {
+  cursor: default;
+  opacity: 0.3;
+}
+
+.cal-nav .icon-btn:disabled:active {
+  background: none;
+}
+
+.cal-title {
+  display: grid;
+  justify-items: center;
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.cal-title small {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+/* 넘긴 쪽에서 달력이 살짝 밀려 들어온다 (움직임 줄이기 설정이면 꺼진다) */
+.cal-grid.is-from-right {
+  animation: cal-from-right var(--duration-base) var(--ease);
+}
+
+.cal-grid.is-from-left {
+  animation: cal-from-left var(--duration-base) var(--ease);
+}
+
+@keyframes cal-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+}
+
+@keyframes cal-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-1.5rem);
+  }
+}
+
+.cal-grid {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-grid th {
+  padding: 0 0 var(--space-2);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--ink-faint);
+}
+
+.cal-grid td {
+  padding: 2px 0;
+  text-align: center;
+}
+
+.cal-day {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-pill);
+}
+
+.cal-day.is-done {
+  color: var(--bg);
+  background: var(--ink);
+}
+
+.cal-day.is-today {
+  font-weight: 600;
+  color: var(--accent-strong);
+  border-color: var(--accent);
+}
+
+.cal-day.is-today.is-done {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+
+.cal-day.is-future {
+  color: var(--ink-faint);
+}

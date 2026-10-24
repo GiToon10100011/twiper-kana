@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import { ExamRoute } from './features/exam/ExamRun';
+import { CalendarPage } from './features/home/CalendarPage';
 import { Home } from './features/home/Home';
 import { Steps } from './features/home/Steps';
 import { Opening } from './features/intro/Opening';
@@ -35,6 +36,7 @@ export function App() {
           <Route path="/find" element={<FindPage />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/stats" element={<Stats />} />
+          <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/train/:levelId" element={<DrillRoute />} />
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />

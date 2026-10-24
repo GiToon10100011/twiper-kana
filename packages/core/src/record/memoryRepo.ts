@@ -29,5 +29,13 @@ export function createMemoryRepo(): TrainingRepo {
         [...attempts].sort((a, b) => b.at.localeCompare(a.at)).slice(0, limit),
       );
     },
+    attemptTimes() {
+      return Promise.resolve(attempts.map((a) => a.at).sort());
+    },
+    attemptsSince(at) {
+      return Promise.resolve(
+        attempts.filter((a) => a.at >= at).sort((a, b) => a.at.localeCompare(b.at)),
+      );
+    },
   };
 }

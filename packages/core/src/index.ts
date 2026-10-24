@@ -48,6 +48,7 @@ export { KANA_KEY_ROWS, danOf, keyRowOf, sameKeyRow, type Dan } from './kana/row
 export { isKana, toHiragana, toKatakana } from './kana/script';
 export { tokenizeKana } from './kana/tokenize';
 export { sameVariantFamily, variantBase } from './kana/variants';
+export { addDays, dayKey, recentDays, streakOf, type Streak } from './progress/streak';
 export { frontierLevel, unlockedLevels } from './progress/unlock';
 export type { AttemptFlag, AttemptRecord, SessionRecord, TrainingRepo } from './record/types';
 export { attemptRecordOf, type AttemptMeta } from './record/attempt';

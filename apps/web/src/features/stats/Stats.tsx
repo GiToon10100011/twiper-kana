@@ -13,6 +13,7 @@ import {
 } from '@twiper/core';
 import { trainingRepo } from '../../lib/db';
 import { BackIcon } from '../../ui/icons';
+import { skillName } from '../training/levelTitle';
 
 /** 통계에 읽어 올 최근 시도 수. 한 판이 10줄 안팎이라 수백 판 분량이다 */
 const RECENT_ATTEMPTS = 2000;
@@ -78,10 +79,7 @@ export function Stats({ repo }: { repo?: TrainingRepo }) {
     };
   }, [repo]);
 
-  const skillLabel = (skill: SkillId) =>
-    skill.startsWith('row:')
-      ? t('course.row', { keys: skill.slice('row:'.length) })
-      : t(`course.topic.${skill as Exclude<SkillId, `row:${string}`>}`);
+  const skillLabel = (skill: SkillId) => skillName(skill, t);
 
   const stats = attempts ? skillStats(attempts) : [];
   const pairs = attempts ? confusions(attempts) : [];
