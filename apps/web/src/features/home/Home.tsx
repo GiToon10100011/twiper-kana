@@ -5,42 +5,12 @@ import { EXAM_MODES, examSource, findLevel, levels } from '@twiper/content';
 import { createExam, type ExamMode, type TrainingRepo } from '@twiper/core';
 import { loadExamRecords, type ExamRecords } from '../../lib/examRecords';
 import { ChartIcon, ForwardIcon, GearIcon, PlayIcon, TimerIcon } from '../../ui/icons';
+import { Pills } from '../../ui/Pills';
 import { EXAM_MINUTES, newExamSeed, type ExamMinutes } from '../exam/ExamRun';
 import { levelAccess, type LevelAccess } from '../training/access';
 import { levelName, levelSymbol } from '../training/levelTitle';
 import { Today } from './Today';
 import { useToday } from './useToday';
-
-/** 알약 탭 묶음 (종목·시간 고르기) */
-function Pills<T extends string | number>({
-  label,
-  value,
-  options,
-  onChange,
-  small = false,
-}: {
-  label: string;
-  value: T;
-  options: readonly (readonly [T, string])[];
-  onChange: (value: T) => void;
-  small?: boolean;
-}) {
-  return (
-    <div className={`stage-tabs${small ? ' is-small' : ''}`} role="group" aria-label={label}>
-      {options.map(([option, text]) => (
-        <button
-          key={option}
-          type="button"
-          className="stage-tab"
-          aria-pressed={option === value}
-          onClick={() => onChange(option)}
-        >
-          {text}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 /**
  * 종합 테스트 패널 (시험지형). 종목과 시간을 고르면 그 종목의 첫 줄·기록·시작 버튼을 보여 준다.

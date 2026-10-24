@@ -363,6 +363,12 @@ export const ko = {
     title: '설정',
     unlockAll: '모든 레슨 열기',
     unlockAllHint: '앞 레벨을 끝내지 않아도 모든 레벨을 바로 시작할 수 있어요.',
+    helpIdle: '도움말 기다리는 시간',
+    helpIdleHint:
+      '연습 중 다음 글자에서 이만큼 멈춰 있으면 치는 법을 보여 줘요. 같은 글자를 두 번 틀리면 시간과 관계없이 보여 줘요. 기본은 3분이에요.',
+    idleSeconds: '{{count}}초',
+    idleMinutes: '{{count}}분',
+    idleOff: '끄기',
     home: '홈으로',
   },
 };

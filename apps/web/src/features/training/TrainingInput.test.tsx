@@ -141,4 +141,29 @@ describe('TrainingInput', () => {
       vi.useRealTimers();
     }
   });
+
+  it('도움말: 설정한 시간만큼 기다리고, 0이면 아무리 멈춰도 띄우지 않는다', async () => {
+    vi.useFakeTimers();
+    try {
+      const help = (_: InputSessionState, stuckAt: number | null) =>
+        stuckAt === null ? null : <aside>도움</aside>;
+      const renderWith = (idleMs: number) =>
+        render(
+          <TrainingInput target="あ" onComplete={() => {}} matchedHint="" {...{ help, idleMs }} />,
+        );
+
+      const view = renderWith(30_000);
+      await act(() => vi.advanceTimersByTimeAsync(29_900));
+      expect(screen.queryByRole('complementary')).toBeNull();
+      await act(() => vi.advanceTimersByTimeAsync(100));
+      expect(screen.queryByRole('complementary')).not.toBeNull();
+      view.unmount();
+
+      renderWith(0);
+      await act(() => vi.advanceTimersByTimeAsync(HELP_POLICY.idleMs * 10));
+      expect(screen.queryByRole('complementary')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

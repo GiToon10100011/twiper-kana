@@ -3,14 +3,14 @@ import type { InputError, InputSessionState } from '../input/types';
 
 /** 상황별 도움말을 띄우는 기준 (계획 §6 Contextual Help) */
 export interface HelpPolicy {
-  /** 다음 글자에서 이만큼(ms) 진행이 없으면 띄운다 */
+  /** 다음 글자에서 이만큼(ms) 진행이 없으면 띄운다. 앱에서는 설정으로 바꿀 수 있고 이 값이 기본값이다 */
   readonly idleMs: number;
   /** 이번 판에서 같은 글자를 이만큼 틀렸으면 그 글자에 올 때마다 띄운다 */
   readonly repeatMisses: number;
 }
 
-// 2.5초는 줄을 읽거나 잠깐 생각하는 사이에도 떠서 짧았다 (2026-10-22 사용자 실기 의견)
-export const HELP_POLICY: HelpPolicy = { idleMs: 5000, repeatMisses: 2 };
+// 2.5초는 줄을 읽거나 잠깐 생각하는 사이에도 떠서 짧았고 (2026-10-22), 5초도 너무 빨랐다 (2026-10-24 사용자 실기 의견)
+export const HELP_POLICY: HelpPolicy = { idleMs: 180_000, repeatMisses: 2 };
 
 /**
  * 목표 글자마다 틀린 횟수. 이번 판에 끝낸 줄과 지금 줄의 오류를 모두 넘긴다.
