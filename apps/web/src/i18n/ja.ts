@@ -241,6 +241,8 @@ export const ja: typeof ko = {
     days: '{{count}}日',
     month: '{{count}}日 練習',
     practiced: '練習した',
+    prev: '前の月',
+    next: '次の月',
   },
   exam: {
     title: '{{name}}テスト',

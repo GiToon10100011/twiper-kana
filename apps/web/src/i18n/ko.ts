@@ -239,6 +239,8 @@ export const ko = {
     days: '{{count}}일',
     month: '{{count}}일 연습',
     practiced: '연습함',
+    prev: '지난달',
+    next: '다음 달',
   },
   exam: {
     title: '{{name}} 테스트',

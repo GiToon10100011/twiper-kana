@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createMemoryRepo, type AttemptRecord } from '@twiper/core';
@@ -40,7 +40,7 @@ async function show(days: readonly [number, number][]) {
 }
 
 describe('CalendarPage (연습한 날)', () => {
-  it('이번 달부터 처음 연습한 달까지 최근 달을 위에 두고, 연속·최고·모든 날 수를 보여 준다', async () => {
+  it('이번 달 하나를 보여 주고, 연속·최고·모든 날 수를 보여 준다', async () => {
     await show([
       [9, 30],
       [10, 1],
@@ -48,11 +48,48 @@ describe('CalendarPage (연습한 날)', () => {
       [10, 24],
     ]);
 
-    const months = screen.getAllByRole('region').map((month) => month.getAttribute('aria-label'));
-    expect(months).toEqual(['2026년 10월', '2026년 9월']);
-
+    expect(screen.getAllByRole('region').map((month) => month.getAttribute('aria-label'))).toEqual([
+      '2026년 10월',
+    ]);
     const stats = Array.from(document.querySelectorAll('.stats div'), (cell) => cell.textContent);
     expect(stats).toEqual(['지금 연속1일', '최고 연속3일', '연습한 날4일']);
+  });
+
+  it('‹ ›로 처음 연습한 달부터 이번 달까지만 넘긴다', async () => {
+    await show([
+      [9, 30],
+      [10, 24],
+    ]);
+    const prev = () => screen.getByRole('button', { name: '지난달' });
+    const next = () => screen.getByRole('button', { name: '다음 달' });
+
+    expect((next() as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(prev());
+    expect(screen.getByRole('region', { name: '2026년 9월' })).toBeTruthy();
+    expect((prev() as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.click(next());
+    expect(screen.getByRole('region', { name: '2026년 10월' })).toBeTruthy();
+  });
+
+  it('왼쪽으로 밀면 다음 달, 오른쪽으로 밀면 지난달. 짧거나 세로로 민 것은 넘기지 않는다', async () => {
+    await show([
+      [9, 30],
+      [10, 24],
+    ]);
+    const swipe = (dx: number, dy = 0) => {
+      const month = screen.getByRole('region');
+      fireEvent.touchStart(month, { touches: [{ clientX: 200, clientY: 300 }] });
+      fireEvent.touchEnd(month, { changedTouches: [{ clientX: 200 + dx, clientY: 300 + dy }] });
+    };
+
+    swipe(120);
+    expect(screen.getByRole('region', { name: '2026년 9월' })).toBeTruthy();
+    swipe(-30);
+    swipe(-80, 120);
+    expect(screen.getByRole('region', { name: '2026년 9월' })).toBeTruthy();
+    swipe(-120);
+    expect(screen.getByRole('region', { name: '2026년 10월' })).toBeTruthy();
   });
 
   it('연습한 날과 오늘을 표시하고, 달마다 연습한 날 수를 센다', async () => {
@@ -82,10 +119,13 @@ describe('CalendarPage (연습한 날)', () => {
     expect(cells.map((cell) => cell.textContent)).toEqual(['', '', '', '', '1연습함', '2', '3']);
   });
 
-  it('기록이 없으면 이번 달만 보여 주고 한 줄이라도 치면 표시된다고 알린다', async () => {
+  it('기록이 없으면 이번 달만 보여 주고(넘길 곳 없음) 한 줄이라도 치면 표시된다고 알린다', async () => {
     await show([]);
 
     expect(screen.getAllByRole('region')).toHaveLength(1);
+    expect((screen.getByRole('button', { name: '지난달' }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
     expect(screen.getByText(/아직 연습한 날이 없어요/)).toBeTruthy();
   });
 });
