@@ -5,7 +5,7 @@ import { tokenizeKana } from '../kana/tokenize';
 import { variantBase } from '../kana/variants';
 import type { AttemptRecord } from '../record/types';
 
-/** 조합·가타카나 규칙. 이름은 콘텐츠의 레벨 주제와 같다 */
+/** 조합·가타카나·기호 규칙. 이름은 콘텐츠의 레벨 주제와 같다 */
 export type TopicSkill =
   | 'dakuten'
   | 'handakuten'
@@ -15,14 +15,16 @@ export type TopicSkill =
   | 'katakana'
   | 'longVowel'
   | 'foreign'
-  | 'vu';
+  | 'vu'
+  | 'punct'
+  | 'symbol';
 
 /** 통계를 내는 규칙. 기본 가나는 키(행)마다 'row:あ'처럼 나눈다 */
 export type SkillId = `row:${string}` | TopicSkill;
 
 const ROW_SKILLS = KANA_KEY_ROWS.map((row): SkillId => `row:${row[0] ?? ''}`);
 
-/** 화면에 보일 순서: 기초(행) → 조합 → 가타카나 */
+/** 화면에 보일 순서: 기초(행) → 조합 → 가타카나 → 기호 */
 export const SKILL_ORDER: readonly SkillId[] = [
   ...ROW_SKILLS,
   'dakuten',
@@ -34,6 +36,8 @@ export const SKILL_ORDER: readonly SkillId[] = [
   'longVowel',
   'foreign',
   'vu',
+  'punct',
+  'symbol',
 ];
 
 /** 이보다 표본이 적으면 화면에 「측정 중」으로 보인다 */
@@ -42,6 +46,10 @@ export const STATS_MIN_SAMPLES = 8;
 const HANDAKUTEN = new Set(Array.from('ぱぴぷぺぽ'));
 const SMALL = new Set(Array.from('ぁぃぅぇぉゃゅょゎ'));
 const SMALL_YA = new Set(Array.from('ゃゅょ'));
+/** かな 자판에서 바로 치는 문장부호 (、。?! 키와 や 키 ←→) */
+const PUNCT = new Set(Array.from('、。？！「」'));
+/** ☆123 자판으로 바꿔서 치는 기호 */
+const SYMBOL = new Set(Array.from('〜…・♪☆'));
 /** 플릭이 아니라 변환·초과 입력 문제인 실수 */
 const NOT_FLICK: ReadonlySet<MistakeKind> = new Set(['script', 'conversion', 'extra']);
 
@@ -51,12 +59,15 @@ const NOT_FLICK: ReadonlySet<MistakeKind> = new Set(['script', 'conversion', 'ex
  * い단 + ゃゅょ가 아닌 묶음(ティ ファ シェ)은 외래음이다.
  * ゔ(ヴ)는 탁음과 달리 「小゛゜」를 두 번 눌러야 해서(う→ぅ→ゔ) 따로 센다.
  * 가타카나는 가타카나에 더해 같은 읽기의 규칙에도 센다. 플릭은 히라가나와 똑같기 때문이다.
+ * 기호는 かな 자판의 문장부호와 ☆123 자판의 기호로 나눈다.
  */
 export function skillsOf(unit: string): SkillId[] {
   const chars = Array.from(unit);
   const head = chars[0];
   if (head === undefined) return [];
   if (unit === 'ー') return ['longVowel'];
+  if (PUNCT.has(unit)) return ['punct'];
+  if (SYMBOL.has(unit)) return ['symbol'];
 
   const skills: SkillId[] = [];
   if (chars.some((char) => toHiragana(char) !== char)) skills.push('katakana');

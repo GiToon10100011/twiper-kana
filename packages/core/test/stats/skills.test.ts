@@ -79,8 +79,14 @@ describe('skillsOf', () => {
     expect(skillsOf('ヴァ')).toEqual(['katakana', 'foreign', 'vu']);
   });
 
-  it('가나가 아니면 어떤 규칙에도 넣지 않는다', () => {
-    expect(skillsOf('、')).toEqual([]);
+  it('기호는 かな 자판의 문장부호와 ☆123 자판의 기호로 나눈다', () => {
+    expect(['、', '。', '？', '！', '「', '」'].map(skillsOf)).toEqual(Array(6).fill(['punct']));
+    expect(['〜', '…', '・', '♪', '☆'].map(skillsOf)).toEqual(Array(5).fill(['symbol']));
+  });
+
+  it('가나도 아니고 레벨에서 배우는 기호도 아니면 어떤 규칙에도 넣지 않는다', () => {
+    expect(skillsOf('A')).toEqual([]);
+    expect(skillsOf('人')).toEqual([]);
     expect(skillsOf('')).toEqual([]);
   });
 });
