@@ -19,7 +19,9 @@ import {
   levels,
   longVowelWords,
   nextLevel,
+  punctPhrases,
   sokuonWords,
+  symbolPhrases,
   vuWords,
   yoonWords,
   type ComboTopic,
@@ -42,10 +44,14 @@ const INTRODUCES: Record<ComboTopic, string> = {
 
 /** 외래음 레벨에서 배우는 작은 모음 */
 const SMALL_VOWELS = 'ァィゥェォ';
+/** 문장부호 레벨에서 배우는 かな 자판의 기호 (전각 ？！) */
+const PUNCT = '、。？！「」';
+/** ☆123 기호 레벨에서 배우는 기호 (〜는 U+301C) */
+const SYMBOLS = '\u{301C}…・♪☆';
 
 /**
  * 이 레벨까지 배운 글자. 가타카나 레벨은 그때까지 배운 히라가나의 가타카나를, 장음 레벨은 ー를,
- * 외래음 레벨은 작은 ァィゥェォ를, ヴ 레벨은 ヴ를 더한다
+ * 외래음 레벨은 작은 ァィゥェォ를, ヴ 레벨은 ヴ를, 기호 레벨은 그 기호를 더한다
  */
 function allowedFor(level: Level): Set<string> {
   const allowed = new Set(BASIC_KANA);
@@ -54,6 +60,8 @@ function allowedFor(level: Level): Set<string> {
     else if (prev.topic === 'longVowel') allowed.add('\u{30FC}');
     else if (prev.topic === 'foreign') for (const char of SMALL_VOWELS) allowed.add(char);
     else if (prev.topic === 'vu') allowed.add('ヴ');
+    else if (prev.topic === 'punct') for (const char of PUNCT) allowed.add(char);
+    else if (prev.topic === 'symbol') for (const char of SYMBOLS) allowed.add(char);
     else if (prev.topic) for (const char of INTRODUCES[prev.topic]) allowed.add(char);
   }
   return allowed;
@@ -80,18 +88,22 @@ const perfect = (line: string): LineResult => ({
 });
 
 describe('levels', () => {
-  it('L1부터 L19까지 번호와 id가 차례로 이어지고, 기초 10개·조합 5개·가타카나 4개다', () => {
+  it('L1부터 L21까지 번호와 id가 차례로 이어지고, 기초 10개·조합 5개·가타카나 4개·기호 2개다', () => {
     expect(levels.map((level) => level.id)).toEqual(
-      Array.from({ length: 19 }, (_, i) => `L${i + 1}`),
+      Array.from({ length: 21 }, (_, i) => `L${i + 1}`),
     );
     expect(levels.map((level) => level.number)).toEqual(
-      Array.from({ length: 19 }, (_, i) => i + 1),
+      Array.from({ length: 21 }, (_, i) => i + 1),
     );
     expect(levels.filter((level) => level.stage === 'katakana').map((l) => l.topic)).toEqual([
       'katakana',
       'longVowel',
       'foreign',
       'vu',
+    ]);
+    expect(levels.filter((level) => level.stage === 'symbol').map((l) => l.topic)).toEqual([
+      'punct',
+      'symbol',
     ]);
     expect(levels.filter((level) => level.stage === 'basic')).toHaveLength(10);
     expect(levels.filter((level) => level.stage === 'combo').map((l) => l.topic)).toEqual([
@@ -170,7 +182,8 @@ describe('levels', () => {
     expect(nextLevel('L15')?.id).toBe('L16');
     expect(nextLevel('L17')?.id).toBe('L18');
     expect(nextLevel('L18')?.id).toBe('L19');
-    expect(nextLevel('L19')).toBeUndefined();
+    expect(nextLevel('L19')?.id).toBe('L20');
+    expect(nextLevel('L21')).toBeUndefined();
   });
 });
 
@@ -185,6 +198,8 @@ describe('단어 목록', () => {
     ['longVowelWords', longVowelWords, 40],
     ['foreignWords', foreignWords, 40],
     ['vuWords', vuWords, 20],
+    ['punctPhrases', punctPhrases, 30],
+    ['symbolPhrases', symbolPhrases, 30],
   ] as const)('%s: 겹치는 단어가 없고 %#번째 기준 개수 이상', (_, words, min) => {
     expect(new Set(words).size).toBe(words.length);
     expect(words.length).toBeGreaterThanOrEqual(min);
@@ -252,6 +267,25 @@ describe('단어 목록', () => {
       expect(drill?.judge).toBe('commit');
       expect(drill?.focus).toEqual([]);
     }
-    expect(levels.filter((level) => level.drill.judge === 'commit')).toHaveLength(4);
+  });
+
+  it('기호 레벨의 짧은 말은 히라가나와 그 레벨의 기호로만 쓰고, 모두 그 기호를 하나 이상 담는다', () => {
+    const hiragana = (c: string) => isKana(c) && toHiragana(c) === c;
+    const only = (phrase: string, symbols: string) =>
+      Array.from(phrase).every((c) => hiragana(c) || symbols.includes(c));
+    const has = (phrase: string, symbols: string) =>
+      Array.from(phrase).some((c) => symbols.includes(c));
+
+    // ☆123 기호의 짧은 말에는 앞에서 배운 문장부호와 ー도 쓴다
+    expect(punctPhrases.filter((p) => !only(p, PUNCT) || !has(p, PUNCT))).toEqual([]);
+    expect(
+      symbolPhrases.filter((p) => !only(p, `${PUNCT}${SYMBOLS}\u{30FC}`) || !has(p, SYMBOLS)),
+    ).toEqual([]);
+  });
+
+  it('문장부호 레벨은 조합 중에 맞으면, ☆123 기호 레벨은 確定한 결과로 채점한다', () => {
+    expect(findLevel('L20')?.drill.judge).toBeUndefined();
+    expect(findLevel('L21')?.drill.judge).toBe('commit');
+    expect(levels.filter((level) => level.drill.judge === 'commit')).toHaveLength(5);
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { explainChar, findKeyStep, guideClaims } from '@twiper/core';
+import { explainChar, findKeyStep, guideClaims, lookupChar } from '@twiper/core';
 import { iosKana, levels } from '../src/index';
 import deviceCheck from './fixtures/ios-kana-guide-check-2026-10-17.json';
 
@@ -79,7 +79,7 @@ describe('iosKana 가이드 — 2026-10-17 실기기 기록과 대조', () => {
     expect(byId.get('modifier.cycle.は.2')?.expected).toBe('ぱ');
   });
 
-  it('모든 레벨에 나오는 글자는 상황별 도움말로 치는 법을 보여 줄 수 있다', () => {
+  it('모든 레벨에 나오는 글자는 상황별 도움말로 치는 법을 보여 줄 수 있다 (☆123 자판 포함)', () => {
     const chars = new Set(
       levels.flatMap(({ drill }) =>
         [...drill.focus, ...drill.review, ...(drill.words ?? [])].flatMap((text) =>
@@ -87,9 +87,25 @@ describe('iosKana 가이드 — 2026-10-17 실기기 기록과 대조', () => {
         ),
       ),
     );
-    const missing = [...chars].filter((char) => explainChar(iosKana, char) === null);
+    const missing = [...chars].filter((char) => lookupChar(iosKana, char) === null);
 
     expect(missing).toEqual([]);
+  });
+
+  it('☆123 기호는 かな 자판이 아니라 ☆123 자판의 키로 찾는다', () => {
+    const layerOf = (char: string) => {
+      const [step] = lookupChar(iosKana, char) ?? [];
+      return step?.kind === 'key' ? `${step.layer}:${step.keyId}:${step.dir}` : null;
+    };
+
+    expect(['〜', '…', '・', '♪', '☆'].map(layerOf)).toEqual([
+      'number:0:left',
+      'number:0:up',
+      'number:4:right',
+      'number:1:up',
+      'number:1:left',
+    ]);
+    expect(['「', '？'].map(layerOf)).toEqual(['kana:ya:left', 'kana:punct:up']);
   });
 
   it('ぱ는 は를 친 뒤 小゛゜ 2번, ッ은 つ를 친 뒤 1번이다', () => {

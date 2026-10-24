@@ -2,6 +2,7 @@ import type { DrillSpec } from '@twiper/core';
 import { dakutenWords, handakutenWords, sokuonWords, yoonWords } from '../words/combos';
 import { hiraganaWords } from '../words/hiragana';
 import { foreignWords, katakanaWords, longVowelWords, vuWords } from '../words/katakana';
+import { punctPhrases, symbolPhrases } from '../words/phrases';
 
 /** 조합 단계에서 다루는 규칙. 모두 「小゛゜」 키로 만든다 */
 export type ComboTopic = 'dakuten' | 'handakuten' | 'small' | 'yoon' | 'sokuon';
@@ -9,19 +10,25 @@ export type ComboTopic = 'dakuten' | 'handakuten' | 'small' | 'yoon' | 'sokuon';
 /** 가타카나 단계에서 다루는 규칙. 읽는 대로 친 뒤 변환 후보에서 골라 確定한다 */
 export type KatakanaTopic = 'katakana' | 'longVowel' | 'foreign' | 'vu';
 
-export type LevelTopic = ComboTopic | KatakanaTopic;
+/** 기호 단계에서 다루는 규칙. punct: かな 자판의 문장부호 / symbol: ☆123 자판의 기호 */
+export type SymbolTopic = 'punct' | 'symbol';
+
+export type LevelTopic = ComboTopic | KatakanaTopic | SymbolTopic;
 
 export interface Level {
   /** URL과 저장에 쓰는 id */
   readonly id: string;
   readonly number: number;
-  /** basic: 기초(50음) / combo: 문자 조합 / katakana: 가타카나 단어 (계획 §10.2) */
-  readonly stage: 'basic' | 'combo' | 'katakana';
-  /** row: 행별 연습 / all: 50음 전체 / combo: 조합 규칙 하나 / word: 변환해서 確定하는 단어 */
-  readonly kind: 'row' | 'all' | 'combo' | 'word';
-  /** 준비 화면에 도해로 보여 줄 키 (행의 첫 글자). 행별 레벨은 제목에도 쓴다 */
+  /** basic: 기초(50음) / combo: 문자 조합 / katakana: 가타카나 단어 / symbol: 기호 (계획 §10.2) */
+  readonly stage: 'basic' | 'combo' | 'katakana' | 'symbol';
+  /**
+   * row: 행별 연습 / all: 50음 전체 / combo: 조합 규칙 하나 / word: 변환해서 確定하는 단어 /
+   * phrase: 기호를 붙인 짧은 말
+   */
+  readonly kind: 'row' | 'all' | 'combo' | 'word' | 'phrase';
+  /** 준비 화면에 도해로 보여 줄 키 (그 키의 탭 글자). 행별 레벨은 제목에도 쓴다 */
   readonly keys: readonly string[];
-  /** 조합·가타카나 레벨의 규칙 */
+  /** 조합·가타카나·기호 레벨의 규칙 */
   readonly topic?: LevelTopic;
   /** 실력 확인용 종합 레벨. 스스로 떠올리도록 상황별 도움말을 띄우지 않는다 */
   readonly assessment?: boolean;
@@ -154,6 +161,40 @@ const katakanaLevels: Level[] = [
   word(19, 'vu', vuWords, ['あ']),
 ];
 
+const phrase = (
+  number: number,
+  topic: SymbolTopic,
+  words: readonly string[],
+  keys: readonly string[],
+  judge?: DrillSpec['judge'],
+): Level => ({
+  id: `L${number}`,
+  number,
+  stage: 'symbol',
+  kind: 'phrase',
+  keys,
+  topic,
+  drill: {
+    focus: [],
+    review: [],
+    words,
+    lineLength: LINE_LENGTH,
+    lineCount: 10,
+    reviewRatio: 0,
+    ...(judge ? { judge } : {}),
+  },
+});
+
+/**
+ * 기호 단계 L20–L21. 문장부호는 かな 자판에서 이어 치므로 조합 중에 맞으면 정답이다.
+ * ☆123 기호는 자판을 바꾸는 사이에 앞 글자가 確定될 수 있어 確定한 결과로 채점한다(commit).
+ * 도해는 「、。?!」·や 키, ☆123 자판의 1(☆♪)·4(・)·0(〜…) 키를 보여 준다.
+ */
+const symbolLevels: Level[] = [
+  phrase(20, 'punct', punctPhrases, ['、', 'や']),
+  phrase(21, 'symbol', symbolPhrases, ['1', '4', '0'], 'commit'),
+];
+
 export const levels: readonly Level[] = [
   ...rowLevels,
   {
@@ -174,6 +215,7 @@ export const levels: readonly Level[] = [
   },
   ...comboLevels,
   ...katakanaLevels,
+  ...symbolLevels,
 ];
 
 export function findLevel(id: string): Level | undefined {
