@@ -2120,7 +2120,8 @@ a.tile-row:active {
   grid-template-columns: auto 1fr auto;
   gap: var(--space-2);
   align-items: center;
-  margin: 0 calc(-1 * var(--space-2)) var(--space-4);
+  /* 제목 줄과 달력 사이는 넉넉히 (16px도 좁다는 피드백 2026-10-24) */
+  margin: 0 calc(-1 * var(--space-2)) 1.75rem;
 }
 
 .cal-nav .icon-btn {
