@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { loadSettings, saveSettings, type Settings as SettingsValue } from '../../lib/settings';
+import {
+  HELP_IDLE_CHOICES,
+  loadSettings,
+  saveSettings,
+  type Settings as SettingsValue,
+} from '../../lib/settings';
 import { BackIcon } from '../../ui/icons';
+import { Pills } from '../../ui/Pills';
 
 export function Settings() {
   const { t } = useTranslation();
@@ -12,6 +18,14 @@ export function Settings() {
     setSettings(next);
     saveSettings(next);
   };
+
+  /** 「30초」「3분」「끄기」 */
+  const idleLabel = (ms: number) =>
+    ms === 0
+      ? t('settings.idleOff')
+      : ms < 60_000
+        ? t('settings.idleSeconds', { count: ms / 1000 })
+        : t('settings.idleMinutes', { count: ms / 60_000 });
 
   return (
     <main className="screen">
@@ -36,6 +50,20 @@ export function Settings() {
               onChange={(event) => update({ ...settings, unlockAll: event.target.checked })}
             />
           </label>
+        </li>
+        <li>
+          <div className="setting-row is-stacked">
+            <span>
+              <span className="setting-name">{t('settings.helpIdle')}</span>
+              <small>{t('settings.helpIdleHint')}</small>
+            </span>
+            <Pills
+              label={t('settings.helpIdle')}
+              value={settings.helpIdleMs}
+              options={HELP_IDLE_CHOICES.map((ms) => [ms, idleLabel(ms)] as const)}
+              onChange={(helpIdleMs) => update({ ...settings, helpIdleMs })}
+            />
+          </div>
         </li>
       </ul>
     </main>

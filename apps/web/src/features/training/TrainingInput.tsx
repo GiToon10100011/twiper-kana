@@ -26,10 +26,12 @@ interface TrainingInputProps {
   /** 세션 상태에 따라 보여 줄 경고(로마자 키보드 등). 없으면 null */
   notice?: (session: InputSessionState) => string | null;
   /**
-   * 입력창 아래에 띄울 상황별 도움말. stuckAt은 진행 없이 HELP_POLICY.idleMs가 지난 목표 글자 위치(없으면 null).
+   * 입력창 아래에 띄울 상황별 도움말. stuckAt은 진행 없이 idleMs가 지난 목표 글자 위치(없으면 null).
    * 없으면 머뭇거림을 재지 않는다
    */
   help?: (session: InputSessionState, stuckAt: number | null) => ReactNode;
+  /** 머뭇거림으로 볼 시간 (ms, 설정). 0이면 재지 않는다. 기본값은 HELP_POLICY.idleMs */
+  idleMs?: number;
   /** 이 글자 위치 뒤에 틈을 두어 어절을 나눠 보인다 (종합 테스트의 문장) */
   gapsAfter?: readonly number[];
   /** 목표 바로 아래에 둘 것 (긴 글의 다음 줄 미리보기) */
@@ -58,6 +60,7 @@ export function TrainingInput({
   fixHint,
   notice,
   help,
+  idleMs = HELP_POLICY.idleMs,
   gapsAfter,
   afterTarget,
   onProgress,
@@ -80,13 +83,13 @@ export function TrainingInput({
   if (stuckAt !== null && session.matched > stuckAt) setStuckAt(null);
 
   // 스냅샷이 올 때마다 다시 잰다. 한동안 아무 입력이 없으면 그때 칠 차례였던 글자에서 막힌 것으로 본다.
-  const measuresIdle = help !== undefined;
+  const measuresIdle = help !== undefined && idleMs > 0;
   useEffect(() => {
     if (!measuresIdle || session.completedAt !== null) return;
     const index = session.matched;
-    const timer = window.setTimeout(() => setStuckAt(index), HELP_POLICY.idleMs);
+    const timer = window.setTimeout(() => setStuckAt(index), idleMs);
     return () => window.clearTimeout(timer);
-  }, [session, measuresIdle]);
+  }, [session, measuresIdle, idleMs]);
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
