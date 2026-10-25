@@ -52,8 +52,9 @@ describe('종합 테스트 콘텐츠', () => {
     expect(examKanaUnits.some((unit) => /[\u{30A1}-\u{30FA}]/u.test(unit))).toBe(false);
   });
 
-  it('단어 테스트는 기호 단계(짧은 말)를 뺀 모든 레벨의 단어를 겹치지 않게 담는다', () => {
-    const wordLevels = levels.filter((level) => level.stage !== 'symbol');
+  it('단어 테스트는 기호(짧은 말)·한자 단계를 뺀 모든 레벨의 단어를 겹치지 않게 담는다', () => {
+    const notWords = new Set(['symbol', 'kanji']);
+    const wordLevels = levels.filter((level) => !notWords.has(level.stage));
     const levelWords = new Set(wordLevels.flatMap((level) => level.drill.words ?? []));
 
     expect(new Set(examWords)).toEqual(levelWords);
