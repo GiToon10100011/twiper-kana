@@ -13,6 +13,8 @@ export const ko = {
     guideCheckHint: '키 배치 대조',
     courseTiles: '목록 상태 미리보기',
     courseTilesHint: '진행 상태별 코스 목록',
+    rubyLab: '한자 표기 미리보기',
+    rubyLabHint: '후리가나 시안 비교',
   },
   onboarding: {
     step: '{{current}}/{{total}}',

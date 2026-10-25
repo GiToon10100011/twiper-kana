@@ -15,6 +15,8 @@ export const ja: typeof ko = {
     guideCheckHint: 'キー配置の照合',
     courseTiles: 'コース一覧プレビュー',
     courseTilesHint: '進み具合ごとの表示',
+    rubyLab: '漢字表記プレビュー',
+    rubyLabHint: 'ふりがなの案を比べる',
   },
   onboarding: {
     step: '{{current}}/{{total}}',

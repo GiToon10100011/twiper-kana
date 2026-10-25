@@ -1,10 +1,17 @@
-import { charStatuses, type InputSessionState } from '@twiper/core';
+import { charStatuses, type CharStatus, type InputSessionState } from '@twiper/core';
+
+/**
+ * 한자 표기를 보이는 방식 (/lab/ruby 시안 비교용).
+ * above: 한자를 크게, 읽기를 그 위에 작게 (후리가나) / lines: 읽기를 크게, 바꿀 한자 표기를 그 위 작은 줄로
+ */
+export type RubyStyle = 'above' | 'lines';
 
 interface TargetTextProps {
   session: InputSessionState;
   label?: string;
   /** 이 글자 위치 뒤에서 어절을 나눈다. 줄은 어절 경계에서만 바뀐다 */
   gapsAfter?: readonly number[];
+  rubyStyle?: RubyStyle;
 }
 
 /** 글자 위치를 어절로 묶는다: gapsAfter [3, 5] → [[0,1,2,3], [4,5], [6, …]] */
@@ -22,8 +29,43 @@ function wordsOf(length: number, gaps: ReadonlySet<number>): number[][] {
   return words;
 }
 
+type Piece =
+  | { kind: 'char'; index: number }
+  | { kind: 'ruby'; surface: string; indexes: number[]; status: CharStatus };
+
+/**
+ * 목표를 가나 글자와 한자 표기 조각으로 나눈다.
+ * 한자 표기는 변환해 넣었으면 correct, 읽기까지만 맞으면 변환할 차례라 pending,
+ * 그 읽기를 변환하지 않고 確定해 버렸으면 wrong, 아니면 todo
+ */
+function piecesOf(session: InputSessionState, statuses: readonly CharStatus[]): Piece[] {
+  const pieces: Piece[] = [];
+  let i = 0;
+  session.rubies.forEach((ruby, n) => {
+    for (; i < ruby.start; i += 1) pieces.push({ kind: 'char', index: i });
+    const indexes = Array.from({ length: ruby.end - ruby.start }, (_, k) => ruby.start + k);
+    const read = indexes.every((index) => statuses[index] === 'correct');
+    const status = session.converted[n]
+      ? 'correct'
+      : read
+        ? session.composing
+          ? 'pending'
+          : 'wrong'
+        : 'todo';
+    pieces.push({ kind: 'ruby', surface: ruby.surface, indexes, status });
+    i = ruby.end;
+  });
+  for (; i < session.target.length; i += 1) pieces.push({ kind: 'char', index: i });
+  return pieces;
+}
+
 /** 목표 문자열. 입력한 글자는 잉크색, 오타는 붉은색, 다음에 칠 글자는 마젠타 밑줄로 보여 준다. */
-export function TargetText({ session, label, gapsAfter = [] }: TargetTextProps) {
+export function TargetText({
+  session,
+  label,
+  gapsAfter = [],
+  rubyStyle = 'above',
+}: TargetTextProps) {
   const statuses = charStatuses(session);
   const next = session.value.length;
   const char = (i: number) => (
@@ -31,6 +73,42 @@ export function TargetText({ session, label, gapsAfter = [] }: TargetTextProps) 
       {session.target[i]}
     </span>
   );
+
+  if (session.rubies.length > 0) {
+    const pieces = piecesOf(session, statuses);
+    if (rubyStyle === 'lines') {
+      return (
+        <div className="target-lines" lang="ja" aria-label={label}>
+          <p className="target-surface">
+            {pieces.map((piece) =>
+              piece.kind === 'ruby' ? (
+                <span key={piece.indexes[0]} className={`ch-${piece.status}`}>
+                  {piece.surface}
+                </span>
+              ) : (
+                <span key={piece.index}>{session.target[piece.index]}</span>
+              ),
+            )}
+          </p>
+          <p className="target-text">{session.target.map((_, i) => char(i))}</p>
+        </div>
+      );
+    }
+    return (
+      <p className="target-text" lang="ja" aria-label={label}>
+        {pieces.map((piece) =>
+          piece.kind === 'ruby' ? (
+            <ruby key={piece.indexes[0]} className={`ch-ruby ch-${piece.status}`}>
+              {piece.surface}
+              <rt>{piece.indexes.map(char)}</rt>
+            </ruby>
+          ) : (
+            char(piece.index)
+          ),
+        )}
+      </p>
+    );
+  }
 
   // 어절 경계가 없으면 글자마다 줄이 바뀔 수 있다 (기초 줄·단어). 있으면 어절을 통째로 넘긴다
   if (gapsAfter.length === 0) {

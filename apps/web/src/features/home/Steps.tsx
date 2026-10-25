@@ -63,6 +63,12 @@ export function Steps() {
             <small>{t('home.courseTilesHint')}</small>
           </Link>
         </li>
+        <li>
+          <Link to="/lab/ruby">
+            <span>{t('home.rubyLab')}</span>
+            <small>{t('home.rubyLabHint')}</small>
+          </Link>
+        </li>
       </ul>
     </main>
   );
