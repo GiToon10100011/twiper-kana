@@ -60,16 +60,23 @@ const SYMBOL_TOPICS: ReadonlySet<LevelTopic> = new Set<SymbolTopic>(['punct', 's
 
 const isSymbolTopic = (topic: LevelTopic): topic is SymbolTopic => SYMBOL_TOPICS.has(topic);
 
-/** 준비 화면 안내문: 가타카나 단어 / 기호를 붙인 짧은 말 / 단어만 / 50음+단어 / 조합+단어 / 글자 줄 */
+/**
+ * 준비 화면 안내문: 짧은 문장 / 채팅 / 가타카나 단어 / 기호를 붙인 짧은 말 / 단어만 / 50음+단어 /
+ * 조합+단어 / 글자 줄
+ */
 function introKey(
   level: Level,
 ):
+  | 'drill.introSentence'
+  | 'drill.introChat'
   | 'drill.introKatakana'
   | 'drill.introPhrase'
   | 'drill.introWords'
   | 'drill.introAll'
   | 'drill.introCombo'
   | 'drill.intro' {
+  if (level.kind === 'sentence') return 'drill.introSentence';
+  if (level.kind === 'chat') return 'drill.introChat';
   if (level.kind === 'word') return 'drill.introKatakana';
   if (level.kind === 'phrase') return 'drill.introPhrase';
   const hasWords = (level.drill.words?.length ?? 0) > 0;
@@ -188,6 +195,11 @@ export function Drill({ level }: { level: Level }) {
   const progress =
     current > lineCount ? t('drill.extra') : t('drill.progress', { current, total: lineCount });
 
+  // 문장은 길어서 안내에 전체를 되풀이하지 않고 밑줄 친 곳을 가리킨다
+  const isSentence = level.stage === 'sentence';
+  const word = rubySurface(drill.line);
+  const partner = level.chat?.find((line) => line.reply === drill.line)?.partner;
+
   return (
     <main className="screen">
       <header className="screen-header">
@@ -254,11 +266,13 @@ export function Drill({ level }: { level: Level }) {
             judge={level.drill.judge}
             onComplete={onComplete}
             matchedHint={t('drill.matched')}
-            convertHint={t('drill.convert', { word: rubySurface(drill.line) })}
-            fixHint={t('drill.fix', { word: rubySurface(drill.line) })}
+            convertHint={isSentence ? t('drill.convertMarked') : t('drill.convert', { word })}
+            fixHint={isSentence ? t('drill.fixMarked') : t('drill.fix', { word })}
             notice={notice}
             help={level.assessment ? undefined : help}
             idleMs={helpIdleMs}
+            layout={isSentence ? (level.kind === 'chat' ? 'chat' : 'sentence') : undefined}
+            partner={partner}
             placeholder={t('training.tapInput')}
             targetLabel={title}
             inputRef={inputRef}

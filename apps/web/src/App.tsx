@@ -5,7 +5,6 @@ import { CalendarPage } from './features/home/CalendarPage';
 import { Home } from './features/home/Home';
 import { Steps } from './features/home/Steps';
 import { Opening } from './features/intro/Opening';
-import { ChatLab } from './features/lab/ChatLab';
 import { CourseTilesLab } from './features/lab/CourseTilesLab';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
@@ -42,7 +41,6 @@ export function App() {
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />
           <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
-          <Route path="/lab/chat" element={<ChatLab />} />
         </Routes>
       )}
     </BrowserRouter>

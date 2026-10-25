@@ -13,8 +13,6 @@ export const ko = {
     guideCheckHint: '키 배치 대조',
     courseTiles: '목록 상태 미리보기',
     courseTilesHint: '진행 상태별 코스 목록',
-    chatLab: '문장·채팅 미리보기',
-    chatLabHint: '연습 화면 시안 비교',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
@@ -86,6 +84,8 @@ export const ko = {
     row: '{{keys}}행',
     all: '50음 랜덤',
     allHint: '50음 + 단어',
+    sentence: '짧은 문장',
+    chat: '채팅',
     stages: '단계',
     stage: {
       all: '모두',
@@ -93,6 +93,7 @@ export const ko = {
       combo: '조합',
       katakana: '가타카나',
       symbol: '기호',
+      sentence: '문장',
     },
     topic: {
       dakuten: '탁음 が',
@@ -122,6 +123,10 @@ export const ko = {
       '가타카나 단어 {{count}}개를 쳐요. 가타카나로 바꿔서 確定해야 다음 단어가 나와요.',
     introPhrase:
       '기호가 붙은 짧은 말 {{count}}개를 쳐요. 기호까지 다 치고 確定을 누르면 다음 말이 나와요.',
+    introSentence:
+      '한자와 가타카나가 섞인 짧은 문장 {{count}}개를 쳐요. 한자는 위에 작게 적힌 읽기대로 친 다음 후보에서 그 한자를 골라 바꿔야 해요. 가타카나도 후보에서 골라요.',
+    introChat:
+      '상대 말에 답하는 채팅 {{count}}개를 쳐요. 내 말풍선의 문장을 치고, 한자와 가타카나는 후보에서 골라 바꾼 뒤 確定하세요.',
     howTo: {
       dakuten: '글자를 친 다음 「小゛゜」를 한 번 누르면 탁점(゛)이 붙어요.',
       handakuten:
@@ -153,7 +158,8 @@ export const ko = {
     convert: '읽기는 맞았어요. 후보에서 {{word}}를 눌러 確定하세요.',
     fix: '{{word}}와 다르게 確定됐어요. 지우고 다시 친 다음 후보에서 골라 주세요.',
     convertMarked: '읽기는 맞았어요. 밑줄 친 곳을 후보에서 골라 바꾼 뒤 確定하세요.',
-    fixMarked: '밑줄 친 곳을 바꾸지 않고 確定했어요. 지우고 다시 친 다음 후보에서 골라 주세요.',
+    fixMarked:
+      '붉게 보이는 곳이 목표와 달라요. 지우고 다시 친 다음, 밑줄 친 곳은 후보에서 골라 주세요.',
     noHelp: '실력 확인용 레벨이라 막혀도 치는 법 도움말이 나오지 않아요. 스스로 떠올려 보세요.',
     retryNote: '틀린 글자는 몇 줄 뒤에 다시 나와요.',
   },

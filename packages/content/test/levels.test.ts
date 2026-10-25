@@ -4,12 +4,16 @@ import {
   advanceDrill,
   createDrill,
   isKana,
+  parseRuby,
+  rubySurface,
   toHiragana,
   toKatakana,
   tokenizeKana,
   type LineResult,
 } from '@twiper/core';
 import {
+  chatLines,
+  dailySentences,
   dakutenWords,
   findLevel,
   foreignWords,
@@ -74,10 +78,13 @@ const FOREIGN = `${SMALL_VOWELS}ヴ`;
 const hasForeignSound = (word: string) =>
   tokenizeKana(word).some((unit) => unit.length > 1 && SMALL_VOWELS.includes(unit.slice(-1)));
 
+/** 칠 글자: 한자 표기는 읽기로 펼친다 ({今日|きょう}は → きょうは) */
+const typed = (text: string) => parseRuby(text).chars;
+
 const perfect = (line: string): LineResult => ({
   target: line,
-  units: Array.from(line).length,
-  firstTryUnits: Array.from(line).length,
+  units: typed(line).length,
+  firstTryUnits: typed(line).length,
   missed: [],
   missedIndexes: [],
   mistakeKinds: {},
@@ -88,13 +95,17 @@ const perfect = (line: string): LineResult => ({
 });
 
 describe('levels', () => {
-  it('L1부터 L21까지 번호와 id가 차례로 이어지고, 기초 10개·조합 5개·가타카나 4개·기호 2개다', () => {
+  it('L1부터 L23까지 번호와 id가 차례로 이어지고, 기초 10개·조합 5개·가타카나 4개·기호 2개·문장 2개다', () => {
     expect(levels.map((level) => level.id)).toEqual(
-      Array.from({ length: 21 }, (_, i) => `L${i + 1}`),
+      Array.from({ length: 23 }, (_, i) => `L${i + 1}`),
     );
     expect(levels.map((level) => level.number)).toEqual(
-      Array.from({ length: 21 }, (_, i) => i + 1),
+      Array.from({ length: 23 }, (_, i) => i + 1),
     );
+    expect(levels.filter((level) => level.stage === 'sentence').map((l) => l.kind)).toEqual([
+      'sentence',
+      'chat',
+    ]);
     expect(levels.filter((level) => level.stage === 'katakana').map((l) => l.topic)).toEqual([
       'katakana',
       'longVowel',
@@ -152,7 +163,7 @@ describe('levels', () => {
       const allowed = allowedFor(level);
       let state = createDrill(level.drill, 42);
       while (!state.done) state = advanceDrill(state, perfect(state.line));
-      const chars = state.results.flatMap((r) => Array.from(r.target));
+      const chars = state.results.flatMap((r) => typed(r.target));
 
       expect(state.results.length).toBe(level.drill.lineCount);
       expect(chars.filter((char) => !allowed.has(char))).toEqual([]);
@@ -163,15 +174,19 @@ describe('levels', () => {
     for (const level of levels) {
       const allowed = allowedFor(level);
       const invalid = (level.drill.words ?? []).filter((word) =>
-        Array.from(word).some((char) => !allowed.has(char)),
+        typed(word).some((char) => !allowed.has(char)),
       );
 
       expect({ level: level.id, invalid }).toEqual({ level: level.id, invalid: [] });
     }
   });
 
-  it('실력 확인용(도움말 없음) 레벨은 지금은 50음 랜덤 L10뿐이다', () => {
-    expect(levels.filter((level) => level.assessment).map((level) => level.id)).toEqual(['L10']);
+  it('실력 확인용(도움말 없음) 레벨은 50음 랜덤 L10과 문장 단계 L22·L23이다', () => {
+    expect(levels.filter((level) => level.assessment).map((level) => level.id)).toEqual([
+      'L10',
+      'L22',
+      'L23',
+    ]);
   });
 
   it('findLevel·nextLevel', () => {
@@ -183,7 +198,8 @@ describe('levels', () => {
     expect(nextLevel('L17')?.id).toBe('L18');
     expect(nextLevel('L18')?.id).toBe('L19');
     expect(nextLevel('L19')?.id).toBe('L20');
-    expect(nextLevel('L21')).toBeUndefined();
+    expect(nextLevel('L21')?.id).toBe('L22');
+    expect(nextLevel('L23')).toBeUndefined();
   });
 });
 
@@ -286,6 +302,49 @@ describe('단어 목록', () => {
   it('문장부호 레벨은 조합 중에 맞으면, ☆123 기호 레벨은 確定한 결과로 채점한다', () => {
     expect(findLevel('L20')?.drill.judge).toBeUndefined();
     expect(findLevel('L21')?.drill.judge).toBe('commit');
-    expect(levels.filter((level) => level.drill.judge === 'commit')).toHaveLength(5);
+    expect(levels.filter((level) => level.drill.judge === 'commit')).toHaveLength(7);
+  });
+});
+
+describe('문장·채팅', () => {
+  const HAN = /^\p{Script=Han}+$/u;
+  const replies = chatLines.map((line) => line.reply);
+  const texts = [...dailySentences, ...replies];
+
+  it('짧은 문장은 40개, 채팅은 30개 이상이고 겹치지 않는다 (채팅은 답으로 상대 말을 찾는다)', () => {
+    expect(new Set(dailySentences).size).toBe(dailySentences.length);
+    expect(dailySentences.length).toBeGreaterThanOrEqual(40);
+    expect(new Set(replies).size).toBe(replies.length);
+    expect(chatLines.length).toBeGreaterThanOrEqual(30);
+  });
+
+  it('한자는 모두 {표기|읽기} 안에 있고, 표기는 한자만, 읽기는 히라가나만 쓴다', () => {
+    const invalid = texts.filter((text) => {
+      const { chars, rubies } = parseRuby(text);
+      const reading = (start: number, end: number) => chars.slice(start, end);
+      return (
+        rubies.length === 0 ||
+        chars.some((char) => HAN.test(char)) ||
+        rubies.some(
+          (ruby) =>
+            !HAN.test(ruby.surface) ||
+            reading(ruby.start, ruby.end).some((c) => !isKana(c) || toHiragana(c) !== c),
+        )
+      );
+    });
+
+    expect(invalid).toEqual([]);
+  });
+
+  it('줄로 낼 때 문장이 그대로 이어 붙고, 보이는 표기는 공백 없이 한자·가나·기호만 쓴다', () => {
+    expect(texts.filter((text) => tokenizeKana(text).join('') !== text)).toEqual([]);
+    expect(texts.filter((text) => /\s|[A-Za-z0-9]/u.test(rubySurface(text)))).toEqual([]);
+  });
+
+  it('문장·채팅 레벨은 確定한 결과로 채점하고, 채팅의 단어는 대화의 답이다', () => {
+    expect(findLevel('L22')?.drill.words).toEqual(dailySentences);
+    expect(findLevel('L23')?.drill.words).toEqual(replies);
+    expect(findLevel('L23')?.chat).toEqual(chatLines);
+    expect(['L22', 'L23'].map((id) => findLevel(id)?.drill.judge)).toEqual(['commit', 'commit']);
   });
 });

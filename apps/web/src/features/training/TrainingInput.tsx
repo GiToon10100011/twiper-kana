@@ -8,6 +8,7 @@ import {
   type JudgeMode,
 } from '@twiper/core';
 import { attachImeAdapter } from '../../platform/input/imeAdapter';
+import { Furigana } from './Furigana';
 import { TargetText } from './TargetText';
 
 interface TrainingInputProps {
@@ -34,6 +35,13 @@ interface TrainingInputProps {
   idleMs?: number;
   /** 이 글자 위치 뒤에 틈을 두어 어절을 나눠 보인다 (종합 테스트의 문장) */
   gapsAfter?: readonly number[];
+  /**
+   * sentence: 문장이 길어 글자를 줄이고 왼쪽부터 채운다 /
+   * chat: 상대 말풍선(왼쪽) 아래 내 말풍선(오른쪽) 안에 목표를 둔다 (2026-10-26 시안 A 채택)
+   */
+  layout?: 'sentence' | 'chat';
+  /** chat에서 상대 말. 한자 표기 그대로 주면 후리가나를 붙여 보인다 */
+  partner?: string;
   /** 목표 바로 아래에 둘 것 (긴 글의 다음 줄 미리보기) */
   afterTarget?: ReactNode;
   /** 입력 세션이 바뀔 때마다 알린다 (종합 테스트의 시간 재기) */
@@ -62,6 +70,8 @@ export function TrainingInput({
   help,
   idleMs = HELP_POLICY.idleMs,
   gapsAfter,
+  layout,
+  partner,
   afterTarget,
   onProgress,
   placeholder,
@@ -127,10 +137,22 @@ export function TrainingInput({
   const warning = notice?.(session) ?? (step === 'fix' ? (fixHint ?? null) : null);
   const hint = warning ?? (step ? (stepHint[step] ?? '') : '');
   const hintClass = warning ? ' is-warning' : step ? ' is-matched' : '';
+  const targetText = <TargetText session={session} label={targetLabel} gapsAfter={gapsAfter} />;
 
   return (
-    <div className="trainer">
-      <TargetText session={session} label={targetLabel} gapsAfter={gapsAfter} />
+    <div className={`trainer${layout ? ` is-${layout}` : ''}`}>
+      {layout === 'chat' ? (
+        <>
+          {partner ? (
+            <p className="chat-bubble is-partner" lang="ja">
+              <Furigana text={partner} />
+            </p>
+          ) : null}
+          <div className="chat-bubble is-me">{targetText}</div>
+        </>
+      ) : (
+        targetText
+      )}
       {afterTarget}
       <input
         ref={ref}

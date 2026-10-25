@@ -3,6 +3,8 @@ import { dakutenWords, handakutenWords, sokuonWords, yoonWords } from '../words/
 import { hiraganaWords } from '../words/hiragana';
 import { foreignWords, katakanaWords, longVowelWords, vuWords } from '../words/katakana';
 import { punctPhrases, symbolPhrases } from '../words/phrases';
+import { chatLines, type ChatLine } from '../sentences/chat';
+import { dailySentences } from '../sentences/daily';
 
 /** 조합 단계에서 다루는 규칙. 모두 「小゛゜」 키로 만든다 */
 export type ComboTopic = 'dakuten' | 'handakuten' | 'small' | 'yoon' | 'sokuon';
@@ -19,19 +21,24 @@ export interface Level {
   /** URL과 저장에 쓰는 id */
   readonly id: string;
   readonly number: number;
-  /** basic: 기초(50음) / combo: 문자 조합 / katakana: 가타카나 단어 / symbol: 기호 (계획 §10.2) */
-  readonly stage: 'basic' | 'combo' | 'katakana' | 'symbol';
+  /**
+   * basic: 기초(50음) / combo: 문자 조합 / katakana: 가타카나 단어 / symbol: 기호 /
+   * sentence: 한자·가타카나가 섞인 문장 (계획 §10.2)
+   */
+  readonly stage: 'basic' | 'combo' | 'katakana' | 'symbol' | 'sentence';
   /**
    * row: 행별 연습 / all: 50음 전체 / combo: 조합 규칙 하나 / word: 변환해서 確定하는 단어 /
-   * phrase: 기호를 붙인 짧은 말
+   * phrase: 기호를 붙인 짧은 말 / sentence: 짧은 문장 / chat: 상대 말에 답하는 채팅
    */
-  readonly kind: 'row' | 'all' | 'combo' | 'word' | 'phrase';
+  readonly kind: 'row' | 'all' | 'combo' | 'word' | 'phrase' | 'sentence' | 'chat';
   /** 준비 화면에 도해로 보여 줄 키 (그 키의 탭 글자). 행별 레벨은 제목에도 쓴다 */
   readonly keys: readonly string[];
   /** 조합·가타카나·기호 레벨의 규칙 */
   readonly topic?: LevelTopic;
   /** 실력 확인용 종합 레벨. 스스로 떠올리도록 상황별 도움말을 띄우지 않는다 */
   readonly assessment?: boolean;
+  /** 채팅 레벨의 대화. drill.words는 이 답들이고, 답마다 상대 말을 앞에 보인다 */
+  readonly chat?: readonly ChatLine[];
   readonly drill: DrillSpec;
 }
 
@@ -195,6 +202,46 @@ const symbolLevels: Level[] = [
   phrase(21, 'symbol', symbolPhrases, ['1', '4', '0'], 'commit'),
 ];
 
+const sentence = (
+  number: number,
+  kind: 'sentence' | 'chat',
+  words: readonly string[],
+  chat?: readonly ChatLine[],
+): Level => ({
+  id: `L${number}`,
+  number,
+  stage: 'sentence',
+  kind,
+  keys: [],
+  assessment: true,
+  ...(chat ? { chat } : {}),
+  drill: {
+    focus: [],
+    review: [],
+    words,
+    lineLength: LINE_LENGTH,
+    lineCount: 8,
+    reviewRatio: 0,
+    judge: 'commit',
+  },
+});
+
+/**
+ * 문장 단계 L22–L23. 한자는 후리가나대로 읽기를 친 뒤 후보에서 그 한자를 골라야 맞고,
+ * 가타카나도 바꿔야 맞으므로 確定한 결과로 채점한다(commit).
+ * 앞에서 배운 것을 섞어 쓰는 실력 확인용이라 도움말을 띄우지 않는다.
+ * 문장이 길어 한 판을 8줄로 줄인다.
+ */
+const sentenceLevels: Level[] = [
+  sentence(22, 'sentence', dailySentences),
+  sentence(
+    23,
+    'chat',
+    chatLines.map((line) => line.reply),
+    chatLines,
+  ),
+];
+
 export const levels: readonly Level[] = [
   ...rowLevels,
   {
@@ -216,6 +263,7 @@ export const levels: readonly Level[] = [
   ...comboLevels,
   ...katakanaLevels,
   ...symbolLevels,
+  ...sentenceLevels,
 ];
 
 export function findLevel(id: string): Level | undefined {

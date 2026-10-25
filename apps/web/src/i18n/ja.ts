@@ -15,8 +15,6 @@ export const ja: typeof ko = {
     guideCheckHint: 'キー配置の照合',
     courseTiles: 'コース一覧プレビュー',
     courseTilesHint: '進み具合ごとの表示',
-    chatLab: '文・チャットのプレビュー',
-    chatLabHint: '練習画面の案を比べる',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
@@ -89,6 +87,8 @@ export const ja: typeof ko = {
     row: '{{keys}}行',
     all: '五十音ランダム',
     allHint: '五十音 + 単語',
+    sentence: '短い文',
+    chat: 'チャット',
     stages: 'ステージ',
     stage: {
       all: 'すべて',
@@ -96,6 +96,7 @@ export const ja: typeof ko = {
       combo: '組み合わせ',
       katakana: 'カタカナ',
       symbol: '記号',
+      sentence: '文',
     },
     topic: {
       dakuten: '濁音 が',
@@ -125,6 +126,10 @@ export const ja: typeof ko = {
       'カタカナの単語を{{count}}個打ちます。カタカナに変換して確定すると次の単語に進みます。',
     introPhrase:
       '記号のついた短いことばを{{count}}個打ちます。記号まで打って「確定」を押すと次のことばに進みます。',
+    introSentence:
+      '漢字とカタカナがまざった短い文を{{count}}個打ちます。漢字は上の小さな読みのとおりに打ってから、候補でその漢字を選んで変換します。カタカナも候補で選びます。',
+    introChat:
+      '相手のことばに返事をするチャットを{{count}}個打ちます。自分の吹き出しの文を打ち、漢字とカタカナは候補で選んで変換してから確定しましょう。',
     howTo: {
       dakuten: '文字を打ったあと「小゛゜」を1回押すと濁点(゛)がつきます。',
       handakuten: 'は行の文字を打ったあと「小゛゜」を2回押します。1回なら ば、2回なら ぱ です。',
@@ -154,7 +159,7 @@ export const ja: typeof ko = {
     convert: '読みは正解です。候補から {{word}} を押して確定しましょう。',
     fix: '{{word}} と違う文字で確定しました。消して打ち直し、候補から選びましょう。',
     convertMarked: '読みは正解です。下線のところを候補で選んで変換してから確定しましょう。',
-    fixMarked: '下線のところを変換せずに確定しました。消して打ち直し、候補から選びましょう。',
+    fixMarked: '赤いところが目標と違います。消して打ち直し、下線のところは候補から選びましょう。',
     noHelp:
       '実力確認のレベルなので、止まっても打ち方のヘルプは出ません。自分で思い出してみましょう。',
     retryNote: '間違えた文字は数行あとにもう一度出ます。',

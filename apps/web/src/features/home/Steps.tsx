@@ -63,12 +63,6 @@ export function Steps() {
             <small>{t('home.courseTilesHint')}</small>
           </Link>
         </li>
-        <li>
-          <Link to="/lab/chat">
-            <span>{t('home.chatLab')}</span>
-            <small>{t('home.chatLabHint')}</small>
-          </Link>
-        </li>
       </ul>
     </main>
   );
