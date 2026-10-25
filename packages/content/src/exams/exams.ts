@@ -18,10 +18,7 @@ export const examKanaUnits: readonly string[] = [
   ...new Set(levels.filter((level) => level.stage !== 'katakana').flatMap((l) => l.drill.focus)),
 ];
 
-/**
- * 단어 테스트: 기호·한자 단계를 뺀 모든 레벨의 단어. 가타카나 단어는 변환해서 確定한다.
- * 한자 단어는 테스트 줄이 아직 한자 표기({今日|きょう})를 읽지 않아 넣지 않는다.
- */
+/** 단어 테스트: 기호 단계를 뺀 모든 레벨의 단어. 가타카나 단어는 변환해서 確定한다 */
 export const examWords: readonly string[] = [
   ...new Set([
     ...hiraganaWords,

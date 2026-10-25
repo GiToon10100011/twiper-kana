@@ -3,7 +3,7 @@ import { act, cleanup, fireEvent, render, screen, within } from '@testing-librar
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { findLevel } from '@twiper/content';
-import { HELP_POLICY, rubyReading, rubySurface, toHiragana, variantBase } from '@twiper/core';
+import { HELP_POLICY, toHiragana, variantBase } from '@twiper/core';
 import '../../i18n';
 import { DEFAULT_SETTINGS, saveSettings } from '../../lib/settings';
 import { Drill } from './Drill';
@@ -159,66 +159,6 @@ describe('Drill', () => {
 
     expect(first).toBe(false);
     expect(await screen.findByText('변환 안 함')).toBeTruthy();
-  });
-
-  it('한자 레벨: 한자 위에 읽기를 보이고, 읽기를 친 뒤 한자로 변환해 確定해야 넘어간다', async () => {
-    const level = renderDrill('L22');
-    expect(screen.getByText(/한자 위 작은 글자대로/)).toBeTruthy();
-    expect(screen.getByText('きょう')).toBeTruthy();
-    expect(screen.getByText('今日')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: '시작' }));
-    // 화면 글자(今日きょう)로 지금 단어를 찾는다
-    const words = level.drill.words ?? [];
-    const current = () => {
-      const shown = currentLine();
-      const word = words.find((w) => rubySurface(w) + rubyReading(w) === shown) ?? '';
-      return { surface: rubySurface(word), reading: rubyReading(word) };
-    };
-    let first = true;
-
-    for (let i = 0; i < level.drill.lineCount + 2; i += 1) {
-      if (!document.querySelector('.target-text')) break;
-      const input = screen.getByRole<HTMLInputElement>('textbox');
-      const { surface, reading } = current();
-      expect(document.querySelector('.target-text rt')?.textContent).toBe(reading);
-      input.dispatchEvent(new CompositionEvent('compositionstart'));
-      input.value = reading;
-      input.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText' }));
-      await flush();
-      expect(screen.getByRole('status').textContent).toContain(`후보에서 ${surface}를`);
-      if (first) {
-        // 변환하지 않고 읽기 그대로 確定하면 한자 자리가 붉게 보이고 고치라고 한다
-        input.dispatchEvent(new CompositionEvent('compositionend', { data: reading }));
-        await flush();
-        expect(screen.getByRole('status').textContent).toContain('지우고 다시');
-        expect(document.querySelector('.target-text ruby.ch-wrong')).not.toBeNull();
-        input.value = '';
-        input.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
-        await flush();
-        input.dispatchEvent(new CompositionEvent('compositionstart'));
-        input.value = reading;
-        input.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText' }));
-        await flush();
-        first = false;
-      }
-      input.value = surface;
-      input.dispatchEvent(new CompositionEvent('compositionend', { data: surface }));
-      await flush();
-    }
-
-    expect(first).toBe(false);
-    expect(await screen.findByText('변환 안 함')).toBeTruthy();
-  });
-
-  it('々 레벨은 준비 화면에 ときどき → 후보 時々를 보여 준다', () => {
-    renderDrill('L23');
-
-    expect(screen.getByText(/앞 한자를 되풀이하는 기호/)).toBeTruthy();
-    const [howTo] = screen.getAllByLabelText('이 레벨의 키');
-    const rows = [...(howTo?.querySelectorAll('li') ?? [])].map((li) =>
-      li.textContent?.replace(/\s+/g, ''),
-    );
-    expect(rows).toEqual(['ときどき→후보時々', 'ひとびと→후보人々']);
   });
 
   it('장음 레벨은 준비 화면에 わ 키 도해(→ ー)를 보여 준다', () => {

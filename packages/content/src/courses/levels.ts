@@ -2,7 +2,6 @@ import type { DrillSpec } from '@twiper/core';
 import { dakutenWords, handakutenWords, sokuonWords, yoonWords } from '../words/combos';
 import { hiraganaWords } from '../words/hiragana';
 import { foreignWords, katakanaWords, longVowelWords, vuWords } from '../words/katakana';
-import { kanjiWords, nomaWords } from '../words/kanji';
 import { punctPhrases, symbolPhrases } from '../words/phrases';
 
 /** 조합 단계에서 다루는 규칙. 모두 「小゛゜」 키로 만든다 */
@@ -14,23 +13,14 @@ export type KatakanaTopic = 'katakana' | 'longVowel' | 'foreign' | 'vu';
 /** 기호 단계에서 다루는 규칙. punct: かな 자판의 문장부호 / symbol: ☆123 자판의 기호 */
 export type SymbolTopic = 'punct' | 'symbol';
 
-/** 한자 단계에서 다루는 규칙. 읽기를 친 뒤 후보에서 한자를 골라 確定한다. noma: 되풀이 기호 々 */
-export type KanjiTopic = 'kanji' | 'noma';
-
-/** 읽기를 친 뒤 변환 후보에서 골라 確定하는 규칙 (가타카나·한자) */
-export type ConvertTopic = KatakanaTopic | KanjiTopic;
-
-export type LevelTopic = ComboTopic | ConvertTopic | SymbolTopic;
+export type LevelTopic = ComboTopic | KatakanaTopic | SymbolTopic;
 
 export interface Level {
   /** URL과 저장에 쓰는 id */
   readonly id: string;
   readonly number: number;
-  /**
-   * basic: 기초(50음) / combo: 문자 조합 / katakana: 가타카나 단어 / symbol: 기호 /
-   * kanji: 한자 단어 (계획 §10.2)
-   */
-  readonly stage: 'basic' | 'combo' | 'katakana' | 'symbol' | 'kanji';
+  /** basic: 기초(50음) / combo: 문자 조합 / katakana: 가타카나 단어 / symbol: 기호 (계획 §10.2) */
+  readonly stage: 'basic' | 'combo' | 'katakana' | 'symbol';
   /**
    * row: 행별 연습 / all: 50음 전체 / combo: 조합 규칙 하나 / word: 변환해서 確定하는 단어 /
    * phrase: 기호를 붙인 짧은 말
@@ -38,7 +28,7 @@ export interface Level {
   readonly kind: 'row' | 'all' | 'combo' | 'word' | 'phrase';
   /** 준비 화면에 도해로 보여 줄 키 (그 키의 탭 글자). 행별 레벨은 제목에도 쓴다 */
   readonly keys: readonly string[];
-  /** 조합·가타카나·기호·한자 레벨의 규칙 */
+  /** 조합·가타카나·기호 레벨의 규칙 */
   readonly topic?: LevelTopic;
   /** 실력 확인용 종합 레벨. 스스로 떠올리도록 상황별 도움말을 띄우지 않는다 */
   readonly assessment?: boolean;
@@ -137,15 +127,14 @@ const comboLevels: Level[] = [
 ];
 
 const word = (
-  stage: 'katakana' | 'kanji',
   number: number,
-  topic: ConvertTopic,
+  topic: KatakanaTopic,
   words: readonly string[],
   keys: readonly string[] = [],
 ): Level => ({
   id: `L${number}`,
   number,
-  stage,
+  stage: 'katakana',
   kind: 'word',
   keys,
   topic,
@@ -166,10 +155,10 @@ const word = (
  * 외래음의 작은 ァィゥェォ와 ヴ의 う는 あ 키로 쳐서 あ 키 도해를 보여 준다.
  */
 const katakanaLevels: Level[] = [
-  word('katakana', 16, 'katakana', katakanaWords),
-  word('katakana', 17, 'longVowel', longVowelWords, ['わ']),
-  word('katakana', 18, 'foreign', foreignWords, ['あ']),
-  word('katakana', 19, 'vu', vuWords, ['あ']),
+  word(16, 'katakana', katakanaWords),
+  word(17, 'longVowel', longVowelWords, ['わ']),
+  word(18, 'foreign', foreignWords, ['あ']),
+  word(19, 'vu', vuWords, ['あ']),
 ];
 
 const phrase = (
@@ -206,15 +195,6 @@ const symbolLevels: Level[] = [
   phrase(21, 'symbol', symbolPhrases, ['1', '4', '0'], 'commit'),
 ];
 
-/**
- * 한자 단계 L22–L23. 한자는 `{今日|きょう}`처럼 읽기를 붙여 적고, 화면에는 한자 위에 읽기를 작게 보인다.
- * 읽기를 친 뒤 후보에서 한자를 골라 確定해야 정답이다(commit). 々도 따로 치지 않고 단어 읽기로 변환한다.
- */
-const kanjiLevels: Level[] = [
-  word('kanji', 22, 'kanji', kanjiWords),
-  word('kanji', 23, 'noma', nomaWords),
-];
-
 export const levels: readonly Level[] = [
   ...rowLevels,
   {
@@ -236,7 +216,6 @@ export const levels: readonly Level[] = [
   ...comboLevels,
   ...katakanaLevels,
   ...symbolLevels,
-  ...kanjiLevels,
 ];
 
 export function findLevel(id: string): Level | undefined {

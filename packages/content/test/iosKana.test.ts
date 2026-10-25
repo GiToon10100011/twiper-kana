@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { explainChar, findKeyStep, guideClaims, lookupChar, parseRuby } from '@twiper/core';
+import { explainChar, findKeyStep, guideClaims, lookupChar } from '@twiper/core';
 import { iosKana, levels } from '../src/index';
 import deviceCheck from './fixtures/ios-kana-guide-check-2026-10-17.json';
 
@@ -79,12 +79,11 @@ describe('iosKana 가이드 — 2026-10-17 실기기 기록과 대조', () => {
     expect(byId.get('modifier.cycle.は.2')?.expected).toBe('ぱ');
   });
 
-  it('모든 레벨에서 칠 글자는 상황별 도움말로 치는 법을 보여 줄 수 있다 (☆123 자판, 한자의 읽기 포함)', () => {
-    // 도움말은 다음에 칠 글자를 보여 준다. 한자 표기는 읽기를 치므로 읽기 글자로 본다
+  it('모든 레벨에 나오는 글자는 상황별 도움말로 치는 법을 보여 줄 수 있다 (☆123 자판 포함)', () => {
     const chars = new Set(
       levels.flatMap(({ drill }) =>
-        [...drill.focus, ...drill.review, ...(drill.words ?? [])].flatMap(
-          (text) => parseRuby(text).chars,
+        [...drill.focus, ...drill.review, ...(drill.words ?? [])].flatMap((text) =>
+          Array.from(text),
         ),
       ),
     );

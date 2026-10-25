@@ -9,7 +9,7 @@ import { levelName, levelPreview, levelSymbol } from './levelTitle';
 /** 단계 탭. all은 모든 단계 */
 type StageFilter = Level['stage'] | 'all';
 
-const FILTERS: readonly StageFilter[] = ['all', 'basic', 'combo', 'katakana', 'symbol', 'kanji'];
+const FILTERS: readonly StageFilter[] = ['all', 'basic', 'combo', 'katakana', 'symbol'];
 
 /**
  * 코스 목록. 단계를 알약 탭으로 고르고, 각 레벨은 왼쪽 타일에 대표 글자를 크게 둔다.
@@ -22,7 +22,7 @@ export function CourseTiles({ access }: { access: LevelAccess }) {
 
   return (
     <>
-      <div className="stage-tabs" role="group" aria-label={t('course.stages')}>
+      <div className="stage-tabs is-scroll" role="group" aria-label={t('course.stages')}>
         {FILTERS.map((s) => (
           <button
             key={s}

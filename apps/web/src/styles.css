@@ -297,11 +297,6 @@ a {
   border-bottom: 2px solid transparent;
 }
 
-/* 읽기를 다 쳤으니 후보에서 이 표기를 고를 차례 */
-.target-text ruby.ch-pending {
-  border-bottom: 2px dotted var(--accent);
-}
-
 .target-text rt {
   font-size: 0.42em;
   letter-spacing: 0.04em;
@@ -1638,6 +1633,35 @@ a.tile-row:active {
   min-height: 1.75rem;
   padding: 0 var(--space-3);
   font-size: 0.8125rem;
+}
+
+/*
+ * 분류 탭(코스 단계·글자 표)은 늘 한 줄로 두고, 넘치면 옆으로 밀어 본다 (두 줄은 보기 좋지 않다는 사용자 의견 2026-10-26).
+ * 줄을 화면 끝까지 늘려서, 넘친 탭이 가장자리에서 잘려 보이면 더 있다는 표시가 된다.
+ */
+.stage-tabs.is-scroll {
+  flex-wrap: nowrap;
+  margin-inline: calc(-1 * var(--space-4));
+  padding-inline: var(--space-4);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--space-4);
+  scrollbar-width: none;
+}
+
+.stage-tabs.is-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.stage-tabs.is-scroll .stage-tab {
+  flex: none;
+}
+
+/* 스크롤 컨테이너는 끝쪽 안쪽 여백을 무시하는 브라우저가 있어 마지막 탭 뒤에 빈 칸을 둔다 */
+.stage-tabs.is-scroll::after {
+  flex: none;
+  width: 1px;
+  content: '';
 }
 
 .test-tags {

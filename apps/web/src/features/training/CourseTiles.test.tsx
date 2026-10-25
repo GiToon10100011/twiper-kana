@@ -26,7 +26,6 @@ const done = (bestAccuracy: number) => ({
 const BASIC = levels.filter((level) => level.stage === 'basic').length;
 const COMBO = levels.filter((level) => level.stage === 'combo').length;
 const SYMBOL = levels.filter((level) => level.stage === 'symbol').length;
-const KANJI = levels.filter((level) => level.stage === 'kanji').length;
 
 const renderTiles = (access: LevelAccess = levelAccess()) =>
   render(
@@ -44,7 +43,7 @@ describe('levelSymbol', () => {
 
     expect(['L1', 'L2', 'L9'].map(symbol)).toEqual(['あ', 'か', 'らわ']);
     expect(levels.slice(9).map(levelSymbol).join(' ')).toBe(
-      '50音 が ぱ ぁ きゃ っ カ ー ティ ヴ ？！ 〜 漢 々',
+      '50音 が ぱ ぁ きゃ っ カ ー ティ ヴ ？！ 〜',
     );
   });
 });
@@ -92,17 +91,10 @@ describe('CourseTiles', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(COMBO);
 
     fireEvent.click(screen.getByRole('button', { name: '가타카나' }));
-    expect(screen.getAllByRole('listitem')).toHaveLength(
-      levels.length - BASIC - COMBO - SYMBOL - KANJI,
-    );
+    expect(screen.getAllByRole('listitem')).toHaveLength(levels.length - BASIC - COMBO - SYMBOL);
 
     fireEvent.click(screen.getByRole('button', { name: '기호' }));
     expect(screen.getAllByRole('listitem')).toHaveLength(SYMBOL);
-
-    fireEvent.click(screen.getByRole('button', { name: '한자' }));
-    expect(screen.getAllByRole('listitem')).toHaveLength(KANJI);
-    // 목록 미리보기는 표기({今日|きょう})가 아니라 한자로 보인다
-    expect(screen.getByText(/今日・明日/)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: '모두' }));
     expect(screen.getAllByRole('listitem')).toHaveLength(levels.length);

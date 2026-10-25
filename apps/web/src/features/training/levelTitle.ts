@@ -21,7 +21,10 @@ export function levelTitle(level: Level, t: TFunction): string {
   return `${t('course.level', { number: level.number })} ${levelName(level, t)}`;
 }
 
-/** 목록에 보일 미리보기: 「かきくけこ」「がぎぐげご」「きって・きっぷ」「はい。 ほんとう？」「今日・明日」 */
+/**
+ * 목록에 보일 미리보기: 「かきくけこ」「がぎぐげご」「きって・きっぷ」「はい。 ほんとう？」.
+ * 한자 표기는 보이는 글자로 바꾼다 ({今日|きょう} → 今日)
+ */
 export function levelPreview(level: Level, t: TFunction): string {
   if (level.kind === 'all') return t('course.allHint');
   const { focus, words = [] } = level.drill;
@@ -37,7 +40,7 @@ export function levelPreview(level: Level, t: TFunction): string {
   return preview;
 }
 
-/** 조합·가타카나·기호·한자 레벨을 대표하는 글자 */
+/** 조합·가타카나·기호 레벨을 대표하는 글자 */
 const TOPIC_SYMBOL: Record<LevelTopic, string> = {
   dakuten: 'が',
   handakuten: 'ぱ',
@@ -50,8 +53,6 @@ const TOPIC_SYMBOL: Record<LevelTopic, string> = {
   vu: 'ヴ',
   punct: '？！',
   symbol: '〜',
-  kanji: '漢',
-  noma: '々',
 };
 
 /** 목록 타일에 크게 보일 대표 글자: 「あ」「らわ」「50音」「が」 */

@@ -28,26 +28,18 @@ type Piece =
 
 /**
  * 목표를 가나 글자와 한자 표기 조각으로 나눈다.
- * 한자 표기는 변환해 넣었으면 correct, 읽기까지만 맞으면 변환할 차례라 pending,
- * 그 읽기를 변환하지 않고 確定해 버렸으면 wrong, 아니면 todo
+ * 한자는 읽기를 다 맞게 쳤으면(그 한자로 바꿨어도) correct, 아니면 todo다. 틀린 글자는 읽기 글자에 보인다
  */
 function piecesOf(session: InputSessionState, statuses: readonly CharStatus[]): Piece[] {
   const pieces: Piece[] = [];
   let i = 0;
-  session.rubies.forEach((ruby, n) => {
+  for (const ruby of session.rubies) {
     for (; i < ruby.start; i += 1) pieces.push({ kind: 'char', index: i });
     const indexes = Array.from({ length: ruby.end - ruby.start }, (_, k) => ruby.start + k);
-    const read = indexes.every((index) => statuses[index] === 'correct');
-    const status = session.converted[n]
-      ? 'correct'
-      : read
-        ? session.composing
-          ? 'pending'
-          : 'wrong'
-        : 'todo';
+    const status = indexes.every((index) => statuses[index] === 'correct') ? 'correct' : 'todo';
     pieces.push({ kind: 'ruby', surface: ruby.surface, indexes, status });
     i = ruby.end;
-  });
+  }
   for (; i < session.target.length; i += 1) pieces.push({ kind: 'char', index: i });
   return pieces;
 }
@@ -55,7 +47,7 @@ function piecesOf(session: InputSessionState, statuses: readonly CharStatus[]): 
 /**
  * 목표 문자열. 입력한 글자는 잉크색, 오타는 붉은색, 다음에 칠 글자는 마젠타 밑줄로 보여 준다.
  * 한자 표기는 한자를 크게, 칠 읽기를 그 위에 작게(후리가나) 보이고 치는 진행은 읽기 글자에 표시한다
- * (2026-10-25 /lab/ruby 시안 중 A 채택).
+ * (2026-10-25 /lab/ruby 시안 중 A 채택). 읽기를 가나로 치면 맞다.
  */
 export function TargetText({ session, label, gapsAfter = [] }: TargetTextProps) {
   const statuses = charStatuses(session);
