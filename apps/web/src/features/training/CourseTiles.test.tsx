@@ -25,6 +25,7 @@ const done = (bestAccuracy: number) => ({
 
 const BASIC = levels.filter((level) => level.stage === 'basic').length;
 const COMBO = levels.filter((level) => level.stage === 'combo').length;
+const SYMBOL = levels.filter((level) => level.stage === 'symbol').length;
 
 const renderTiles = (access: LevelAccess = levelAccess()) =>
   render(
@@ -41,7 +42,9 @@ describe('levelSymbol', () => {
     const symbol = (id: string) => levelSymbol(levels.find((level) => level.id === id)!);
 
     expect(['L1', 'L2', 'L9'].map(symbol)).toEqual(['あ', 'か', 'らわ']);
-    expect(levels.slice(9).map(levelSymbol).join(' ')).toBe('50音 が ぱ ぁ きゃ っ カ ー ティ ヴ');
+    expect(levels.slice(9).map(levelSymbol).join(' ')).toBe(
+      '50音 が ぱ ぁ きゃ っ カ ー ティ ヴ ？！ 〜',
+    );
   });
 });
 
@@ -88,7 +91,10 @@ describe('CourseTiles', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(COMBO);
 
     fireEvent.click(screen.getByRole('button', { name: '가타카나' }));
-    expect(screen.getAllByRole('listitem')).toHaveLength(levels.length - BASIC - COMBO);
+    expect(screen.getAllByRole('listitem')).toHaveLength(levels.length - BASIC - COMBO - SYMBOL);
+
+    fireEvent.click(screen.getByRole('button', { name: '기호' }));
+    expect(screen.getAllByRole('listitem')).toHaveLength(SYMBOL);
 
     fireEvent.click(screen.getByRole('button', { name: '모두' }));
     expect(screen.getAllByRole('listitem')).toHaveLength(levels.length);

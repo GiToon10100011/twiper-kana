@@ -9,14 +9,15 @@ import {
   type KatakanaTopic,
   type Level,
   type LevelTopic,
+  type SymbolTopic,
 } from '@twiper/content';
 import {
   advanceDrill,
   attemptRecordOf,
   createDrill,
-  explainChar,
   helpIndex,
   lineResultOf,
+  lookupChar,
   missCounts,
   summarizeDrill,
   type DrillSummary,
@@ -39,7 +40,11 @@ import { TrainingInput } from './TrainingInput';
 
 const newSeed = () => Math.floor(Math.random() * 2 ** 31);
 
-const keyOf = (char: string) => iosKana.layers.kana.keys.find((key) => key.outputs.tap === char);
+/** 탭하면 char가 나오는 키. かな 자판에 없으면 ☆123 자판에서 찾는다 (0 키 등) */
+const keyOf = (char: string) =>
+  [iosKana.layers.kana, iosKana.layers.number]
+    .flatMap((layer) => layer.keys)
+    .find((key) => key.outputs.tap === char);
 
 const KATAKANA_TOPICS: ReadonlySet<LevelTopic> = new Set<KatakanaTopic>([
   'katakana',
@@ -50,16 +55,22 @@ const KATAKANA_TOPICS: ReadonlySet<LevelTopic> = new Set<KatakanaTopic>([
 
 const isKatakanaTopic = (topic: LevelTopic): topic is KatakanaTopic => KATAKANA_TOPICS.has(topic);
 
-/** 준비 화면 안내문: 가타카나 단어 / 단어만 / 50음+단어 / 조합+단어 / 글자 줄 */
+const SYMBOL_TOPICS: ReadonlySet<LevelTopic> = new Set<SymbolTopic>(['punct', 'symbol']);
+
+const isSymbolTopic = (topic: LevelTopic): topic is SymbolTopic => SYMBOL_TOPICS.has(topic);
+
+/** 준비 화면 안내문: 가타카나 단어 / 기호를 붙인 짧은 말 / 단어만 / 50음+단어 / 조합+단어 / 글자 줄 */
 function introKey(
   level: Level,
 ):
   | 'drill.introKatakana'
+  | 'drill.introPhrase'
   | 'drill.introWords'
   | 'drill.introAll'
   | 'drill.introCombo'
   | 'drill.intro' {
   if (level.kind === 'word') return 'drill.introKatakana';
+  if (level.kind === 'phrase') return 'drill.introPhrase';
   const hasWords = (level.drill.words?.length ?? 0) > 0;
   if (hasWords && level.drill.focus.length === 0) return 'drill.introWords';
   if (hasWords) return level.kind === 'all' ? 'drill.introAll' : 'drill.introCombo';
@@ -162,11 +173,12 @@ export function Drill({ level }: { level: Level }) {
   };
 
   // 다음 글자에서 머뭇거리거나 이번 판에 여러 번 틀린 글자에 오면 치는 법을 보여 준다.
+  // 기호는 ☆123 자판에서도 찾는다.
   const help = (session: InputSessionState, stuckAt: number | null) => {
     const misses = missCounts([...pastErrors, ...session.errors]);
     const index = helpIndex(session, { stuckAt, misses });
     const char = index === null ? undefined : session.target[index];
-    const steps = char === undefined ? null : explainChar(iosKana, char);
+    const steps = char === undefined ? null : lookupChar(iosKana, char);
     return char && steps ? <HelpCard char={char} steps={steps} labels={labels} /> : null;
   };
 
@@ -202,7 +214,7 @@ export function Drill({ level }: { level: Level }) {
                   label={t('drill.keyGuide')}
                   candidateLabel={t('drill.candidate')}
                 />
-              ) : (
+              ) : isSymbolTopic(level.topic) ? null : (
                 <ModifierHowTo topic={level.topic} label={t('drill.keyGuide')} />
               )}
             </>

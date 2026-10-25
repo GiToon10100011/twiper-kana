@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { findLevel } from '@twiper/content';
@@ -33,6 +33,12 @@ const currentLine = () => document.querySelector('.target-text')?.textContent ??
 /** あ행 글자를 내는 플릭 방향 이름 */
 const flickLabel = (char: string) =>
   ['탭', '왼쪽', '위', '오른쪽', '아래'][Array.from('あいうえお').indexOf(char)];
+
+/** 준비 화면 「이 레벨의 키」의 키 도해들 (키마다 방향별 글자) */
+const keyDiagrams = () =>
+  within(screen.getByLabelText('이 레벨의 키'))
+    .getAllByRole('img')
+    .map((img) => img.getAttribute('aria-label'));
 
 function renderDrill(id: string) {
   const level = findLevel(id);
@@ -191,6 +197,29 @@ describe('Drill', () => {
       'う+小゛゜×2→후보ヴ',
       'う+小゛゜×2+あ+小゛゜→후보ヴァ',
       'う+小゛゜×2+お+小゛゜→후보ヴォ',
+    ]);
+  });
+
+  it('문장부호 레벨은 준비 화면에 「、。?!」 키와 や 키(「」) 도해를 보여 준다', () => {
+    renderDrill('L20');
+
+    expect(screen.getByText(/짧은 말 10개/)).toBeTruthy();
+    expect(screen.getByText(/「」는 や 키를/)).toBeTruthy();
+    expect(keyDiagrams()).toEqual([
+      '탭 、, 왼쪽 。, 위 ？, 오른쪽 ！',
+      '탭 や, 왼쪽 「, 위 ゆ, 오른쪽 」, 아래 よ',
+    ]);
+  });
+
+  it('☆123 기호 레벨은 준비 화면에 ☆123 자판의 1·4·0 키 도해를 보여 준다', () => {
+    renderDrill('L21');
+
+    // 「フリックのみ」가 꺼져 있을 때의 길(ABC → ☆123)도 알려 준다 (글자 찾기의 안내와 같게)
+    expect(screen.getByText(/「☆123」 키로 자판을 바꿔서.*ABC 키를 누른 뒤 ☆123/)).toBeTruthy();
+    expect(keyDiagrams()).toEqual([
+      '탭 1, 왼쪽 ☆, 위 ♪, 오른쪽 →',
+      '탭 4, 왼쪽 ○, 위 ＊, 오른쪽 ・',
+      '탭 0, 왼쪽 〜, 위 …',
     ]);
   });
 

@@ -9,6 +9,7 @@ import {
   type AttemptRecord,
   type SkillId,
   type SkillStat,
+  type TopicSkill,
   type TrainingRepo,
 } from '@twiper/core';
 import { trainingRepo } from '../../lib/db';
@@ -18,16 +19,27 @@ import { skillName } from '../training/levelTitle';
 /** 통계에 읽어 올 최근 시도 수. 한 판이 10줄 안팎이라 수백 판 분량이다 */
 const RECENT_ATTEMPTS = 2000;
 
-type Stage = 'basic' | 'combo' | 'katakana';
+type Stage = 'basic' | 'combo' | 'katakana' | 'symbol';
+
+/** 규칙이 속한 코스 단계 (레벨 목록의 탭과 같다) */
+const TOPIC_STAGE: Record<TopicSkill, Stage> = {
+  dakuten: 'combo',
+  handakuten: 'combo',
+  small: 'combo',
+  yoon: 'combo',
+  sokuon: 'combo',
+  katakana: 'katakana',
+  longVowel: 'katakana',
+  foreign: 'katakana',
+  vu: 'katakana',
+  punct: 'symbol',
+  symbol: 'symbol',
+};
 
 const stageOf = (skill: SkillId): Stage =>
-  skill.startsWith('row:')
-    ? 'basic'
-    : skill === 'katakana' || skill === 'longVowel' || skill === 'foreign' || skill === 'vu'
-      ? 'katakana'
-      : 'combo';
+  skill.startsWith('row:') ? 'basic' : TOPIC_STAGE[skill as TopicSkill];
 
-const STAGES: readonly Stage[] = ['basic', 'combo', 'katakana'];
+const STAGES: readonly Stage[] = ['basic', 'combo', 'katakana', 'symbol'];
 
 function SkillRow({ stat, label }: { stat: SkillStat; label: string }) {
   const { t } = useTranslation();
