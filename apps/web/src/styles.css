@@ -290,7 +290,7 @@ a {
   border-radius: var(--radius-sm);
 }
 
-/* 한자 표기 — 시안 A: 한자를 크게, 읽기를 그 위에 작게. 치는 진행은 읽기 글자에 보인다 */
+/* 한자 표기: 한자를 크게, 읽기를 그 위에 작게(후리가나). 치는 진행은 읽기 글자에 보인다 */
 .target-text ruby {
   padding-bottom: 2px;
   ruby-position: over;
@@ -310,31 +310,6 @@ a {
 .target-text rt span {
   padding-bottom: 0;
   border-bottom-width: 1px;
-}
-
-/* 시안 B: 읽기를 지금처럼 크게, 바꿀 한자 표기는 그 위 작은 줄로 */
-.target-lines {
-  margin: var(--space-2) 0 var(--space-3);
-}
-
-.target-surface {
-  margin: 0;
-  font-size: 1.25rem;
-  color: var(--ink-muted);
-  text-align: center;
-  letter-spacing: 0.04em;
-}
-
-.target-surface .ch-correct {
-  color: var(--ink);
-}
-
-.target-surface .ch-pending {
-  color: var(--accent-strong);
-}
-
-.target-lines .target-text {
-  margin: 0;
 }
 
 /* 두 입력창을 같은 자리에 겹쳐 두고 활성 입력창만 보이게 한다 (리셋 전략 R1) */

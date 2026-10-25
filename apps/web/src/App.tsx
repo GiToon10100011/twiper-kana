@@ -8,7 +8,6 @@ import { Opening } from './features/intro/Opening';
 import { CourseTilesLab } from './features/lab/CourseTilesLab';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
-import { RubyLab } from './features/lab/RubyLab';
 import { Onboarding } from './features/onboarding/Onboarding';
 import { UpdatePrompt } from './features/pwa/UpdatePrompt';
 import { Settings } from './features/settings/Settings';
@@ -42,7 +41,6 @@ export function App() {
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />
           <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
-          <Route path="/lab/ruby" element={<RubyLab />} />
         </Routes>
       )}
     </BrowserRouter>

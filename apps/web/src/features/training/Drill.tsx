@@ -6,7 +6,7 @@ import {
   findLevel,
   iosKana,
   nextLevel,
-  type KatakanaTopic,
+  type ConvertTopic,
   type Level,
   type LevelTopic,
   type SymbolTopic,
@@ -19,6 +19,7 @@ import {
   lineResultOf,
   lookupChar,
   missCounts,
+  rubySurface,
   summarizeDrill,
   type DrillSummary,
   type FlickDirection,
@@ -46,29 +47,37 @@ const keyOf = (char: string) =>
     .flatMap((layer) => layer.keys)
     .find((key) => key.outputs.tap === char);
 
-const KATAKANA_TOPICS: ReadonlySet<LevelTopic> = new Set<KatakanaTopic>([
+/** 읽기를 친 뒤 후보에서 골라 確定하는 규칙 (가타카나·한자) */
+const CONVERT_TOPICS: ReadonlySet<LevelTopic> = new Set<ConvertTopic>([
   'katakana',
   'longVowel',
   'foreign',
   'vu',
+  'kanji',
+  'noma',
 ]);
 
-const isKatakanaTopic = (topic: LevelTopic): topic is KatakanaTopic => KATAKANA_TOPICS.has(topic);
+const isConvertTopic = (topic: LevelTopic): topic is ConvertTopic => CONVERT_TOPICS.has(topic);
 
 const SYMBOL_TOPICS: ReadonlySet<LevelTopic> = new Set<SymbolTopic>(['punct', 'symbol']);
 
 const isSymbolTopic = (topic: LevelTopic): topic is SymbolTopic => SYMBOL_TOPICS.has(topic);
 
-/** 준비 화면 안내문: 가타카나 단어 / 기호를 붙인 짧은 말 / 단어만 / 50음+단어 / 조합+단어 / 글자 줄 */
+/**
+ * 준비 화면 안내문: 한자 단어 / 가타카나 단어 / 기호를 붙인 짧은 말 / 단어만 / 50음+단어 / 조합+단어 /
+ * 글자 줄
+ */
 function introKey(
   level: Level,
 ):
+  | 'drill.introKanji'
   | 'drill.introKatakana'
   | 'drill.introPhrase'
   | 'drill.introWords'
   | 'drill.introAll'
   | 'drill.introCombo'
   | 'drill.intro' {
+  if (level.stage === 'kanji') return 'drill.introKanji';
   if (level.kind === 'word') return 'drill.introKatakana';
   if (level.kind === 'phrase') return 'drill.introPhrase';
   const hasWords = (level.drill.words?.length ?? 0) > 0;
@@ -208,7 +217,7 @@ export function Drill({ level }: { level: Level }) {
           {level.topic ? (
             <>
               <p className="screen-body">{t(`drill.howTo.${level.topic}`)}</p>
-              {isKatakanaTopic(level.topic) ? (
+              {isConvertTopic(level.topic) ? (
                 <ConvertHowTo
                   topic={level.topic}
                   label={t('drill.keyGuide')}
@@ -253,8 +262,8 @@ export function Drill({ level }: { level: Level }) {
             judge={level.drill.judge}
             onComplete={onComplete}
             matchedHint={t('drill.matched')}
-            convertHint={t('drill.convert', { word: drill.line })}
-            fixHint={t('drill.fix', { word: drill.line })}
+            convertHint={t('drill.convert', { word: rubySurface(drill.line) })}
+            fixHint={t('drill.fix', { word: rubySurface(drill.line) })}
             notice={notice}
             help={level.assessment ? undefined : help}
             idleMs={helpIdleMs}
