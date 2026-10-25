@@ -1,4 +1,4 @@
-import { charStatuses, type InputSessionState } from '@twiper/core';
+import { charStatuses, type CharStatus, type InputSessionState } from '@twiper/core';
 
 interface TargetTextProps {
   session: InputSessionState;
@@ -22,7 +22,33 @@ function wordsOf(length: number, gaps: ReadonlySet<number>): number[][] {
   return words;
 }
 
-/** 목표 문자열. 입력한 글자는 잉크색, 오타는 붉은색, 다음에 칠 글자는 마젠타 밑줄로 보여 준다. */
+type Piece =
+  | { kind: 'char'; index: number }
+  | { kind: 'ruby'; surface: string; indexes: number[]; status: CharStatus };
+
+/**
+ * 목표를 가나 글자와 한자 표기 조각으로 나눈다.
+ * 한자는 읽기를 다 맞게 쳤으면(그 한자로 바꿨어도) correct, 아니면 todo다. 틀린 글자는 읽기 글자에 보인다
+ */
+function piecesOf(session: InputSessionState, statuses: readonly CharStatus[]): Piece[] {
+  const pieces: Piece[] = [];
+  let i = 0;
+  for (const ruby of session.rubies) {
+    for (; i < ruby.start; i += 1) pieces.push({ kind: 'char', index: i });
+    const indexes = Array.from({ length: ruby.end - ruby.start }, (_, k) => ruby.start + k);
+    const status = indexes.every((index) => statuses[index] === 'correct') ? 'correct' : 'todo';
+    pieces.push({ kind: 'ruby', surface: ruby.surface, indexes, status });
+    i = ruby.end;
+  }
+  for (; i < session.target.length; i += 1) pieces.push({ kind: 'char', index: i });
+  return pieces;
+}
+
+/**
+ * 목표 문자열. 입력한 글자는 잉크색, 오타는 붉은색, 다음에 칠 글자는 마젠타 밑줄로 보여 준다.
+ * 한자 표기는 한자를 크게, 칠 읽기를 그 위에 작게(후리가나) 보이고 치는 진행은 읽기 글자에 표시한다
+ * (2026-10-25 /lab/ruby 시안 중 A 채택). 읽기를 가나로 치면 맞다.
+ */
 export function TargetText({ session, label, gapsAfter = [] }: TargetTextProps) {
   const statuses = charStatuses(session);
   const next = session.value.length;
@@ -31,6 +57,23 @@ export function TargetText({ session, label, gapsAfter = [] }: TargetTextProps) 
       {session.target[i]}
     </span>
   );
+
+  if (session.rubies.length > 0) {
+    return (
+      <p className="target-text" lang="ja" aria-label={label}>
+        {piecesOf(session, statuses).map((piece) =>
+          piece.kind === 'ruby' ? (
+            <ruby key={piece.indexes[0]} className={`ch-ruby ch-${piece.status}`}>
+              {piece.surface}
+              <rt>{piece.indexes.map(char)}</rt>
+            </ruby>
+          ) : (
+            char(piece.index)
+          ),
+        )}
+      </p>
+    );
+  }
 
   // 어절 경계가 없으면 글자마다 줄이 바뀔 수 있다 (기초 줄·단어). 있으면 어절을 통째로 넘긴다
   if (gapsAfter.length === 0) {

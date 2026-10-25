@@ -2,6 +2,7 @@ import { sameKeyRow } from '../kana/rows';
 import { toHiragana } from '../kana/script';
 import { sameVariantFamily } from '../kana/variants';
 import { normalizeBase, normalizeForCompare } from '../text/normalize';
+import { parseRuby, type RubySpan } from '../text/ruby';
 import type {
   CharStatus,
   InputError,
@@ -52,16 +53,58 @@ const isCandidateChar = (char: string): boolean => HAN.test(char) || HALFWIDTH_K
 const isConverting = (value: readonly string[], composing: boolean): boolean =>
   composing && value.some(isCandidateChar);
 
+const sameChars = (a: readonly string[], b: readonly string[]): boolean =>
+  a.length === b.length && a.every((char, i) => char === b[i]);
+
+/**
+ * 입력값을 목표(한자 표기를 읽기로 펼친 것)에 맞춰 본다.
+ * 앞에서부터 한자 표기 자리에 그 표기가 그대로 들어와 있으면 읽기로 되돌린다(時々 → ときどき).
+ * 읽기 그대로면 그대로 맞는다. 다른 한자로 바꿨거나 어긋나면 거기서부터 그대로 두어 틀린 글자로 보이게 한다.
+ */
+function alignToTarget(
+  raw: readonly string[],
+  target: readonly string[],
+  rubies: readonly RubySpan[],
+): string[] {
+  const value: string[] = [];
+  let r = 0;
+  for (const ruby of rubies) {
+    while (value.length < ruby.start && r < raw.length) value.push(raw[r++] ?? '');
+    if (value.length !== ruby.start) break;
+    const surface = Array.from(ruby.surface);
+    const reading = target.slice(ruby.start, ruby.end);
+    if (sameChars(raw.slice(r, r + surface.length), surface)) {
+      value.push(...reading);
+      r += surface.length;
+    } else if (sameChars(raw.slice(r, r + reading.length), reading)) {
+      value.push(...reading);
+      r += reading.length;
+    } else {
+      break;
+    }
+  }
+  value.push(...raw.slice(r));
+  return value;
+}
+
+/**
+ * 목표 문자열로 입력 세션을 만든다. 한자는 `{時々|ときどき}`처럼 읽기를 붙여 쓴다.
+ * 화면이 한자 위에 읽기(후리가나)를 보여 주므로 읽기를 가나로 치면 맞고, 그 한자로 변환해도 맞다
+ * (플릭으로 읽기를 치는 것이 연습의 요점이다 — 사용자 결정 2026-10-25).
+ */
 export function createInputSession(
   target: string,
   judge: JudgeMode = 'composing',
   options: InputSessionOptions = {},
 ): InputSessionState {
-  const chars = toChars(normalizeForCompare(target));
+  const { chars, surface, rubies } = parseRuby(normalizeForCompare(target));
   return {
     target: chars,
+    surface: toChars(surface),
+    rubies,
     judge,
     value: [],
+    raw: [],
     composing: false,
     matched: 0,
     errors: [],
@@ -87,16 +130,17 @@ export function reduceInputSession(
 ): InputSessionState {
   if (state.completedAt !== null) return state;
 
-  const { target, judge } = state;
+  const { target, rubies, judge } = state;
   const { t } = snapshot;
   const same = sameFor(judge);
   const prev = state.value;
-  const next = toChars(normalizeBase(snapshot.value));
+  const raw = toChars(normalizeBase(snapshot.value));
+  const next = alignToTarget(raw, target, rubies);
   const startedAt = state.startedAt ?? (next.length > 0 ? t : null);
   const matched = commonPrefixLength(next, target, same);
-  const equalsTarget =
-    next.length === target.length && commonPrefixLength(next, target) === target.length;
+  const equalsTarget = sameChars(next, target);
   // 한자 후보를 고르는 동안에는 읽기와 비교할 수 없으므로 오류를 기록하지 않는다.
+  // 목표 표기로 바르게 변환한 한자는 읽기로 되돌려 두었으므로 후보로 보지 않는다.
   const converting = judge === 'commit' && isConverting(next, snapshot.composing);
   // commit 판정에서 確定한 순간의 틀린 글자는 아래에서 한꺼번에 'committed'로 기록한다.
   const committing = judge === 'commit' && !snapshot.composing;
@@ -148,13 +192,14 @@ export function reduceInputSession(
 
   const lastReplacedInPlace = last >= 0 && prev.length === next.length && common === last;
   const toggled = lastReplacedInPlace && sameKeyRow(prev[last] ?? '', next[last] ?? '');
-  const romaji = !target.some(isLatinLetter) && next.some(isLatinLetter);
+  const romaji = !target.some(isLatinLetter) && raw.some(isLatinLetter);
   const committedMatch = equalsTarget && !snapshot.composing;
   const commit = judge === 'commit';
 
   return {
     ...state,
     value: next,
+    raw,
     composing: snapshot.composing,
     matched,
     errors,
@@ -215,7 +260,7 @@ export function pendingStep(state: InputSessionState): PendingStep | null {
   const { target, value } = state;
   const full = value.length === target.length;
   if (state.composing) {
-    if (full && value.every((char, i) => char === target[i])) return 'commit';
+    if (sameChars(value, target)) return 'commit';
     return full && state.matched === target.length ? 'convert' : null;
   }
   return value.some((char, i) => char !== target[i]) ? 'fix' : null;

@@ -187,7 +187,7 @@ export function CharFinder() {
       <HowToType text={query} labels={labels} />
 
       <h2 className="section-label">{t('find.tables')}</h2>
-      <div className="stage-tabs is-small" role="group" aria-label={t('find.tables')}>
+      <div className="stage-tabs is-small is-scroll" role="group" aria-label={t('find.tables')}>
         {TABLE_FILTERS.map((id) => (
           <button
             key={id}

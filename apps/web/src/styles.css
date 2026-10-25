@@ -253,6 +253,8 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 0.12em;
+  /* 후리가나가 붙은 한자와 가나를 같은 밑선에 맞춘다 */
+  align-items: baseline;
   justify-content: center;
   margin: var(--space-2) 0 var(--space-3);
   font-size: 2.25rem;
@@ -286,6 +288,23 @@ a {
   color: var(--danger);
   background: var(--danger-soft);
   border-radius: var(--radius-sm);
+}
+
+/* 한자 표기: 한자를 크게, 읽기를 그 위에 작게(후리가나). 치는 진행은 읽기 글자에 보인다 */
+.target-text ruby {
+  padding-bottom: 2px;
+  ruby-position: over;
+  border-bottom: 2px solid transparent;
+}
+
+.target-text rt {
+  font-size: 0.42em;
+  letter-spacing: 0.04em;
+}
+
+.target-text rt span {
+  padding-bottom: 0;
+  border-bottom-width: 1px;
 }
 
 /* 두 입력창을 같은 자리에 겹쳐 두고 활성 입력창만 보이게 한다 (리셋 전략 R1) */
@@ -1614,6 +1633,35 @@ a.tile-row:active {
   min-height: 1.75rem;
   padding: 0 var(--space-3);
   font-size: 0.8125rem;
+}
+
+/*
+ * 분류 탭(코스 단계·글자 표)은 늘 한 줄로 두고, 넘치면 옆으로 밀어 본다 (두 줄은 보기 좋지 않다는 사용자 의견 2026-10-26).
+ * 줄을 화면 끝까지 늘려서, 넘친 탭이 가장자리에서 잘려 보이면 더 있다는 표시가 된다.
+ */
+.stage-tabs.is-scroll {
+  flex-wrap: nowrap;
+  margin-inline: calc(-1 * var(--space-4));
+  padding-inline: var(--space-4);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--space-4);
+  scrollbar-width: none;
+}
+
+.stage-tabs.is-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.stage-tabs.is-scroll .stage-tab {
+  flex: none;
+}
+
+/* 스크롤 컨테이너는 끝쪽 안쪽 여백을 무시하는 브라우저가 있어 마지막 탭 뒤에 빈 칸을 둔다 */
+.stage-tabs.is-scroll::after {
+  flex: none;
+  width: 1px;
+  content: '';
 }
 
 .test-tags {

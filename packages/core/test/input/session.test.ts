@@ -251,6 +251,108 @@ describe('InputSession — commit 판정', () => {
   });
 });
 
+describe('InputSession — 한자 표기 {表記|よみ}', () => {
+  const at = (t: number, value: string, composing: boolean): InputSnapshot => ({
+    t,
+    value,
+    composing,
+  });
+  /** 時々의 읽기 ときどき를 플릭으로 다 친 상태 (100–400ms) */
+  const readTokidoki = () =>
+    replayInputSession('{時々|ときどき}', snaps(['と', 'とき', 'ときど', 'ときどき']), 'commit');
+
+  it('목표는 읽기로 펼쳐 맞춰 보고, 읽기를 다 치면 그대로 確定하면 된다 (후리가나를 보여 주므로)', () => {
+    const state = readTokidoki();
+
+    expect(state.target).toEqual(['と', 'き', 'ど', 'き']);
+    expect(state.surface).toEqual(['時', '々']);
+    expect(state.errors).toEqual([]);
+    expect(state.matched).toBe(4);
+    expect(charStatuses(state)).toEqual(['correct', 'correct', 'correct', 'correct']);
+    expect(pendingStep(state)).toBe('commit');
+  });
+
+  it('읽기 그대로 確定하면 완료되고 오류도 없다', () => {
+    const committed = reduceInputSession(readTokidoki(), at(500, 'ときどき', false));
+
+    expect(committed.completedAt).toBe(500);
+    expect(committed.errors).toEqual([]);
+    expect(committed.unitTimes).toEqual([100, 200, 300, 400]);
+  });
+
+  it('그 한자로 변환해 確定해도 완료된다', () => {
+    const candidate = reduceInputSession(readTokidoki(), at(500, '時々', true));
+
+    expect(candidate.value).toEqual(['と', 'き', 'ど', 'き']);
+    expect(candidate.raw).toEqual(['時', '々']);
+    expect(pendingStep(candidate)).toBe('commit');
+
+    const committed = reduceInputSession(candidate, at(600, '時々', false));
+    expect(committed.completedAt).toBe(600);
+    expect(committed.matchedAt).toBe(600);
+    expect(committed.errors).toEqual([]);
+  });
+
+  it('조합 중 판정에서도 읽기를 다 치면 맞는다', () => {
+    const typing = snaps(['き', 'きょ', 'きょう', 'きょうは']);
+    const state = replayInputSession('{今日|きょう}は', typing);
+
+    expect(state.matchedAt).toBe(400);
+    expect(state.completedAt).toBe(400);
+    expect(state.errors).toEqual([]);
+  });
+
+  it('다른 한자를 고르는 동안에는 기록하지 않고, 그대로 確定하면 틀린 변환으로 기록한다', () => {
+    const other = reduceInputSession(readTokidoki(), at(500, '時時', true));
+
+    expect(other.errors).toEqual([]);
+    expect(pendingStep(other)).toBeNull();
+
+    const committed = reduceInputSession(other, at(600, '時時', false));
+    expect(committed.completedAt).toBeNull();
+    expect(committed.errors.map((e) => [e.index, e.expected, e.actual])).toEqual([
+      [0, 'と', '時'],
+      [1, 'き', '時'],
+    ]);
+  });
+
+  it('읽기를 잘못 치면 가나 목표처럼 오류로 기록한다', () => {
+    const state = replayInputSession('{時々|ときどき}', snaps(['と', 'とけ', 'とけど']), 'commit');
+
+    expect(state.errors).toEqual([
+      { index: 1, expected: 'き', actual: 'け', cause: 'continued', t: 300 },
+    ]);
+  });
+
+  it('한자를 바르게 確定한 뒤 이어 치는 가나도 틀리면 기록한다 (확정한 한자를 후보로 보지 않는다)', () => {
+    const state = [
+      at(100, 'ときどき', true),
+      at(200, '時々', true),
+      at(300, '時々', false),
+      at(400, '時々わ', true),
+      at(500, '時々わ', false),
+    ].reduce(reduceInputSession, createInputSession('{時々|ときどき}は', 'commit'));
+
+    expect(state.target.join('')).toBe('ときどきは');
+    expect(state.errors).toEqual([
+      { index: 4, expected: 'は', actual: 'わ', cause: 'committed', t: 500 },
+    ]);
+    expect(pendingStep(state)).toBe('fix');
+  });
+
+  it('표기가 둘이면 하나는 변환하고 하나는 읽기 그대로여도 맞는다', () => {
+    const start = createInputSession('{今日|きょう}は{雨|あめ}', 'commit');
+    const state = [at(100, '今日', false), at(200, '今日はあめ', true)].reduce(
+      reduceInputSession,
+      start,
+    );
+
+    expect(state.value.join('')).toBe('きょうはあめ');
+    expect(pendingStep(state)).toBe('commit');
+    expect(reduceInputSession(state, at(300, '今日はあめ', false)).completedAt).toBe(300);
+  });
+});
+
 describe('pendingStep — composing 판정', () => {
   it('조합 중 일치하면 確定을 기다린다', () => {
     const state = replayInputSession('あい', snaps(['あ', 'あい']), 'composing', {

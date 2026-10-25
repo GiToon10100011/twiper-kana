@@ -206,6 +206,23 @@ describe('advanceDrill', () => {
     }
   });
 
+  it('한자 표기 단어는 읽기 위치로 틀린 자리를 찾아 그 단어를 다시 내고, 결과에는 표기로 남긴다', () => {
+    const words = ['{時々|ときどき}', '{人々|ひとびと}', '{色々|いろいろ}', '{日々|ひび}'];
+    let state = createDrill(spec({ focus: [], review: [], words, lineCount: 6 }), 3);
+    const first = state.line;
+    // 읽기 세 번째 글자(ときどき의 ど)를 틀렸다
+    state = advanceDrill(state, { ...perfect(first), missedIndexes: [2] });
+    const lines: string[] = [];
+    while (!state.done) {
+      lines.push(state.line);
+      state = advanceDrill(state, perfect(state.line));
+    }
+
+    expect(words).toContain(first);
+    expect(state.results[0]?.missed).toEqual([first.replace(/\{(.+)\|.+\}/u, '$1')]);
+    expect(lines.slice(1, 4)).toContain(first);
+  });
+
   it('단어가 있으면 기본 줄의 홀수 번째 줄은 단어 하나다', () => {
     const words = ['さくら', 'いぬ', 'ねこ'];
     const lines = runPerfect(createDrill(spec({ words }), 2)).results.map((r) => r.target);

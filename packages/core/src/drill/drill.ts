@@ -1,4 +1,5 @@
 import { tokenizeKana } from '../kana/tokenize';
+import { parseRuby, rubySurface } from '../text/ruby';
 import { createRng, shuffled, type Rng } from './random';
 import type { DrillRetry, DrillSpec, DrillState, LineResult } from './types';
 
@@ -41,12 +42,15 @@ function pickWord(words: readonly string[], rng: Rng, previous: string): string 
   return word === previous && words.length > 1 ? (words[(i + 1) % words.length] ?? '') : word;
 }
 
-/** 줄에서 indexes(글자 위치)가 가리키는 출제 단위. 같은 단위는 한 번만 */
+/**
+ * 줄에서 indexes(글자 위치)가 가리키는 출제 단위. 같은 단위는 한 번만.
+ * 글자 위치는 입력 세션처럼 한자 표기를 읽기로 펼쳐 센다 ({時々|ときどき}는 4글자)
+ */
 function unitsAt(units: readonly string[], indexes: readonly number[]): string[] {
   const out: string[] = [];
   let start = 0;
   for (const unit of units) {
-    const end = start + Array.from(unit).length;
+    const end = start + parseRuby(unit).chars.length;
     if (indexes.some((i) => i >= start && i < end) && !out.includes(unit)) out.push(unit);
     start = end;
   }
@@ -141,7 +145,8 @@ export function advanceDrill(state: DrillState, result: LineResult): DrillState 
   const rng = createRng(state.rng);
   const index = state.results.length;
   const missed = unitsAt(state.lineUnits, result.missedIndexes);
-  const results = [...state.results, { ...result, missed }];
+  // 결과에는 보이는 표기로 남기고({時々|ときどき} → 時々), 다시 낼 때는 단어를 찾도록 표기째 쓴다
+  const results = [...state.results, { ...result, missed: missed.map(rubySurface) }];
   const retries = schedule(state.retries, missed, index, rng);
   const nextIndex = index + 1;
   const done =

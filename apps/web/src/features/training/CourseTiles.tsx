@@ -22,7 +22,7 @@ export function CourseTiles({ access }: { access: LevelAccess }) {
 
   return (
     <>
-      <div className="stage-tabs" role="group" aria-label={t('course.stages')}>
+      <div className="stage-tabs is-scroll" role="group" aria-label={t('course.stages')}>
         {FILTERS.map((s) => (
           <button
             key={s}

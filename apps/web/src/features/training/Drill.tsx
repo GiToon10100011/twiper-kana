@@ -19,6 +19,7 @@ import {
   lineResultOf,
   lookupChar,
   missCounts,
+  rubySurface,
   summarizeDrill,
   type DrillSummary,
   type FlickDirection,
@@ -253,8 +254,8 @@ export function Drill({ level }: { level: Level }) {
             judge={level.drill.judge}
             onComplete={onComplete}
             matchedHint={t('drill.matched')}
-            convertHint={t('drill.convert', { word: drill.line })}
-            fixHint={t('drill.fix', { word: drill.line })}
+            convertHint={t('drill.convert', { word: rubySurface(drill.line) })}
+            fixHint={t('drill.fix', { word: rubySurface(drill.line) })}
             notice={notice}
             help={level.assessment ? undefined : help}
             idleMs={helpIdleMs}

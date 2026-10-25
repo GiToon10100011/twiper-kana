@@ -99,6 +99,12 @@ describe('tokenizeKana', () => {
     expect(tokenizeKana('ベッド')).toEqual(['ベ', 'ッ', 'ド']);
     expect(tokenizeKana('コーヒー')).toEqual(['コ', 'ー', 'ヒ', 'ー']);
   });
+
+  it('한자 표기 {表記|よみ}는 표기째 한 단위로 두고, 뒤의 작은 글자를 붙이지 않는다', () => {
+    expect(tokenizeKana('{時々|ときどき}は')).toEqual(['{時々|ときどき}', 'は']);
+    expect(tokenizeKana('きょうは{雨|あめ}')).toEqual(['きょ', 'う', 'は', '{雨|あめ}']);
+    expect(tokenizeKana('{今|いま}ゃ')).toEqual(['{今|いま}', 'ゃ']);
+  });
 });
 
 describe('toHiragana · toKatakana · isKana', () => {

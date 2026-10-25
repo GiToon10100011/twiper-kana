@@ -14,7 +14,11 @@ export interface AttemptRecord {
   readonly levelId: string;
   /** 줄을 끝낸 시각 (ISO 8601) */
   readonly at: string;
+  /** 맞춰 본 목표. 한자 표기는 읽기로 펼쳐 둔다 (글자별 시간·실수가 이 위치를 따른다) */
   readonly target: string;
+  /** 한자 표기가 있던 목표에서 화면에 보인 표기 (時々). 2026-10-25부터, 한자가 없으면 없다 */
+  readonly surface?: string;
+  /** 입력창에 確定한 실제 값 */
   readonly input: string;
   /** correct: 한 번도 틀리지 않음 / corrected: 틀렸다가 고쳐서 통과 */
   readonly result: 'correct' | 'corrected';

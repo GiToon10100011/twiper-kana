@@ -15,11 +15,16 @@ export function lineResultOf(session: InputSessionState, shownAt: number): LineR
     ...new Set(session.errors.filter((e) => e.expected !== '').map((e) => e.index)),
   ].sort((a, b) => a - b);
   const since = (t: number | null) => (t === null ? null : Math.max(0, t - shownAt));
+  // 한자 표기의 읽기 자리에서 틀렸으면 그 표기(時々)를 틀린 것으로 보인다
+  const shownAs = (i: number) =>
+    session.rubies.find((ruby) => i >= ruby.start && i < ruby.end)?.surface ??
+    session.target[i] ??
+    '';
   return {
     target: session.target.join(''),
     units: session.target.length,
     firstTryUnits: session.target.length - missedAt.length,
-    missed: missedAt.map((i) => session.target[i] ?? ''),
+    missed: missedAt.map(shownAs),
     missedIndexes: missedAt,
     mistakeKinds: session.errors.reduce<KindCounts>((counts, error) => {
       addKind(counts, classifyMistake(error.expected, error.actual));
