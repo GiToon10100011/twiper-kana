@@ -103,6 +103,32 @@ describe('attemptRecordOf', () => {
 
     expect(attemptRecordOf(session, meta).flags).toEqual(['romaji-suspected']);
   });
+
+  it('한자 표기 목표는 읽기로 기록하고, 確定해야 했던 표기와 실제로 친 값을 남긴다', () => {
+    const session = [
+      { t: 1100, value: 'ひとびと', composing: true },
+      { t: 1300, value: '人々', composing: true },
+      { t: 1400, value: '人々', composing: false },
+    ].reduce(reduceInputSession, createInputSession('{人々|ひとびと}', 'commit'));
+    const record = attemptRecordOf(session, meta);
+
+    expect(record.target).toBe('ひとびと');
+    expect(record.surface).toBe('人々');
+    expect(record.input).toBe('人々');
+    expect(record.unitMs).toEqual([100, 0, 0, 0]);
+    expect(record.mistakes).toEqual([]);
+  });
+
+  it('한자를 변환하지 않고 確定한 것은 「변환 안 함」으로 기록한다', () => {
+    const session = [
+      { t: 1100, value: 'ひとびと', composing: true },
+      { t: 1200, value: 'ひとびと', composing: false },
+    ].reduce(reduceInputSession, createInputSession('{人々|ひとびと}', 'commit'));
+
+    expect(attemptRecordOf(session, meta).mistakes).toEqual([
+      { index: 0, expected: '人々', actual: 'ひとびと', cause: 'committed', kind: 'script' },
+    ]);
+  });
 });
 
 describe('createMemoryRepo', () => {

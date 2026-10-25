@@ -8,7 +8,7 @@ import { sameVariantFamily, variantBase } from './variants';
  * - direction: 같은 키의 다른 방향 (か→き)
  * - key: 같은 방향(단)의 다른 키 (か→さ)
  * - long-vowel: 장음 ー를 모음으로 쓰거나(コウヒイ) 모음 자리에 ー를 씀
- * - script: 읽기는 맞지만 가타카나로 변환하지 않음 (カ→か)
+ * - script: 읽기는 맞지만 가타카나·한자로 변환하지 않음 (カ→か, 時々→ときどき)
  * - conversion: 다른 한자로 변환함 (カメラ→亀等)
  * - extra: 목표보다 더 친 글자
  * 가타카나는 히라가나로 바꿔 같은 규칙으로 본다 (カ→キ는 direction).
@@ -32,6 +32,8 @@ const HAN = /\p{Script=Han}/u;
 
 export function classifyMistake(expected: string, actual: string): MistakeKind {
   if (expected === '') return 'extra';
+  // 한자 표기 자리를 읽기 그대로 確定했다 (입력 세션이 표기째 한 번 기록한다)
+  if (HAN.test(expected) && !HAN.test(actual)) return 'script';
   if (expected === LONG_VOWEL || actual === LONG_VOWEL) return 'long-vowel';
   const e = toHiragana(expected);
   const a = toHiragana(actual);

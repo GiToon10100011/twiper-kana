@@ -66,3 +66,4 @@ export {
   type TopicSkill,
 } from './stats/skills';
 export { normalizeBase, normalizeForCompare } from './text/normalize';
+export { parseRuby, rubyReading, rubySurface, type RubySpan, type RubyText } from './text/ruby';
