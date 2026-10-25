@@ -104,7 +104,7 @@ describe('attemptRecordOf', () => {
     expect(attemptRecordOf(session, meta).flags).toEqual(['romaji-suspected']);
   });
 
-  it('한자 표기 목표는 읽기로 기록하고, 確定해야 했던 표기와 실제로 친 값을 남긴다', () => {
+  it('한자 표기 목표는 읽기로 기록하고, 화면에 보인 표기와 실제로 친 값을 남긴다', () => {
     const session = [
       { t: 1100, value: 'ひとびと', composing: true },
       { t: 1300, value: '人々', composing: true },
@@ -119,15 +119,16 @@ describe('attemptRecordOf', () => {
     expect(record.mistakes).toEqual([]);
   });
 
-  it('한자를 변환하지 않고 確定한 것은 「변환 안 함」으로 기록한다', () => {
+  it('한자를 읽기 그대로 確定해도 틀린 것으로 기록하지 않는다', () => {
     const session = [
       { t: 1100, value: 'ひとびと', composing: true },
       { t: 1200, value: 'ひとびと', composing: false },
     ].reduce(reduceInputSession, createInputSession('{人々|ひとびと}', 'commit'));
+    const record = attemptRecordOf(session, meta);
 
-    expect(attemptRecordOf(session, meta).mistakes).toEqual([
-      { index: 0, expected: '人々', actual: 'ひとびと', cause: 'committed', kind: 'script' },
-    ]);
+    expect(record.result).toBe('correct');
+    expect(record.mistakes).toEqual([]);
+    expect(record.input).toBe('ひとびと');
   });
 });
 

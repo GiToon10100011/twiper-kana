@@ -42,17 +42,15 @@ export interface InputError {
 export interface InputSessionState {
   /** 맞춰 볼 목표 글자. 한자 표기(`{時々|ときどき}`)는 읽기로 펼쳐 둔다 */
   readonly target: readonly string[];
-  /** 確定해야 하는 표기 글자. 한자 표기가 없으면 target과 같다 */
+  /** 화면에 보이는 표기 글자. 한자 표기가 없으면 target과 같다 */
   readonly surface: readonly string[];
   /** target 안에서 한자 표기가 차지하는 자리 */
   readonly rubies: readonly RubySpan[];
   readonly judge: JudgeMode;
-  /** 입력값을 target에 맞춰 본 것. 바르게 변환한 한자 표기는 읽기로 되돌려 둔다 */
+  /** 입력값을 target에 맞춰 본 것. 그 표기로 변환한 한자는 읽기로 되돌려 둔다 (읽기로 쳐도, 변환해도 맞다) */
   readonly value: readonly string[];
   /** 입력창의 실제 값 */
   readonly raw: readonly string[];
-  /** 한자 표기마다 그 표기로 변환해 입력했는지 */
-  readonly converted: readonly boolean[];
   readonly composing: boolean;
   /** 목표와 일치하는 선두 문자 수 */
   readonly matched: number;

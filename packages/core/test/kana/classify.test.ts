@@ -75,7 +75,6 @@ describe('classifyMistake', () => {
     ['う', 'ー', 'long-vowel'],
     ['ー', '-', 'long-vowel'],
     ['カ', '亀', 'conversion'],
-    ['時々', 'ときどき', 'script'],
   ] as const)('目標 %s · 入力 %s → %s', (expected, actual, kind) => {
     expect(classifyMistake(expected, actual)).toBe(kind);
   });
