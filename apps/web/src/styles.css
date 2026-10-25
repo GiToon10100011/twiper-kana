@@ -290,6 +290,16 @@ a {
   border-radius: var(--radius-sm);
 }
 
+/* 닫는 기호(。！」)를 앞 글자와 묶어 줄 첫머리에 오지 않게 한다 */
+.target-text .ch-keep {
+  display: inline-flex;
+  gap: 0.12em;
+  align-items: baseline;
+  padding: 0;
+  white-space: nowrap;
+  border: 0;
+}
+
 /* 한자 표기: 한자를 크게, 읽기를 그 위에 작게(후리가나). 치는 진행은 읽기 글자에 보인다 */
 .target-text ruby {
   padding-bottom: 2px;
@@ -302,15 +312,17 @@ a {
   border-bottom: 2px dotted var(--accent);
 }
 
-/* 읽기 그대로 確定해 버렸다: 한자로 바꿔야 하는 자리를 밑줄로 (틀린 글자처럼 칠하지 않는다) */
-.target-text ruby.ch-wrong {
-  background: none;
+/* 읽기 그대로 確定해 버렸다: 가타카나·한자로 바꿔야 하는 자리를 밑줄로 (틀린 글자처럼 칠하지 않는다) */
+.target-text .ch-unconverted {
+  color: var(--danger);
   border-bottom: 2px solid var(--danger);
 }
 
+/* 문장처럼 글자를 줄인 곳에서도 후리가나가 읽을 수 있는 크기 아래로 작아지지 않게 */
 .target-text rt {
-  font-size: 0.42em;
+  font-size: max(0.42em, 0.625rem);
   letter-spacing: 0.04em;
+  ruby-align: center;
 }
 
 .target-text rt span {
@@ -1151,6 +1163,64 @@ a.tile-row:active {
 .lab-choice > span {
   flex: none;
   width: 4.5rem;
+}
+
+/* 문장·채팅 시안 (/lab/chat): 점선 상자 안이 연습 화면 위쪽 절반이다 */
+.lab-note {
+  margin: 0 0 var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.lab-screen {
+  padding: var(--space-2) var(--space-4) var(--space-4);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+}
+
+/* 문장은 길어서 글자를 줄이고 왼쪽부터 채운다 */
+.trainer.is-sentence .target-text,
+.chat:not(.is-bubbles) > .target-text {
+  justify-content: flex-start;
+  font-size: 1.5rem;
+}
+
+.chat-bubble {
+  width: fit-content;
+  max-width: 88%;
+  margin: var(--space-2) 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: 1.125rem;
+}
+
+.chat-bubble.is-partner {
+  font-size: 1.125rem;
+  line-height: 1.9;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+/* 읽기가 한자보다 길어도 한자를 벌리지 않고 가운데에 둔다 */
+.chat-bubble.is-partner ruby {
+  ruby-align: center;
+}
+
+.chat-bubble.is-partner rt {
+  font-size: 0.5em;
+  color: var(--ink-muted);
+}
+
+.chat-bubble.is-me {
+  margin-left: auto;
+  background: var(--accent-soft);
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+.chat-bubble.is-me .target-text {
+  justify-content: flex-end;
+  margin: 0;
+  font-size: 1.375rem;
 }
 
 /* 설정 */

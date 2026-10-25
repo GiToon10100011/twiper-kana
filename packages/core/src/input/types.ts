@@ -74,7 +74,11 @@ export interface InputSessionState {
   readonly toggleSuspected: boolean;
 }
 
-export type CharStatus = 'todo' | 'correct' | 'pending' | 'wrong';
+/**
+ * todo: 아직 / correct: 맞음 / pending: 아직 바뀔 수 있는 중간 상태 /
+ * unconverted: 읽기는 맞지만 가타카나·한자로 바꾸지 않고 確定함 (밑줄로 보인다) / wrong: 틀림
+ */
+export type CharStatus = 'todo' | 'correct' | 'pending' | 'unconverted' | 'wrong';
 
 export interface InputSessionOptions {
   /**

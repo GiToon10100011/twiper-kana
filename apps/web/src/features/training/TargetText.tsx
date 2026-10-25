@@ -26,11 +26,28 @@ type Piece =
   | { kind: 'char'; index: number }
   | { kind: 'ruby'; surface: string; indexes: number[]; status: CharStatus };
 
+/** 줄 첫머리에 오면 안 되는 닫는 기호. 앞 글자와 묶어 함께 줄을 넘긴다 */
+const NO_LINE_START = new Set(Array.from('、。，．！？!?」』）〕】…'));
+
+const keyOf = (piece: Piece) => (piece.kind === 'ruby' ? (piece.indexes[0] ?? 0) : piece.index);
+
+/** 조각을 줄바꿈 단위로 묶는다: 닫는 기호(。！」)는 바로 앞 조각에 붙인다 */
+function keepPunctuation(pieces: readonly Piece[], target: readonly string[]): Piece[][] {
+  const groups: Piece[][] = [];
+  for (const piece of pieces) {
+    const closing = piece.kind === 'char' && NO_LINE_START.has(target[piece.index] ?? '');
+    const last = groups[groups.length - 1];
+    if (closing && last) last.push(piece);
+    else groups.push([piece]);
+  }
+  return groups;
+}
+
 /** 한자 표기 하나의 상태: 변환함 / 읽기까지 쳐서 후보를 고를 차례 / 읽기 그대로 確定해 버림 / 아직 */
 function rubyStatus(converted: boolean, read: boolean, composing: boolean): CharStatus {
   if (converted) return 'correct';
   if (!read) return 'todo';
-  return composing ? 'pending' : 'wrong';
+  return composing ? 'pending' : 'unconverted';
 }
 
 /**
@@ -65,29 +82,33 @@ export function TargetText({ session, label, gapsAfter = [] }: TargetTextProps) 
       {session.target[i]}
     </span>
   );
+  const pieceOf = (piece: Piece) =>
+    piece.kind === 'ruby' ? (
+      <ruby key={`r${piece.indexes[0]}`} className={`ch-ruby ch-${piece.status}`}>
+        {piece.surface}
+        <rt>{piece.indexes.map(char)}</rt>
+      </ruby>
+    ) : (
+      char(piece.index)
+    );
 
-  if (session.rubies.length > 0) {
+  // 어절 경계가 없으면 글자마다 줄이 바뀔 수 있다 (기초 줄·단어·문장). 있으면 어절을 통째로 넘긴다
+  if (gapsAfter.length === 0) {
+    const pieces: Piece[] =
+      session.rubies.length > 0
+        ? piecesOf(session, statuses)
+        : session.target.map((_, index) => ({ kind: 'char', index }));
     return (
       <p className="target-text" lang="ja" aria-label={label}>
-        {piecesOf(session, statuses).map((piece) =>
-          piece.kind === 'ruby' ? (
-            <ruby key={piece.indexes[0]} className={`ch-ruby ch-${piece.status}`}>
-              {piece.surface}
-              <rt>{piece.indexes.map(char)}</rt>
-            </ruby>
+        {keepPunctuation(pieces, session.target).map((group) =>
+          group.length === 1 ? (
+            pieceOf(group[0] as Piece)
           ) : (
-            char(piece.index)
+            <span key={`k${keyOf(group[0] as Piece)}`} className="ch-keep">
+              {group.map(pieceOf)}
+            </span>
           ),
         )}
-      </p>
-    );
-  }
-
-  // 어절 경계가 없으면 글자마다 줄이 바뀔 수 있다 (기초 줄·단어). 있으면 어절을 통째로 넘긴다
-  if (gapsAfter.length === 0) {
-    return (
-      <p className="target-text" lang="ja" aria-label={label}>
-        {session.target.map((_, i) => char(i))}
       </p>
     );
   }

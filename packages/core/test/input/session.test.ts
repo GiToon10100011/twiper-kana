@@ -173,7 +173,8 @@ describe('InputSession — commit 판정', () => {
       [1, 'め', 'committed'],
       [2, 'ら', 'committed'],
     ]);
-    expect(charStatuses(committed)).toEqual(['wrong', 'wrong', 'wrong']);
+    // 읽기는 맞으니 틀린 글자로 칠하지 않고 「바꾸지 않음」으로 보인다
+    expect(charStatuses(committed)).toEqual(['unconverted', 'unconverted', 'unconverted']);
     expect(pendingStep(committed)).toBe('fix');
 
     // 지우고 다시 쳐서 변환하면 완료된다. 지운 글자를 또 세지 않는다.

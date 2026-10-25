@@ -244,8 +244,8 @@ export function charStatuses(state: InputSessionState): CharStatus[] {
     if (actual === undefined) return 'todo';
     if (actual === expected) return 'correct';
     if (commit) {
-      // 確定한 글자가 목표 표기와 다르다 (히라가나 그대로, 다른 한자)
-      if (!state.composing) return 'wrong';
+      // 확정한 글자가 목표 표기와 다르다. 읽기는 맞으면 바꾸지 않은 것(カ를 か로), 아니면 틀린 글자(다른 한자 등)
+      if (!state.composing) return sameReading(actual, expected) ? 'unconverted' : 'wrong';
       // 읽기는 맞다. 변환은 確定할 때 본다
       if (sameReading(actual, expected)) return 'correct';
       if (converting) return 'pending';

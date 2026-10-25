@@ -46,7 +46,7 @@ describe('TargetText — 한자 표기', () => {
     });
     const view = renderTarget(committed);
 
-    expect(view.querySelector('ruby')?.className).toBe('ch-ruby ch-wrong');
+    expect(view.querySelector('ruby')?.className).toBe('ch-ruby ch-unconverted');
   });
 
   it('읽기를 치는 중이면 한자는 아직 칠 글자로 보이고, 다음 읽기 글자에 밑줄을 긋는다', () => {

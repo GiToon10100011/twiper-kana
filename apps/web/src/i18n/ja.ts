@@ -15,6 +15,8 @@ export const ja: typeof ko = {
     guideCheckHint: 'キー配置の照合',
     courseTiles: 'コース一覧プレビュー',
     courseTilesHint: '進み具合ごとの表示',
+    chatLab: '文・チャットのプレビュー',
+    chatLabHint: '練習画面の案を比べる',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
@@ -151,6 +153,8 @@ export const ja: typeof ko = {
     matched: '正解です。「確定」を押すと次の行に進みます。',
     convert: '読みは正解です。候補から {{word}} を押して確定しましょう。',
     fix: '{{word}} と違う文字で確定しました。消して打ち直し、候補から選びましょう。',
+    convertMarked: '読みは正解です。下線のところを候補で選んで変換してから確定しましょう。',
+    fixMarked: '下線のところを変換せずに確定しました。消して打ち直し、候補から選びましょう。',
     noHelp:
       '実力確認のレベルなので、止まっても打ち方のヘルプは出ません。自分で思い出してみましょう。',
     retryNote: '間違えた文字は数行あとにもう一度出ます。',
