@@ -297,6 +297,17 @@ a {
   border-bottom: 2px solid transparent;
 }
 
+/* 읽기를 다 쳤으니 후보에서 이 한자를 고를 차례 */
+.target-text ruby.ch-pending {
+  border-bottom: 2px dotted var(--accent);
+}
+
+/* 읽기 그대로 確定해 버렸다: 한자로 바꿔야 하는 자리를 밑줄로 (틀린 글자처럼 칠하지 않는다) */
+.target-text ruby.ch-wrong {
+  background: none;
+  border-bottom: 2px solid var(--danger);
+}
+
 .target-text rt {
   font-size: 0.42em;
   letter-spacing: 0.04em;
