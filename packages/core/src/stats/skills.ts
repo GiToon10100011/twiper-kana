@@ -211,6 +211,59 @@ export function confusions(
   return [...counts.values()].sort((a, b) => b.count - a.count).slice(0, limit);
 }
 
+export interface WeakUnit {
+  /** 입력 단위. 가타카나는 플릭이 같으므로 히라가나로 묶는다 */
+  readonly unit: string;
+  /** 본 횟수 (최근 window번까지) */
+  readonly samples: number;
+  /** 첫 시도에 플릭으로 틀린 비율 (0–1) */
+  readonly missRate: number;
+  /** 단위 시간 중앙값 (ms). 잴 수 없으면 null */
+  readonly medianMs: number | null;
+}
+
+/** かな 자판에서 바로 치지 않는 기호(☆123)와 문장부호는 약점 연습(가나 줄)에 내지 않는다 */
+const NOT_PRACTICE: ReadonlySet<SkillId> = new Set<SkillId>(['punct', 'symbol']);
+
+/**
+ * 약점 단위: 최근 기록에서 자주 틀리거나 느린 입력 단위. 약점 연습의 출제 단위다 (계획 §12 Weakness Analyzer).
+ * 단위마다 최근 window번까지 보고, 표본이 minSamples보다 적으면 뺀다.
+ * 틀린 적이 있거나 전체 중앙값의 1.5배 넘게 느린 단위만 넣고, 틀린 비율이 높은 순·같으면 느린 순으로 limit개.
+ * 로마자 키보드로 친 줄은 플릭 실력이 아니라서 보지 않는다
+ */
+export function weakUnits(
+  attempts: readonly AttemptRecord[],
+  {
+    minSamples = 3,
+    limit = 8,
+    window = 20,
+  }: { minSamples?: number; limit?: number; window?: number } = {},
+): WeakUnit[] {
+  const seen = new Map<string, { misses: boolean[]; times: number[] }>();
+  for (const attempt of usable(attempts)) {
+    for (const { unit, skills, flickMiss, ms } of occurrencesOf(attempt)) {
+      if (skills.length === 0 || skills.some((skill) => NOT_PRACTICE.has(skill))) continue;
+      const key = toHiragana(unit);
+      const entry = seen.get(key) ?? { misses: [], times: [] };
+      if (entry.misses.length >= window) continue;
+      entry.misses.push(flickMiss);
+      if (ms !== null) entry.times.push(ms);
+      seen.set(key, entry);
+    }
+  }
+  const overall = median([...seen.values()].flatMap((entry) => entry.times));
+  return [...seen.entries()]
+    .flatMap(([unit, { misses, times }]) => {
+      if (misses.length < minSamples) return [];
+      const missRate = misses.filter(Boolean).length / misses.length;
+      const medianMs = median(times);
+      const slow = overall !== null && medianMs !== null && medianMs >= overall * 1.5;
+      return missRate > 0 || slow ? [{ unit, samples: misses.length, missRate, medianMs }] : [];
+    })
+    .sort((a, b) => b.missRate - a.missRate || (b.medianMs ?? 0) - (a.medianMs ?? 0))
+    .slice(0, limit);
+}
+
 /** 표본이 minSamples 이상인 입력 단위 중 느린 순. 가타카나는 읽기(히라가나)로 묶는다 */
 export function slowUnits(
   attempts: readonly AttemptRecord[],

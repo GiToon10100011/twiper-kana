@@ -1174,6 +1174,96 @@ a.tile-row:active {
   width: 4.5rem;
 }
 
+/* 시안에서 지금 화면의 다른 부분이 들어갈 자리 */
+.lab-placeholder {
+  padding: var(--space-3) var(--space-4);
+  margin: var(--space-3) 0;
+  font-size: 0.8125rem;
+  color: var(--ink-faint);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+}
+
+/* 약점 연습 카드 (내 실력 맨 위) */
+.weak-card {
+  padding: var(--space-4);
+  margin: var(--space-3) 0 var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+/* .weak-card를 붙여 시안 화면(.lab h2)에서도 같은 모양으로 보이게 한다 */
+.weak-card .weak-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.weak-lead {
+  margin: var(--space-1) 0 var(--space-3);
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.weak-units {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0;
+  margin: 0 0 var(--space-4);
+  list-style: none;
+}
+
+/* 글자 하나: 크게 글자, 아래에 틀린 비율 또는 걸린 시간 */
+.weak-unit {
+  display: grid;
+  place-items: center;
+  min-width: 3.5rem;
+  padding: var(--space-2) var(--space-2) var(--space-1);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.weak-unit span {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.weak-unit small {
+  font-size: 0.6875rem;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.weak-start {
+  width: 100%;
+  gap: var(--space-2);
+}
+
+/* 가장 약한 규칙의 레벨로 돌아가기 */
+.weak-back {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+  margin-top: var(--space-3);
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+  text-decoration: none;
+  border-top: 1px solid var(--line);
+}
+
+.weak-back strong {
+  display: block;
+  margin-top: 2px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 /* 문장 연습: 문장은 길어서 글자를 줄이고 왼쪽부터 채운다 */
 .trainer.is-sentence .target-text {
   justify-content: flex-start;
