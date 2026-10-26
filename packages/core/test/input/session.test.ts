@@ -123,6 +123,17 @@ describe('InputSession — composing 판정', () => {
     expect(replayInputSession('かき', snaps(['k', 'kか'])).romajiSuspected).toBe(false);
   });
 
+  it('앞에 남은 영문자가 있어도 뒤쪽 라틴 문자가 가나로 바뀌면 로마자 키보드로 본다 (xk → xか)', () => {
+    const state = replayInputSession('か', snaps(['x', 'xk', 'xか']));
+
+    expect(state.romajiSuspected).toBe(true);
+    expect(state.romajiActive).toBe(true);
+  });
+
+  it('후보로 끝 글자가 다른 계열로 바뀐 것(か → き)은 키보드를 바꾼 근거가 아니다', () => {
+    expect(replayInputSession('き', snaps(['k', 'か', 'き'])).romajiActive).toBe(true);
+  });
+
   it('로마자 자판에서도 바로 나오는 모음, 후보로 여러 글자가 바뀐 것만으로는 로마자 안내를 거두지 않는다', () => {
     expect(replayInputSession('かい', snaps(['k', 'か', 'かい'])).romajiActive).toBe(true);
     expect(replayInputSession('かく', snaps(['k', 'か', 'かk'])).romajiActive).toBe(true);
