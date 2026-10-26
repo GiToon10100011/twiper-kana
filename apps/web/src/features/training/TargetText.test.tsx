@@ -49,6 +49,15 @@ describe('TargetText — 한자 표기', () => {
     expect(view.querySelector('ruby')?.className).toBe('ch-ruby ch-unconverted');
   });
 
+  it('한자를 읽기로 쳐도 되는 설정이면 읽기를 다 친 한자는 밑줄 없이 맞게 보인다', () => {
+    const session = reduceInputSession(
+      createInputSession('{今日|きょう}は', 'commit', { readingOk: true }),
+      { t: 100, value: 'きょう', composing: true },
+    );
+
+    expect(renderTarget(session).querySelector('ruby')?.className).toBe('ch-ruby ch-correct');
+  });
+
   it('어절 틈이 있는 줄(종합 테스트)도 한자에 후리가나를 붙이고, 틈은 읽기 위치로 나눈다', () => {
     // {今日|きょう}は / いい / {天気|てんき}。 — 틈은 は(3)와 い(5) 뒤
     const session = createInputSession('{今日|きょう}はいい{天気|てんき}。', 'commit');

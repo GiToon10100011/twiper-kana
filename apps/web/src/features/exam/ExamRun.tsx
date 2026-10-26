@@ -18,6 +18,7 @@ import {
 import { newId, trainingRepo } from '../../lib/db';
 import { recordExam, type ExamBest } from '../../lib/examRecords';
 import { hasSeenExamRules, markExamRulesSeen } from '../../lib/flags';
+import { loadSettings } from '../../lib/settings';
 import { BackIcon, InfoIcon } from '../../ui/icons';
 import { Furigana } from '../training/Furigana';
 import { TrainingInput } from '../training/TrainingInput';
@@ -96,6 +97,8 @@ export function ExamRun({
   const inputRef = useRef<HTMLInputElement>(null);
   /** 주의사항 창. 처음 들어왔을 때 한 번 저절로 띄운다 */
   const [rulesOpen, setRulesOpen] = useState(() => !hasSeenExamRules());
+  /** 설정에서 끄면 한자를 읽기대로만 쳐도 맞다 */
+  const [readingOk] = useState(() => !loadSettings().requireKanji);
 
   // 시험 중에 열어도 시간은 흐른다. 닫으면 그 탭 안에서 입력창으로 돌아가 키보드를 다시 띄운다
   const closeRules = () => {
@@ -234,7 +237,7 @@ export function ExamRun({
           </button>
         </span>
       </header>
-      <ExamRules open={rulesOpen} onClose={closeRules} />
+      <ExamRules open={rulesOpen} onClose={closeRules} readingOk={readingOk} />
 
       {outcome ? (
         <ExamResult name={name} minutes={minutes} outcome={outcome} onAgain={again} />
@@ -265,6 +268,7 @@ export function ExamRun({
             placeholder={t('training.tapInput')}
             targetLabel={t('exam.title', { name })}
             inputRef={inputRef}
+            readingOk={readingOk}
           />
           {startedAt === null ? <p className="screen-note">{t('exam.ready')}</p> : null}
         </section>

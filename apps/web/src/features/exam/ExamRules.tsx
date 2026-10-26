@@ -6,6 +6,8 @@ const RULES = ['keyboard', 'commit', 'convert', 'fix', 'time', 'help', 'speed'] 
 
 interface ExamRulesProps {
   open: boolean;
+  /** 설정에서 한자를 읽기대로 쳐도 되게 했으면 3번 규칙을 가타카나만 말한다 */
+  readingOk?: boolean;
   /** 닫기 버튼·바깥 누르기·ESC. 버튼을 누른 그 탭 안에서 부르므로 여기서 입력창에 포커스하면 키보드가 올라온다 */
   onClose: () => void;
 }
@@ -15,7 +17,7 @@ interface ExamRulesProps {
  * 브라우저의 <dialog>를 모달로 열어 뒤 화면을 막고 ESC로 닫게 한다.
  * 모달이 열린 동안 바깥은 포커스할 수 없으므로, 먼저 닫은 다음 onClose를 부른다
  */
-export function ExamRules({ open, onClose }: ExamRulesProps) {
+export function ExamRules({ open, onClose, readingOk = false }: ExamRulesProps) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -50,12 +52,15 @@ export function ExamRules({ open, onClose }: ExamRulesProps) {
             {t('exam.rules.title')}
           </h2>
           <ol className="rules-list">
-            {RULES.map((id) => (
-              <li key={id}>
-                <strong>{t(`exam.rules.${id}.rule`)}</strong>
-                <span>{t(`exam.rules.${id}.detail`)}</span>
-              </li>
-            ))}
+            {RULES.map((rule) => {
+              const id = rule === 'convert' && readingOk ? 'convertReading' : rule;
+              return (
+                <li key={rule}>
+                  <strong>{t(`exam.rules.${id}.rule`)}</strong>
+                  <span>{t(`exam.rules.${id}.detail`)}</span>
+                </li>
+              );
+            })}
           </ol>
           <button type="button" className="btn btn-primary rules-close" onClick={close}>
             {t('exam.rules.close')}

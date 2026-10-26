@@ -49,9 +49,17 @@ function keepPunctuation(pieces: readonly Piece[], target: readonly string[]): P
   return groups;
 }
 
-/** 한자 표기 하나의 상태: 변환함 / 읽기까지 쳐서 후보를 고를 차례 / 읽기 그대로 確定해 버림 / 아직 */
-function rubyStatus(converted: boolean, read: boolean, composing: boolean): CharStatus {
-  if (converted) return 'correct';
+/**
+ * 한자 표기 하나의 상태: 변환함 / 읽기까지 쳐서 후보를 고를 차례 / 읽기 그대로 確定해 버림 / 아직.
+ * 한자를 읽기로 쳐도 되는 설정이면 읽기를 다 친 것으로 맞다
+ */
+function rubyStatus(
+  converted: boolean,
+  read: boolean,
+  composing: boolean,
+  readingOk: boolean,
+): CharStatus {
+  if (converted || (read && readingOk)) return 'correct';
   if (!read) return 'todo';
   return composing ? 'pending' : 'unconverted';
 }
@@ -67,7 +75,12 @@ function piecesOf(session: InputSessionState, statuses: readonly CharStatus[]): 
     for (; i < ruby.start; i += 1) pieces.push({ kind: 'char', index: i });
     const indexes = Array.from({ length: ruby.end - ruby.start }, (_, k) => ruby.start + k);
     const read = indexes.every((index) => statuses[index] === 'correct');
-    const status = rubyStatus(session.converted[n] === true, read, session.composing);
+    const status = rubyStatus(
+      session.converted[n] === true,
+      read,
+      session.composing,
+      session.readingOk,
+    );
     pieces.push({ kind: 'ruby', surface: ruby.surface, indexes, status });
     i = ruby.end;
   });

@@ -400,6 +400,56 @@ describe('InputSession — 한자 표기 {表記|よみ}', () => {
   });
 });
 
+describe('InputSession — 한자를 읽기로 쳐도 되는 설정 (readingOk)', () => {
+  const at = (t: number, value: string, composing: boolean): InputSnapshot => ({
+    t,
+    value,
+    composing,
+  });
+  const run = (target: string, values: readonly (readonly [string, boolean])[]) =>
+    values.reduce(
+      (state, [value, composing], i) =>
+        reduceInputSession(state, at((i + 1) * 100, value, composing)),
+      createInputSession(target, 'commit', { readingOk: true }),
+    );
+
+  it('읽기만 쳐도 確定하면 완료되고, 후보에서 고르라고 하지 않는다', () => {
+    const read = run('{今日|きょう}は', [['きょうは', true]]);
+    expect(pendingStep(read)).toBe('commit');
+
+    const committed = reduceInputSession(read, at(200, 'きょうは', false));
+    expect(committed.completedAt).toBe(200);
+    expect(committed.errors).toEqual([]);
+  });
+
+  it('바꾼 한자와 읽기가 섞여도 되고, 읽기까지 確定한 뒤 이어 치는 중에는 고치라고 하지 않는다', () => {
+    const partial = run('{今日|きょう}は{雨|あめ}', [['きょうは', false]]);
+    expect(pendingStep(partial)).toBeNull();
+
+    const mixed = run('{今日|きょう}は{雨|あめ}', [
+      ['今日', false],
+      ['今日はあめ', false],
+    ]);
+    expect(mixed.completedAt).toBe(200);
+  });
+
+  it('가타카나는 설정과 관계없이 바꿔야 한다', () => {
+    const hiragana = run('{友達|ともだち}とカフェ', [['ともだちとかふぇ', false]]);
+    expect(hiragana.completedAt).toBeNull();
+    expect(pendingStep(hiragana)).toBe('fix');
+
+    expect(run('{友達|ともだち}とカフェ', [['ともだちとカフェ', false]]).completedAt).toBe(100);
+  });
+
+  it('읽기를 잘못 치거나 다른 한자로 確定하면 그대로 틀린다', () => {
+    const wrong = run('{今日|きょう}は', [['きようは', false]]);
+    expect(wrong.completedAt).toBeNull();
+    expect(pendingStep(wrong)).toBe('fix');
+
+    expect(run('{今日|きょう}は', [['京は', false]]).completedAt).toBeNull();
+  });
+});
+
 describe('pendingStep — composing 판정', () => {
   it('조합 중 일치하면 確定을 기다린다', () => {
     const state = replayInputSession('あい', snaps(['あ', 'あい']), 'composing', {

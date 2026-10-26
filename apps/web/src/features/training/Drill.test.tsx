@@ -403,6 +403,19 @@ describe('Drill', () => {
     expect(screen.getByText(`2/${level.drill.lineCount}`)).toBeTruthy();
   });
 
+  it('설정에서 「한자는 바꿔야 정답」을 끄면 짧은 문장의 한자는 읽기대로만 쳐도 넘어간다', async () => {
+    saveSettings({ ...DEFAULT_SETTINGS, requireKanji: false });
+    const level = renderDrill('L22');
+    expect(screen.getByText(/읽기대로만 쳐도 돼요/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '시작' }));
+    // 한자 자리만 읽기로 펼친 값 (가타카나는 바꿔야 하므로 그대로): {今日|きょう}はカフェ → きょうはカフェ
+    const typed = parseRuby(currentWord(level)).chars.join('');
+
+    await compose(screen.getByRole<HTMLInputElement>('textbox'), typed, true);
+
+    expect(screen.getByText(`2/${level.drill.lineCount}`)).toBeTruthy();
+  });
+
   it('채팅 레벨: 상대 말풍선에 후리가나를 붙여 보이고, 칠 답은 내 말풍선 안에 둔다', async () => {
     const level = renderDrill('L23');
     fireEvent.click(screen.getByRole('button', { name: '시작' }));

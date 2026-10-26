@@ -151,7 +151,8 @@ function alignToTarget(
 
 /**
  * 목표 문자열로 입력 세션을 만든다. 한자는 `{時々|ときどき}`처럼 읽기를 붙여 쓴다.
- * 읽기로 맞춰 보며 플릭 실수를 찾고, 완료는 그 한자로 변환해 確定했을 때다.
+ * 읽기로 맞춰 보며 플릭 실수를 찾고, 완료는 그 한자로 변환해 確定했을 때다
+ * (options.readingOk면 읽기 그대로 確定해도 된다).
  * 읽기만 치고 변환하지 않은 것은 틀린 것으로 기록하지 않고 안내만 한다 (pendingStep: convert·fix).
  * 한자만 따로 익히는 단계는 두지 않는다 (사용자 결정 2026-10-26).
  */
@@ -178,6 +179,7 @@ export function createInputSession(
     matchedAt: null,
     completedAt: null,
     completeOnCommit: options.completeOnCommit ?? false,
+    readingOk: options.readingOk ?? false,
     romajiSuspected: false,
     toggleSuspected: false,
     romajiActive: false,
@@ -205,7 +207,8 @@ export function reduceInputSession(
   const startedAt = state.startedAt ?? (next.length > 0 ? t : null);
   const matched = commonPrefixLength(next, target, same);
   // 한자 표기는 그 한자로 변환해야 맞다 (읽기만 친 것은 진행으로 보이지만 완료가 아니다)
-  const equalsTarget = sameChars(raw, surface);
+  // 설정에 따라 한자는 읽기대로 쳐도 맞다. 읽기로 맞춰 본 값이 목표와 같으면 된다 (가타카나는 그대로 달라서 안 맞는다)
+  const equalsTarget = sameChars(raw, surface) || (state.readingOk && sameChars(next, target));
   // 한자 후보를 고르는 동안에는 읽기와 비교할 수 없으므로 오류를 기록하지 않는다.
   // 목표 표기로 바르게 변환한 한자는 읽기로 되돌려 두었으므로 후보로 보지 않는다.
   const converting = judge === 'commit' && isConverting(next, snapshot.composing);
@@ -328,12 +331,16 @@ export function pendingStep(state: InputSessionState): PendingStep | null {
   if (state.judge === 'composing') return state.matchedAt !== null ? 'commit' : null;
 
   // 가타카나·한자는 표기 그대로여야 確定할 수 있다. 읽기만 맞으면 후보에서 골라야 하고(convert),
-  // 읽기 그대로 確定해 버렸으면 지우고 다시 쳐야 한다(fix)
-  const { target, value, surface, raw } = state;
+  // 읽기 그대로 確定해 버렸으면 지우고 다시 쳐야 한다(fix).
+  // 한자를 읽기로 쳐도 되는 설정이면 한자는 읽기로 맞춰 본 값(value)으로 비교한다
+  const { target, value, surface, raw, readingOk } = state;
   const full = value.length === target.length;
   if (state.composing) {
-    if (sameChars(raw, surface)) return 'commit';
+    if (sameChars(raw, surface) || (readingOk && sameChars(value, target))) return 'commit';
     return full && state.matched === target.length ? 'convert' : null;
   }
-  return raw.some((char, i) => char !== surface[i]) ? 'fix' : null;
+  const differs = readingOk
+    ? value.some((char, i) => char !== target[i])
+    : raw.some((char, i) => char !== surface[i]);
+  return differs ? 'fix' : null;
 }
