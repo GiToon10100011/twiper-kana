@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { advanceExam, createExam, parseExamLine } from '@twiper/core';
+import {
+  advanceExam,
+  createExam,
+  isKana,
+  parseExamLine,
+  parseRuby,
+  toHiragana,
+  toKatakana,
+} from '@twiper/core';
 import {
   EXAM_MODES,
   examKanaUnits,
@@ -17,18 +25,49 @@ const learnedHiragana = new Set(
     .flatMap((level) => level.drill.focus.flatMap((unit) => Array.from(unit))),
 );
 const PUNCTUATION = new Set(['、', '。']);
+/** 가타카나 레벨에서 배운 가타카나와 장음 */
+const learnedKatakana = new Set([...[...learnedHiragana].map(toKatakana), 'ー']);
+const HAN = /^\p{Script=Han}+$/u;
 
 const sentenceLines = [...shortSentences, ...longPassages.flat()];
 
 describe('종합 테스트 콘텐츠', () => {
-  it('짧은 글·긴 글은 배운 히라가나와 「、。」만 쓴다 (가타카나·한자·ー·공백 없음)', () => {
+  it('짧은 글·긴 글에서 칠 글자(한자는 읽기)는 배운 가나와 「、。」뿐이다 (공백·영숫자 없음)', () => {
     const outside = sentenceLines.flatMap((line) =>
-      Array.from(parseExamLine(line).text).filter(
-        (char) => !learnedHiragana.has(char) && !PUNCTUATION.has(char),
+      parseRuby(parseExamLine(line).text).chars.filter(
+        (char) =>
+          !learnedHiragana.has(char) && !learnedKatakana.has(char) && !PUNCTUATION.has(char),
       ),
     );
 
     expect(outside).toEqual([]);
+  });
+
+  it('한자는 모두 {표기|읽기} 안에 있고(표기는 한자만, 읽기는 히라가나만), /는 표기 안에 두지 않는다', () => {
+    const invalid = sentenceLines.filter((line) => {
+      const { chars, rubies } = parseRuby(parseExamLine(line).text);
+      return (
+        /\{[^}]*\/[^}]*\}/u.test(line) ||
+        chars.some((char) => HAN.test(char)) ||
+        rubies.some(
+          (ruby) =>
+            !HAN.test(ruby.surface) ||
+            chars
+              .slice(ruby.start, ruby.end)
+              .some((char) => !isKana(char) || toHiragana(char) !== char),
+        )
+      );
+    });
+
+    expect(invalid).toEqual([]);
+  });
+
+  it('짧은 글·긴 글은 거의 다 한자를 섞어 쓰고, 한자가 있는 줄은 바꿔야 하므로 確定으로 채점한다', () => {
+    const parsed = sentenceLines.map(parseExamLine);
+    const withKanji = parsed.filter((line) => parseRuby(line.text).rubies.length > 0);
+
+    expect(withKanji.length / parsed.length).toBeGreaterThanOrEqual(0.9);
+    expect(withKanji.every((line) => line.judge === 'commit')).toBe(true);
   });
 
   it('어절 경계 /는 맨 앞·맨 뒤나 두 번 연달아 오지 않고, 문장은 。로 끝난다', () => {

@@ -3,7 +3,7 @@ import { act, cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { examSource } from '@twiper/content';
-import { advanceExam, createExam } from '@twiper/core';
+import { advanceExam, createExam, parseRuby, rubySurface } from '@twiper/core';
 import '../../i18n';
 import { trainingRepo } from '../../lib/db';
 import { loadExamRecords } from '../../lib/examRecords';
@@ -115,10 +115,46 @@ describe('ExamRun (종합 테스트)', () => {
     const exam = createExam(examSource('long'), 2);
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('긴 글 테스트 · 3분');
-    expect(screen.getByLabelText('다음 줄').textContent).toBe(exam.upcoming?.text);
+    // 다음 줄도 한자에 후리가나를 붙여 보인다 (표기 {…|…}는 보이지 않는다)
+    const upcoming = screen.getByLabelText('다음 줄');
+    const { rubies } = parseRuby(exam.upcoming?.text ?? '');
+    expect(rubies.length).toBeGreaterThan(0);
+    expect([...upcoming.querySelectorAll('ruby')].map((r) => r.firstChild?.textContent)).toEqual(
+      rubies.map((ruby) => ruby.surface),
+    );
+    expect(upcoming.textContent).not.toContain('{');
     expect(document.querySelectorAll('.target-text .ch-word').length).toBe(
       exam.line.gapsAfter.length + 1,
     );
+  });
+
+  it('짧은 글의 한자는 그 한자로 바꿔 確定해야 다음 줄로 넘어가고, 읽기만 치면 밑줄 친 곳을 바꾸라고 안내한다', async () => {
+    const seed = Array.from({ length: 50 }, (_, i) => i).find(
+      (s) => parseRuby(createExam(examSource('short'), s).line.text).rubies.length > 0,
+    );
+    renderAt(`/test/short?min=1&seed=${seed}`);
+    const first = createExam(examSource('short'), seed ?? 0);
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+
+    expect(document.querySelector('.target-text ruby rt')).toBeTruthy();
+    const shown = target();
+    input.dispatchEvent(new CompositionEvent('compositionstart'));
+    input.value = parseRuby(first.line.text).chars.join('');
+    input.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText' }));
+    await tick();
+    expect(screen.getByRole('status').textContent).toContain('밑줄 친 곳을 후보에서');
+
+    // 히라가나 그대로 確定하면 넘어가지 않는다
+    input.dispatchEvent(new CompositionEvent('compositionend', { data: input.value }));
+    await tick();
+    expect(target()).toBe(shown);
+    expect(screen.getByRole('status').textContent).toContain('밑줄 친 곳은 후보에서');
+
+    input.value = '';
+    input.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+    await tick();
+    await typeLine(rubySurface(first.line.text));
+    expect(target()).not.toBe(shown);
   });
 
   it('알 수 없는 종목이면 홈으로 보낸다', () => {

@@ -18,6 +18,7 @@ import {
 import { newId, trainingRepo } from '../../lib/db';
 import { recordExam, type ExamBest } from '../../lib/examRecords';
 import { BackIcon } from '../../ui/icons';
+import { Furigana } from '../training/Furigana';
 import { TrainingInput } from '../training/TrainingInput';
 
 export const EXAM_MINUTES = [1, 3, 5] as const;
@@ -196,6 +197,8 @@ export function ExamRun({
   };
 
   const remaining = startedAt === null ? durationMs : Math.max(0, durationMs - (now - startedAt));
+  // 짧은 글·긴 글은 길어서 안내에 전체를 되풀이하지 않고 밑줄 친 곳을 가리킨다
+  const isSentence = mode === 'short' || mode === 'long';
 
   return (
     <main className="screen exam">
@@ -225,15 +228,17 @@ export function ExamRun({
             afterTarget={
               exam.upcoming ? (
                 <p className="exam-upcoming" lang="ja" aria-label={t('exam.next')}>
-                  {exam.upcoming.text}
+                  <Furigana text={exam.upcoming.text} />
                 </p>
               ) : null
             }
             onComplete={onComplete}
             onProgress={onProgress}
             matchedHint={t('drill.matched')}
-            convertHint={t('drill.convert', { word: exam.line.text })}
-            fixHint={t('drill.fix', { word: exam.line.text })}
+            convertHint={
+              isSentence ? t('drill.convertMarked') : t('drill.convert', { word: exam.line.text })
+            }
+            fixHint={isSentence ? t('drill.fixMarked') : t('drill.fix', { word: exam.line.text })}
             placeholder={t('training.tapInput')}
             targetLabel={t('exam.title', { name })}
             inputRef={inputRef}

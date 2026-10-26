@@ -7,21 +7,6 @@ interface TargetTextProps {
   gapsAfter?: readonly number[];
 }
 
-/** 글자 위치를 어절로 묶는다: gapsAfter [3, 5] → [[0,1,2,3], [4,5], [6, …]] */
-function wordsOf(length: number, gaps: ReadonlySet<number>): number[][] {
-  const words: number[][] = [];
-  let word: number[] = [];
-  for (let i = 0; i < length; i += 1) {
-    word.push(i);
-    if (gaps.has(i)) {
-      words.push(word);
-      word = [];
-    }
-  }
-  if (word.length > 0) words.push(word);
-  return words;
-}
-
 type Piece =
   | { kind: 'char'; index: number }
   | { kind: 'ruby'; surface: string; indexes: number[]; status: CharStatus };
@@ -30,6 +15,27 @@ type Piece =
 const NO_LINE_START = new Set(Array.from('、。，．！？!?」』）〕】…'));
 
 const keyOf = (piece: Piece) => (piece.kind === 'ruby' ? (piece.indexes[0] ?? 0) : piece.index);
+
+const lastIndexOf = (piece: Piece) =>
+  piece.kind === 'ruby' ? (piece.indexes[piece.indexes.length - 1] ?? 0) : piece.index;
+
+/**
+ * 조각을 어절로 묶는다: gapsAfter [3, 5] → [[0,1,2,3], [4,5], [6, …]].
+ * 틈은 읽기로 펼친 글자 위치라서 한자 표기({今日|きょう}는 0–2)는 마지막 읽기 자리로 본다
+ */
+function wordsOf(pieces: readonly Piece[], gaps: ReadonlySet<number>): Piece[][] {
+  const words: Piece[][] = [];
+  let word: Piece[] = [];
+  for (const piece of pieces) {
+    word.push(piece);
+    if (gaps.has(lastIndexOf(piece))) {
+      words.push(word);
+      word = [];
+    }
+  }
+  if (word.length > 0) words.push(word);
+  return words;
+}
 
 /** 조각을 줄바꿈 단위로 묶는다: 닫는 기호(。！」)는 바로 앞 조각에 붙인다 */
 function keepPunctuation(pieces: readonly Piece[], target: readonly string[]): Piece[][] {
@@ -92,12 +98,13 @@ export function TargetText({ session, label, gapsAfter = [] }: TargetTextProps) 
       char(piece.index)
     );
 
+  const pieces: Piece[] =
+    session.rubies.length > 0
+      ? piecesOf(session, statuses)
+      : session.target.map((_, index) => ({ kind: 'char', index }));
+
   // 어절 경계가 없으면 글자마다 줄이 바뀔 수 있다 (기초 줄·단어·문장). 있으면 어절을 통째로 넘긴다
   if (gapsAfter.length === 0) {
-    const pieces: Piece[] =
-      session.rubies.length > 0
-        ? piecesOf(session, statuses)
-        : session.target.map((_, index) => ({ kind: 'char', index }));
     return (
       <p className="target-text" lang="ja" aria-label={label}>
         {keepPunctuation(pieces, session.target).map((group) =>
@@ -114,9 +121,9 @@ export function TargetText({ session, label, gapsAfter = [] }: TargetTextProps) 
   }
   return (
     <p className="target-text" lang="ja" aria-label={label}>
-      {wordsOf(session.target.length, new Set(gapsAfter)).map((word) => (
-        <span key={word[0]} className="ch-word">
-          {word.map(char)}
+      {wordsOf(pieces, new Set(gapsAfter)).map((word) => (
+        <span key={keyOf(word[0] as Piece)} className="ch-word">
+          {word.map(pieceOf)}
         </span>
       ))}
     </p>

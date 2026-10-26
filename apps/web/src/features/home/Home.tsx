@@ -1,8 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { EXAM_MODES, examSource, findLevel, levels } from '@twiper/content';
-import { createExam, type ExamMode, type TrainingRepo } from '@twiper/core';
+import {
+  createExam,
+  parseRuby,
+  type ExamLine,
+  type ExamMode,
+  type TrainingRepo,
+} from '@twiper/core';
 import { loadExamRecords, type ExamRecords } from '../../lib/examRecords';
 import { ChartIcon, ForwardIcon, GearIcon, PlayIcon, TimerIcon } from '../../ui/icons';
 import { Pills } from '../../ui/Pills';
@@ -11,6 +17,42 @@ import { levelAccess, type LevelAccess } from '../training/access';
 import { levelName, levelSymbol } from '../training/levelTitle';
 import { Today } from './Today';
 import { useToday } from './useToday';
+
+/**
+ * 테스트 첫 줄 미리보기. 첫 글자에 밑줄, 어절 뒤에 틈을 둔다.
+ * 한자 표기는 읽기를 작게 붙이고, 틈은 연습 화면처럼 읽기로 펼친 위치로 본다
+ */
+function LinePreview({ line, label }: { line: ExamLine; label: string }) {
+  const { chars, rubies } = parseRuby(line.text);
+  const gaps = new Set(line.gapsAfter);
+  const className = (start: number, end: number) =>
+    `${start === 0 ? 'is-next' : ''}${gaps.has(end - 1) ? ' is-gap' : ''}`.trim() || undefined;
+  const parts: ReactNode[] = [];
+  let i = 0;
+  for (const ruby of [...rubies, null]) {
+    const end = ruby ? ruby.start : chars.length;
+    for (; i < end; i += 1) {
+      parts.push(
+        <span key={i} className={className(i, i + 1)}>
+          {chars[i]}
+        </span>,
+      );
+    }
+    if (!ruby) break;
+    parts.push(
+      <ruby key={i} className={className(ruby.start, ruby.end)}>
+        {ruby.surface}
+        <rt>{chars.slice(ruby.start, ruby.end).join('')}</rt>
+      </ruby>,
+    );
+    i = ruby.end;
+  }
+  return (
+    <p className="test-preview" lang="ja" aria-label={label}>
+      {parts}
+    </p>
+  );
+}
 
 /**
  * 종합 테스트 패널 (시험지형). 종목과 시간을 고르면 그 종목의 첫 줄·기록·시작 버튼을 보여 준다.
@@ -24,7 +66,6 @@ function ExamPanel({ records }: { records: ExamRecords }) {
   const line = useMemo(() => createExam(examSource(mode), seed).line, [mode, seed]);
   const record = records[mode];
   const best = record?.best ?? null;
-  const gaps = new Set(line.gapsAfter);
 
   return (
     <>
@@ -48,18 +89,7 @@ function ExamPanel({ records }: { records: ExamRecords }) {
             small
           />
         </div>
-        <p className="test-preview" lang="ja" aria-label={t('tests.preview')}>
-          {Array.from(line.text).map((char, i) => (
-            <span
-              key={i}
-              className={
-                `${i === 0 ? 'is-next' : ''}${gaps.has(i) ? ' is-gap' : ''}`.trim() || undefined
-              }
-            >
-              {char}
-            </span>
-          ))}
-        </p>
+        <LinePreview line={line} label={t('tests.preview')} />
         <dl className="stats test-stats">
           <div>
             <dt>{t('tests.bestSpeed')}</dt>

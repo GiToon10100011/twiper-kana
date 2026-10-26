@@ -1781,6 +1781,7 @@ a.tile-row:active {
 .test-preview {
   display: flex;
   gap: 0.06em;
+  align-items: baseline;
   margin: 1.75rem 0 1.5rem;
   overflow: hidden;
   font-size: 1.75rem;
@@ -1791,9 +1792,20 @@ a.tile-row:active {
   mask-image: linear-gradient(to right, #000 80%, transparent);
 }
 
-.test-preview span {
+.test-preview span,
+.test-preview ruby {
   padding-bottom: 2px;
   border-bottom: 2px solid transparent;
+}
+
+/* 한자 표기: 읽기를 위에 작게 (연습 화면의 후리가나와 같다) */
+.test-preview ruby {
+  ruby-position: over;
+}
+
+.test-preview rt {
+  font-size: max(0.42em, 0.625rem);
+  ruby-align: center;
 }
 
 .test-preview .is-next {
@@ -1924,6 +1936,8 @@ a.tile-row:active {
 .target-text .ch-word {
   display: inline-flex;
   gap: 0.12em;
+  /* 후리가나가 붙은 한자와 가나를 같은 밑선에 맞춘다 */
+  align-items: baseline;
   padding: 0;
   margin-inline-end: 0.3em;
   white-space: nowrap;

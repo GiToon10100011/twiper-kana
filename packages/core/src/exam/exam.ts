@@ -4,6 +4,7 @@ import type { DrillSummary, LineResult } from '../drill/types';
 import type { InputSessionState, JudgeMode } from '../input/types';
 import { classifyMistake, type MistakeKind } from '../kana/classify';
 import { toHiragana } from '../kana/script';
+import { parseRuby } from '../text/ruby';
 
 /** 종합 테스트 종목: 글자 / 단어 / 짧은 글 / 긴 글 */
 export type ExamMode = 'kana' | 'word' | 'short' | 'long';
@@ -11,6 +12,7 @@ export type ExamMode = 'kana' | 'word' | 'short' | 'long';
 /**
  * 테스트 출제 재료. 콘텐츠 패키지가 만든다.
  * 단어·문장의 /는 어절 경계다. 목표에서는 빼고 화면에만 틈으로 보인다.
+ * 한자는 {표기|읽기}로 적는다 (/는 표기 안에 두지 않는다).
  */
 export type ExamSource =
   | { readonly mode: 'kana'; readonly units: readonly string[]; readonly lineLength: number }
@@ -18,11 +20,11 @@ export type ExamSource =
   | { readonly mode: 'long'; readonly passages: readonly (readonly string[])[] };
 
 export interface ExamLine {
-  /** 칠 목표 */
+  /** 칠 목표. 한자 표기는 {표기|읽기} 그대로 둔다 */
   readonly text: string;
-  /** 이 글자 위치 뒤에 틈을 두어 어절을 나눠 보인다 (code point 단위) */
+  /** 이 글자 위치 뒤에 틈을 두어 어절을 나눠 보인다 (한자는 읽기로 펼친 위치, code point 단위) */
   readonly gapsAfter: readonly number[];
-  /** 가타카나가 있으면 변환해서 確定해야 하므로 commit */
+  /** 가타카나·한자가 있으면 변환해서 確定해야 하므로 commit */
   readonly judge: JudgeMode;
 }
 
@@ -39,21 +41,22 @@ export interface ExamState {
   readonly passage: { readonly index: number; readonly line: number } | null;
 }
 
-/** 원문 한 줄('きょうは/いい/てんき。')을 목표와 어절 틈으로 나눈다 */
+/**
+ * 원문 한 줄('{今日|きょう}は/いい/{天気|てんき}。')을 목표와 어절 틈으로 나눈다.
+ * 틈 위치는 입력 세션처럼 한자를 읽기로 펼쳐 센다 ({今日|きょう}は → 3글자 뒤)
+ */
 export function parseExamLine(raw: string): ExamLine {
   const gapsAfter: number[] = [];
-  let text = '';
+  const segments = raw.split('/');
   let length = 0;
-  for (const char of raw) {
-    if (char === '/') {
-      if (length > 0) gapsAfter.push(length - 1);
-      continue;
-    }
-    text += char;
-    length += 1;
-  }
-  const katakana = Array.from(text).some((char) => toHiragana(char) !== char);
-  return { text, gapsAfter, judge: katakana ? 'commit' : 'composing' };
+  segments.forEach((segment, i) => {
+    length += parseRuby(segment).chars.length;
+    if (i < segments.length - 1 && length > 0) gapsAfter.push(length - 1);
+  });
+  const text = segments.join('');
+  const { chars, rubies } = parseRuby(text);
+  const katakana = chars.some((char) => toHiragana(char) !== char);
+  return { text, gapsAfter, judge: katakana || rubies.length > 0 ? 'commit' : 'composing' };
 }
 
 type Key = string | number;
@@ -159,7 +162,8 @@ export function partialLineResult(session: InputSessionState, shownAt: number): 
     target: session.target.slice(0, matched).join(''),
     units: matched,
     firstTryUnits: matched - missedIndexes.length,
-    missed: missedIndexes.map((i) => session.target[i] ?? ''),
+    // 한자 읽기 자리에서 틀렸으면 그 표기(天気)로 보인다 (lineResultOf와 같은 순서)
+    missed: full.missed.filter((_, k) => (full.missedIndexes[k] ?? matched) < matched),
     missedIndexes,
     mistakeKinds: session.errors
       .filter((error) => error.index < matched)
