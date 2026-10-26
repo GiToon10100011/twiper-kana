@@ -2,8 +2,8 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { findLevel } from '@twiper/content';
-import { HELP_POLICY, toHiragana, variantBase } from '@twiper/core';
+import { chatLines, findLevel, type Level } from '@twiper/content';
+import { HELP_POLICY, parseRuby, rubySurface, toHiragana, variantBase } from '@twiper/core';
 import '../../i18n';
 import { DEFAULT_SETTINGS, saveSettings } from '../../lib/settings';
 import { Drill } from './Drill';
@@ -29,6 +29,34 @@ async function typeLine(input: HTMLInputElement, line: string) {
 }
 
 const currentLine = () => document.querySelector('.target-text')?.textContent ?? '';
+
+/** 화면의 글자: 한자 표기는 한자 다음에 후리가나가 이어진다 ({今日|きょう}は → 今日きょうは) */
+function shownText(word: string): string {
+  const { chars, rubies } = parseRuby(word);
+  let out = '';
+  let i = 0;
+  for (const ruby of rubies) {
+    out += chars.slice(i, ruby.start).join('') + ruby.surface;
+    out += chars.slice(ruby.start, ruby.end).join('');
+    i = ruby.end;
+  }
+  return out + chars.slice(i).join('');
+}
+
+/** 지금 화면에 나온 문장 (한자 표기 그대로) */
+const currentWord = (level: Level) =>
+  (level.drill.words ?? []).find((word) => shownText(word) === currentLine()) ?? '';
+
+/** 조합 중인 값을 바꾼다. done이면 그 값으로 確定한다 */
+async function compose(input: HTMLInputElement, value: string, done = false) {
+  input.dispatchEvent(new CompositionEvent('compositionstart'));
+  input.value = value;
+  input.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText' }));
+  await flush();
+  if (!done) return;
+  input.dispatchEvent(new CompositionEvent('compositionend', { data: value }));
+  await flush();
+}
 
 /** あ행 글자를 내는 플릭 방향 이름 */
 const flickLabel = (char: string) =>
@@ -320,6 +348,57 @@ describe('Drill', () => {
 
     expect(screen.getByRole('complementary', { name: `${first} 치는 법` })).toBeTruthy();
     expect(screen.getByText(`あ 키 ${flickLabel(first)}`)).toBeTruthy();
+  });
+
+  it('짧은 문장 레벨: 히라가나만 치면 밑줄 친 곳을 바꾸라고 안내하고, 한자로 바꿔 確定해야 넘어간다', async () => {
+    const level = renderDrill('L22');
+    expect(screen.getByText(/후보에서 그 한자를 골라 바꿔야 해요/)).toBeTruthy();
+    expect(screen.getByText(/도움말이 나오지 않아요/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '시작' }));
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    const word = currentWord(level);
+    const reading = parseRuby(word).chars.join('');
+    expect(word).not.toBe('');
+    expect(document.querySelector('.trainer.is-sentence ruby rt')).toBeTruthy();
+
+    await compose(input, reading);
+    expect(screen.getByRole('status').textContent).toContain('밑줄 친 곳을 후보에서 골라');
+
+    // 바꾸지 않고 히라가나 그대로 確定하면 그 한자에 밑줄을 긋고, 다음 줄로 넘어가지 않는다
+    input.dispatchEvent(new CompositionEvent('compositionend', { data: reading }));
+    await flush();
+    expect(screen.getByRole('status').textContent).toContain('밑줄 친 곳은 후보에서');
+    expect(document.querySelector('ruby.ch-unconverted')).toBeTruthy();
+    expect(screen.getByText(`1/${level.drill.lineCount}`)).toBeTruthy();
+
+    input.value = '';
+    input.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+    await flush();
+    await compose(input, rubySurface(word), true);
+
+    expect(screen.getByText(`2/${level.drill.lineCount}`)).toBeTruthy();
+  });
+
+  it('채팅 레벨: 상대 말풍선에 후리가나를 붙여 보이고, 칠 답은 내 말풍선 안에 둔다', async () => {
+    const level = renderDrill('L23');
+    fireEvent.click(screen.getByRole('button', { name: '시작' }));
+    const reply = currentWord(level);
+    const partner = chatLines.find((line) => line.reply === reply)?.partner ?? '';
+    const bubble = document.querySelector('.chat-bubble.is-partner');
+
+    expect(reply).not.toBe('');
+    expect(bubble?.textContent).toBe(shownText(partner));
+    expect(bubble?.querySelector('ruby rt')).toBeTruthy();
+    expect(document.querySelector('.chat-bubble.is-me .target-text')?.textContent).toBe(
+      shownText(reply),
+    );
+
+    await compose(screen.getByRole<HTMLInputElement>('textbox'), rubySurface(reply), true);
+
+    expect(screen.getByText(`2/${level.drill.lineCount}`)).toBeTruthy();
+    expect(document.querySelector('.chat-bubble.is-partner')?.textContent).not.toBe(
+      shownText(partner),
+    );
   });
 
   it('결과에서 다시 하기를 누르면 첫 줄부터 다시 입력창에 포커스한다', async () => {

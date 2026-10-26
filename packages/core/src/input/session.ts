@@ -58,17 +58,18 @@ const sameChars = (a: readonly string[], b: readonly string[]): boolean =>
 
 /**
  * 입력값을 목표(한자 표기를 읽기로 펼친 것)에 맞춰 본다.
- * 앞에서부터 한자 표기 자리에 그 표기가 그대로 들어와 있으면 읽기로 되돌린다(時々 → ときどき).
- * 읽기 그대로면 그대로 맞는다. 다른 한자로 바꿨거나 어긋나면 거기서부터 그대로 두어 틀린 글자로 보이게 한다.
+ * 앞에서부터 한자 표기 자리에 그 표기가 그대로 들어와 있으면 읽기로 되돌리고(時々 → ときどき) 변환한 것으로 센다.
+ * 아직 읽기 그대로면 그대로 둔다. 다른 한자로 바꿨거나 어긋나면 거기서부터 그대로 두어 틀린 글자로 보이게 한다.
  */
 function alignToTarget(
   raw: readonly string[],
   target: readonly string[],
   rubies: readonly RubySpan[],
-): string[] {
+): { value: string[]; converted: boolean[] } {
   const value: string[] = [];
+  const converted = rubies.map(() => false);
   let r = 0;
-  for (const ruby of rubies) {
+  for (const [n, ruby] of rubies.entries()) {
     while (value.length < ruby.start && r < raw.length) value.push(raw[r++] ?? '');
     if (value.length !== ruby.start) break;
     const surface = Array.from(ruby.surface);
@@ -76,6 +77,7 @@ function alignToTarget(
     if (sameChars(raw.slice(r, r + surface.length), surface)) {
       value.push(...reading);
       r += surface.length;
+      converted[n] = true;
     } else if (sameChars(raw.slice(r, r + reading.length), reading)) {
       value.push(...reading);
       r += reading.length;
@@ -84,13 +86,14 @@ function alignToTarget(
     }
   }
   value.push(...raw.slice(r));
-  return value;
+  return { value, converted };
 }
 
 /**
  * 목표 문자열로 입력 세션을 만든다. 한자는 `{時々|ときどき}`처럼 읽기를 붙여 쓴다.
- * 화면이 한자 위에 읽기(후리가나)를 보여 주므로 읽기를 가나로 치면 맞고, 그 한자로 변환해도 맞다
- * (플릭으로 읽기를 치는 것이 연습의 요점이다 — 사용자 결정 2026-10-25).
+ * 읽기로 맞춰 보며 플릭 실수를 찾고, 완료는 그 한자로 변환해 確定했을 때다.
+ * 읽기만 치고 변환하지 않은 것은 틀린 것으로 기록하지 않고 안내만 한다 (pendingStep: convert·fix).
+ * 한자만 따로 익히는 단계는 두지 않는다 (사용자 결정 2026-10-26).
  */
 export function createInputSession(
   target: string,
@@ -105,6 +108,7 @@ export function createInputSession(
     judge,
     value: [],
     raw: [],
+    converted: rubies.map(() => false),
     composing: false,
     matched: 0,
     errors: [],
@@ -130,15 +134,16 @@ export function reduceInputSession(
 ): InputSessionState {
   if (state.completedAt !== null) return state;
 
-  const { target, rubies, judge } = state;
+  const { target, surface, rubies, judge } = state;
   const { t } = snapshot;
   const same = sameFor(judge);
   const prev = state.value;
   const raw = toChars(normalizeBase(snapshot.value));
-  const next = alignToTarget(raw, target, rubies);
+  const { value: next, converted } = alignToTarget(raw, target, rubies);
   const startedAt = state.startedAt ?? (next.length > 0 ? t : null);
   const matched = commonPrefixLength(next, target, same);
-  const equalsTarget = sameChars(next, target);
+  // 한자 표기는 그 한자로 변환해야 맞다 (읽기만 친 것은 진행으로 보이지만 완료가 아니다)
+  const equalsTarget = sameChars(raw, surface);
   // 한자 후보를 고르는 동안에는 읽기와 비교할 수 없으므로 오류를 기록하지 않는다.
   // 목표 표기로 바르게 변환한 한자는 읽기로 되돌려 두었으므로 후보로 보지 않는다.
   const converting = judge === 'commit' && isConverting(next, snapshot.composing);
@@ -200,6 +205,7 @@ export function reduceInputSession(
     ...state,
     value: next,
     raw,
+    converted,
     composing: snapshot.composing,
     matched,
     errors,
@@ -238,8 +244,8 @@ export function charStatuses(state: InputSessionState): CharStatus[] {
     if (actual === undefined) return 'todo';
     if (actual === expected) return 'correct';
     if (commit) {
-      // 確定한 글자가 목표 표기와 다르다 (히라가나 그대로, 다른 한자)
-      if (!state.composing) return 'wrong';
+      // 확정한 글자가 목표 표기와 다르다. 읽기는 맞으면 바꾸지 않은 것(カ를 か로), 아니면 틀린 글자(다른 한자 등)
+      if (!state.composing) return sameReading(actual, expected) ? 'unconverted' : 'wrong';
       // 읽기는 맞다. 변환은 確定할 때 본다
       if (sameReading(actual, expected)) return 'correct';
       if (converting) return 'pending';
@@ -257,11 +263,13 @@ export function pendingStep(state: InputSessionState): PendingStep | null {
   if (state.completedAt !== null) return null;
   if (state.judge === 'composing') return state.matchedAt !== null ? 'commit' : null;
 
-  const { target, value } = state;
+  // 가타카나·한자는 표기 그대로여야 確定할 수 있다. 읽기만 맞으면 후보에서 골라야 하고(convert),
+  // 읽기 그대로 確定해 버렸으면 지우고 다시 쳐야 한다(fix)
+  const { target, value, surface, raw } = state;
   const full = value.length === target.length;
   if (state.composing) {
-    if (sameChars(value, target)) return 'commit';
+    if (sameChars(raw, surface)) return 'commit';
     return full && state.matched === target.length ? 'convert' : null;
   }
-  return value.some((char, i) => char !== target[i]) ? 'fix' : null;
+  return raw.some((char, i) => char !== surface[i]) ? 'fix' : null;
 }

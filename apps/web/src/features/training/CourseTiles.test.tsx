@@ -26,6 +26,7 @@ const done = (bestAccuracy: number) => ({
 const BASIC = levels.filter((level) => level.stage === 'basic').length;
 const COMBO = levels.filter((level) => level.stage === 'combo').length;
 const SYMBOL = levels.filter((level) => level.stage === 'symbol').length;
+const SENTENCE = levels.filter((level) => level.stage === 'sentence').length;
 
 const renderTiles = (access: LevelAccess = levelAccess()) =>
   render(
@@ -38,12 +39,12 @@ const hrefs = () => screen.queryAllByRole('link').map((link) => link.getAttribut
 const current = () => screen.queryAllByRole('link').filter((l) => l.getAttribute('aria-current'));
 
 describe('levelSymbol', () => {
-  it('행 레벨은 키 글자, 50음은 「50音」, 조합은 대표 글자', () => {
+  it('행 레벨은 키 글자, 50음은 「50音」, 조합은 대표 글자, 문장은 「文」, 채팅은 「話」', () => {
     const symbol = (id: string) => levelSymbol(levels.find((level) => level.id === id)!);
 
     expect(['L1', 'L2', 'L9'].map(symbol)).toEqual(['あ', 'か', 'らわ']);
     expect(levels.slice(9).map(levelSymbol).join(' ')).toBe(
-      '50音 が ぱ ぁ きゃ っ カ ー ティ ヴ ？！ 〜',
+      '50音 が ぱ ぁ きゃ っ カ ー ティ ヴ ？！ 〜 文 話',
     );
   });
 });
@@ -91,10 +92,15 @@ describe('CourseTiles', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(COMBO);
 
     fireEvent.click(screen.getByRole('button', { name: '가타카나' }));
-    expect(screen.getAllByRole('listitem')).toHaveLength(levels.length - BASIC - COMBO - SYMBOL);
+    expect(screen.getAllByRole('listitem')).toHaveLength(
+      levels.length - BASIC - COMBO - SYMBOL - SENTENCE,
+    );
 
     fireEvent.click(screen.getByRole('button', { name: '기호' }));
     expect(screen.getAllByRole('listitem')).toHaveLength(SYMBOL);
+
+    fireEvent.click(screen.getByRole('button', { name: '문장' }));
+    expect(screen.getAllByRole('listitem')).toHaveLength(SENTENCE);
 
     fireEvent.click(screen.getByRole('button', { name: '모두' }));
     expect(screen.getAllByRole('listitem')).toHaveLength(levels.length);

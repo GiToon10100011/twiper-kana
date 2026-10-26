@@ -9,9 +9,10 @@ export function skillName(skill: SkillId, t: TFunction): string {
     : t(`course.topic.${skill as Exclude<SkillId, `row:${string}`>}`);
 }
 
-/** 「さ행」「ら・わ행」「50음 랜덤」「탁음 ゛」 */
+/** 「さ행」「ら・わ행」「50음 랜덤」「탁음 ゛」「짧은 문장」 */
 export function levelName(level: Level, t: TFunction): string {
   if (level.kind === 'all') return t('course.all');
+  if (level.kind === 'sentence' || level.kind === 'chat') return t(`course.${level.kind}`);
   if (level.topic) return t(`course.topic.${level.topic}`);
   return t('course.row', { keys: level.keys.join('・') });
 }
@@ -29,6 +30,8 @@ export function levelPreview(level: Level, t: TFunction): string {
   if (level.kind === 'all') return t('course.allHint');
   const { focus, words = [] } = level.drill;
   const shown = words.slice(0, 2).map(rubySurface);
+  // 문장은 길어서 하나만 보인다 (넘치면 목록에서 말줄임)
+  if (level.kind === 'sentence' || level.kind === 'chat') return shown[0] ?? '';
   // 짧은 말에는 ・도 들어 있어서 띄어 쓴다
   if (level.kind === 'phrase') return shown.join(' ');
   if (focus.length === 0) return shown.join('・');
@@ -55,9 +58,11 @@ const TOPIC_SYMBOL: Record<LevelTopic, string> = {
   symbol: '〜',
 };
 
-/** 목록 타일에 크게 보일 대표 글자: 「あ」「らわ」「50音」「が」 */
+/** 목록 타일에 크게 보일 대표 글자: 「あ」「らわ」「50音」「が」「文」 */
 export function levelSymbol(level: Level): string {
   if (level.kind === 'all') return '50音';
+  if (level.kind === 'sentence') return '文';
+  if (level.kind === 'chat') return '話';
   if (level.topic) return TOPIC_SYMBOL[level.topic];
   return level.keys.join('');
 }

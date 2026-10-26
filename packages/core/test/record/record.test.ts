@@ -119,16 +119,20 @@ describe('attemptRecordOf', () => {
     expect(record.mistakes).toEqual([]);
   });
 
-  it('한자를 읽기 그대로 確定해도 틀린 것으로 기록하지 않는다', () => {
+  it('한자를 읽기 그대로 確定했다가 고쳐 변환하면, 그 일은 안내만 했으므로 틀린 것으로 남기지 않는다', () => {
     const session = [
       { t: 1100, value: 'ひとびと', composing: true },
       { t: 1200, value: 'ひとびと', composing: false },
+      { t: 1300, value: '', composing: false },
+      { t: 1400, value: 'ひとびと', composing: true },
+      { t: 1500, value: '人々', composing: false },
     ].reduce(reduceInputSession, createInputSession('{人々|ひとびと}', 'commit'));
     const record = attemptRecordOf(session, meta);
 
+    expect(session.completedAt).toBe(1500);
     expect(record.result).toBe('correct');
     expect(record.mistakes).toEqual([]);
-    expect(record.input).toBe('ひとびと');
+    expect(record.input).toBe('人々');
   });
 });
 

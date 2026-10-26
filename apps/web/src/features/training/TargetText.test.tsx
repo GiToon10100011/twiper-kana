@@ -22,17 +22,31 @@ describe('TargetText — 한자 표기', () => {
     expect(view.querySelector('.target-text')?.lastElementChild?.textContent).toBe('は');
   });
 
-  it('읽기를 다 맞게 치면 한자도 친 것으로 보인다 (변환하지 않아도)', () => {
-    const view = renderTarget(typed('{今日|きょう}は', 'きょう'));
-
-    expect(view.querySelector('ruby')?.className).toBe('ch-ruby ch-correct');
-    expect([...view.querySelectorAll('rt span')].map((s) => s.className)).toEqual([
+  it('읽기를 다 치면 그 한자에 점선 밑줄(후보에서 고를 차례), 한자로 바꾸면 친 것으로 보인다', () => {
+    const read = renderTarget(typed('{今日|きょう}は', 'きょう'));
+    expect(read.querySelector('ruby')?.className).toBe('ch-ruby ch-pending');
+    expect([...read.querySelectorAll('rt span')].map((s) => s.className)).toEqual([
       'ch-correct',
       'ch-correct',
       'ch-correct',
     ]);
     // 다음에 칠 글자(は)에 밑줄
-    expect(view.querySelector('.ch-next')?.textContent).toBe('は');
+    expect(read.querySelector('.ch-next')?.textContent).toBe('は');
+    cleanup();
+
+    const converted = renderTarget(typed('{今日|きょう}は', '今日'));
+    expect(converted.querySelector('ruby')?.className).toBe('ch-ruby ch-correct');
+  });
+
+  it('읽기 그대로 確定해 버리면 그 한자를 틀린 자리로 밑줄 친다', () => {
+    const committed = reduceInputSession(createInputSession('{今日|きょう}は', 'commit'), {
+      t: 100,
+      value: 'きょうは',
+      composing: false,
+    });
+    const view = renderTarget(committed);
+
+    expect(view.querySelector('ruby')?.className).toBe('ch-ruby ch-unconverted');
   });
 
   it('읽기를 치는 중이면 한자는 아직 칠 글자로 보이고, 다음 읽기 글자에 밑줄을 긋는다', () => {
