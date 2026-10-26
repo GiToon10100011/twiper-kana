@@ -1,5 +1,5 @@
-import { sameKeyRow } from '../kana/rows';
-import { toHiragana } from '../kana/script';
+import { danOf, sameKeyRow } from '../kana/rows';
+import { isKana, toHiragana } from '../kana/script';
 import { sameVariantFamily } from '../kana/variants';
 import { normalizeBase, normalizeForCompare } from '../text/normalize';
 import { parseRuby, type RubySpan } from '../text/ruby';
@@ -19,6 +19,66 @@ const LATIN_LETTER = /[A-Za-z\u{FF21}-\u{FF3A}\u{FF41}-\u{FF5A}]/u;
 const toChars = (text: string): string[] => Array.from(text);
 
 const isLatinLetter = (char: string): boolean => LATIN_LETTER.test(char);
+
+const isHiragana = (char: string): boolean =>
+  isKana(char) && char !== 'ー' && toHiragana(char) === char;
+
+/** 로마자 자판에서도 라틴 문자 없이 바로 나오는 가나 (a → あ) */
+const ROMAJI_DIRECT = new Set(Array.from('あいうえお'));
+
+/**
+ * 로마자 자판으로 친 것이 분명한 입력이면 true: 라틴 문자가 그 자리에서 가나로 바뀜(k → か, n → ん).
+ * かな 자판의 ABC 모드에서 친 영문자는 가나로 바뀌지 않으므로 로마자 키보드로 보지 않는다 (틀린 글자로만 보인다)
+ */
+function typedOnRomajiKeyboard(prev: readonly string[], next: readonly string[]): boolean {
+  // 앞이 그대로인 자리 중 라틴 문자였던 곳이 가나가 되었는지 본다 (xk → xか도 잡는다)
+  for (let i = 0; i < prev.length; i += 1) {
+    const char = prev[i] ?? '';
+    if (isLatinLetter(char) && isKana(next[i] ?? '')) return true;
+    if (char !== next[i]) return false;
+  }
+  return false;
+}
+
+/** next가 prev 끝에 한 글자를 붙인 것이면 그 글자 */
+function appended(prev: readonly string[], next: readonly string[]): string | null {
+  if (next.length !== prev.length + 1 || prev.some((c, i) => c !== next[i])) return null;
+  return next[prev.length] ?? null;
+}
+
+/**
+ * かな 자판으로 친 것이 분명한 입력이면 true. 로마자 키보드 안내를 거두는 근거다.
+ * 로마자 자판은 자음 가나를 칠 때 늘 라틴 문자를 거친다(k → か). かな 자판은 자음 가나가 바로 붙고(か),
+ * 「小゛゜」로 끝 글자를 같은 계열 안에서 제자리에서 바꾼다(か → が, つ → っ).
+ * 후보를 골라 글자가 바뀐 것(여러 글자, 또는 か → き처럼 계열이 다른 한 글자)은 근거로 보지 않는다
+ */
+function typedOnKanaKeyboard(prev: readonly string[], next: readonly string[]): boolean {
+  if (prev.some(isLatinLetter) || next.some(isLatinLetter)) return false;
+  const added = appended(prev, next);
+  if (added !== null) return isHiragana(added) && !ROMAJI_DIRECT.has(added);
+  const last = next.length - 1;
+  const replaced =
+    last >= 0 && prev.length === next.length && prev.slice(0, last).every((c, i) => c === next[i]);
+  const before = prev[last] ?? '';
+  const after = next[last] ?? '';
+  return (
+    replaced &&
+    before !== after &&
+    isHiragana(before) &&
+    isHiragana(after) &&
+    sameVariantFamily(before, after)
+  );
+}
+
+/**
+ * 플릭으로 친 것이 분명한 입력이면 true. 연타 안내를 거두는 근거다.
+ * 연타는 그 키의 あ단부터 나와 제자리에서 바뀌므로(あ → い), い–お단 가나가 바로 붙으면 플릭이다
+ */
+function flicked(prev: readonly string[], next: readonly string[]): boolean {
+  const added = appended(prev, next);
+  const dan = added === null ? null : danOf(added);
+  return dan !== null && dan !== 'a';
+}
 
 type Same = (a: string, b: string) => boolean;
 
@@ -120,6 +180,8 @@ export function createInputSession(
     completeOnCommit: options.completeOnCommit ?? false,
     romajiSuspected: false,
     toggleSuspected: false,
+    romajiActive: false,
+    toggleActive: false,
   };
 }
 
@@ -197,7 +259,7 @@ export function reduceInputSession(
 
   const lastReplacedInPlace = last >= 0 && prev.length === next.length && common === last;
   const toggled = lastReplacedInPlace && sameKeyRow(prev[last] ?? '', next[last] ?? '');
-  const romaji = !target.some(isLatinLetter) && raw.some(isLatinLetter);
+  const romaji = !target.some(isLatinLetter) && typedOnRomajiKeyboard(state.raw, raw);
   const committedMatch = equalsTarget && !snapshot.composing;
   const commit = judge === 'commit';
 
@@ -221,6 +283,8 @@ export function reduceInputSession(
     completedAt: (commit || state.completeOnCommit ? committedMatch : equalsTarget) ? t : null,
     romajiSuspected: state.romajiSuspected || romaji,
     toggleSuspected: state.toggleSuspected || toggled,
+    romajiActive: romaji || (state.romajiActive && !typedOnKanaKeyboard(state.raw, raw)),
+    toggleActive: toggled || (state.toggleActive && !flicked(state.raw, raw)),
   };
 }
 

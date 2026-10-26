@@ -56,9 +56,10 @@ export function Onboarding() {
     down: t('onboarding.flick.down'),
   };
 
+  // 키보드를 바꾸거나 플릭으로 치기 시작하면 거둔다
   const notice = (session: InputSessionState) => {
-    if (session.romajiSuspected) return t('training.romaji');
-    if (session.toggleSuspected) return t('training.toggle');
+    if (session.romajiActive) return t('training.romaji');
+    if (session.toggleActive) return t('training.toggle');
     return null;
   };
 

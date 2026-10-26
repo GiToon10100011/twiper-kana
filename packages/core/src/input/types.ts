@@ -68,10 +68,20 @@ export interface InputSessionState {
   readonly completedAt: number | null;
   /** composing 판정에서도 確定까지 기다려 완료로 볼지 */
   readonly completeOnCommit: boolean;
-  /** 가나 목표를 입력하는 중에 라틴 문자가 나타남 → 로마자 키보드 사용 추정 */
+  /**
+   * 가나 목표를 입력하는 중에 라틴 문자가 그 자리에서 가나로 바뀜(k → か) → 로마자 키보드 사용 추정
+   * (기록용, 한 번 켜지면 유지). かな 자판 ABC 모드의 영문자는 가나로 바뀌지 않아 해당하지 않는다
+   */
   readonly romajiSuspected: boolean;
-  /** 끝 글자가 같은 키 안에서 제자리 교체됨 → 토글(연타) 입력 추정 */
+  /** 끝 글자가 같은 키 안에서 제자리 교체됨 → 토글(연타) 입력 추정 (기록용, 한 번 켜지면 유지) */
   readonly toggleSuspected: boolean;
+  /**
+   * 지금도 로마자 키보드로 치는 것 같음 (안내문용).
+   * 라틴 문자가 보이면 켜지고, かな 자판으로만 나오는 입력이 오면 꺼진다 (키보드를 바꾼 뒤)
+   */
+  readonly romajiActive: boolean;
+  /** 지금도 연타로 치는 것 같음 (안내문용). 연타가 보이면 켜지고, 플릭으로만 나오는 입력이 오면 꺼진다 */
+  readonly toggleActive: boolean;
 }
 
 /**
