@@ -68,6 +68,8 @@ export interface InputSessionState {
   readonly completedAt: number | null;
   /** composing 판정에서도 確定까지 기다려 완료로 볼지 */
   readonly completeOnCommit: boolean;
+  /** 한자 표기를 읽기대로 쳐도 맞다고 볼지 (InputSessionOptions.readingOk) */
+  readonly readingOk: boolean;
   /**
    * 가나 목표를 입력하는 중에 라틴 문자가 그 자리에서 가나로 바뀜(k → か) → 로마자 키보드 사용 추정
    * (기록용, 한 번 켜지면 유지). かな 자판 ABC 모드의 영문자는 가나로 바뀌지 않아 해당하지 않는다
@@ -96,4 +98,9 @@ export interface InputSessionOptions {
    * iOS에서는 조합 중에 입력창을 비우면 입력이 끊기므로 훈련 화면은 이 옵션을 켠다 (결정 0001).
    */
   completeOnCommit?: boolean;
+  /**
+   * 한자 표기를 읽기(가나)대로 쳐도 맞다 (설정 「한자는 바꿔야 정답」을 끈 경우, 2026-10-26 사용자 제안).
+   * 가타카나는 이 옵션과 관계없이 바꿔야 맞다
+   */
+  readingOk?: boolean;
 }

@@ -62,21 +62,25 @@ const isSymbolTopic = (topic: LevelTopic): topic is SymbolTopic => SYMBOL_TOPICS
 
 /**
  * 준비 화면 안내문: 짧은 문장 / 채팅 / 가타카나 단어 / 기호를 붙인 짧은 말 / 단어만 / 50음+단어 /
- * 조합+단어 / 글자 줄
+ * 조합+단어 / 글자 줄. 문장·채팅은 한자를 읽기로 쳐도 되는 설정이면 그렇게 안내한다
  */
 function introKey(
   level: Level,
+  readingOk: boolean,
 ):
   | 'drill.introSentence'
+  | 'drill.introSentenceReading'
   | 'drill.introChat'
+  | 'drill.introChatReading'
   | 'drill.introKatakana'
   | 'drill.introPhrase'
   | 'drill.introWords'
   | 'drill.introAll'
   | 'drill.introCombo'
   | 'drill.intro' {
-  if (level.kind === 'sentence') return 'drill.introSentence';
-  if (level.kind === 'chat') return 'drill.introChat';
+  if (level.kind === 'sentence')
+    return readingOk ? 'drill.introSentenceReading' : 'drill.introSentence';
+  if (level.kind === 'chat') return readingOk ? 'drill.introChatReading' : 'drill.introChat';
   if (level.kind === 'word') return 'drill.introKatakana';
   if (level.kind === 'phrase') return 'drill.introPhrase';
   const hasWords = (level.drill.words?.length ?? 0) > 0;
@@ -91,7 +95,7 @@ export function Drill({ level }: { level: Level }) {
   const title = levelTitle(level, t);
   const [started, setStarted] = useState(false);
   const [drill, setDrill] = useState(() => createDrill(level.drill, newSeed()));
-  const [{ helpIdleMs }] = useState(loadSettings);
+  const [{ helpIdleMs, requireKanji }] = useState(loadSettings);
   const shownAt = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
   /** 지금 판의 세션 기록 */
@@ -216,7 +220,10 @@ export function Drill({ level }: { level: Level }) {
             {title}
           </h1>
           <p className="screen-body">
-            {t(introKey(level), { count: lineCount, length: level.drill.lineLength })}
+            {t(introKey(level, !requireKanji), {
+              count: lineCount,
+              length: level.drill.lineLength,
+            })}
           </p>
           {level.assessment ? <p className="screen-body">{t('drill.noHelp')}</p> : null}
           {level.topic ? (
@@ -274,6 +281,7 @@ export function Drill({ level }: { level: Level }) {
             idleMs={helpIdleMs}
             layout={isSentence ? (level.kind === 'chat' ? 'chat' : 'sentence') : undefined}
             partner={partner}
+            readingOk={!requireKanji}
             placeholder={t('training.tapInput')}
             targetLabel={title}
             inputRef={inputRef}

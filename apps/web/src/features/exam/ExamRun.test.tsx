@@ -8,6 +8,7 @@ import '../../i18n';
 import { trainingRepo } from '../../lib/db';
 import { loadExamRecords } from '../../lib/examRecords';
 import { hasSeenExamRules, markExamRulesSeen } from '../../lib/flags';
+import { DEFAULT_SETTINGS, saveSettings } from '../../lib/settings';
 import { ExamRoute } from './ExamRun';
 
 beforeAll(() => {
@@ -204,6 +205,23 @@ describe('ExamRun (종합 테스트)', () => {
     expect(dialog?.open).toBe(true);
     if (dialog) fireEvent.click(dialog);
     expect(dialog?.open).toBe(false);
+  });
+
+  it('설정에서 「한자는 바꿔야 정답」을 끄면 주의사항이 바뀌고, 짧은 글의 한자는 읽기대로만 쳐도 넘어간다', async () => {
+    saveSettings({ ...DEFAULT_SETTINGS, requireKanji: false });
+    const seed = Array.from({ length: 50 }, (_, i) => i).find(
+      (s) => parseRuby(createExam(examSource('short'), s).line.text).rubies.length > 0,
+    );
+    renderAt(`/test/short?min=1&seed=${seed}`);
+    const first = createExam(examSource('short'), seed ?? 0);
+
+    fireEvent.click(screen.getByRole('button', { name: '테스트 주의사항' }));
+    expect(screen.getByText('가타카나는 후보에서 골라 바꿔야 맞아요')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '알겠어요' }));
+
+    const shown = target();
+    await typeLine(parseRuby(first.line.text).chars.join(''));
+    expect(target()).not.toBe(shown);
   });
 
   it('알 수 없는 종목이면 홈으로 보낸다', () => {

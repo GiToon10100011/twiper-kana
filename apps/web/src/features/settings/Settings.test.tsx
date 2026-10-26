@@ -36,6 +36,19 @@ describe('Settings', () => {
     expect(loadSettings().unlockAll).toBe(true);
   });
 
+  it('「한자는 바꿔야 정답」은 처음에 켜져 있고, 끄면 저장된다', () => {
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>,
+    );
+    const toggle = screen.getByRole<HTMLInputElement>('switch', { name: /한자는 바꿔야 정답/ });
+
+    expect(toggle.checked).toBe(true);
+    fireEvent.click(toggle);
+    expect(loadSettings().requireKanji).toBe(false);
+  });
+
   it('도움말 기다리는 시간은 처음에 3분이고, 고르면 저장된다 (끄기는 0)', () => {
     render(
       <MemoryRouter>

@@ -10,9 +10,18 @@ export interface Settings {
   readonly unlockAll: boolean;
   /** 다음 글자에서 이만큼(ms) 멈추면 치는 법을 띄운다. 0이면 띄우지 않는다 */
   readonly helpIdleMs: number;
+  /**
+   * 한자는 그 한자로 바꿔 確定해야 맞다 (기본). 끄면 읽기(가나)대로만 쳐도 맞다.
+   * 가타카나는 이 설정과 관계없이 바꿔야 맞다 (2026-10-26 사용자 제안)
+   */
+  readonly requireKanji: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { unlockAll: false, helpIdleMs: HELP_POLICY.idleMs };
+export const DEFAULT_SETTINGS: Settings = {
+  unlockAll: false,
+  helpIdleMs: HELP_POLICY.idleMs,
+  requireKanji: true,
+};
 
 export function loadSettings(): Settings {
   try {
@@ -20,13 +29,15 @@ export function loadSettings(): Settings {
     if (!raw) return DEFAULT_SETTINGS;
     const parsed: unknown = JSON.parse(raw);
     if (typeof parsed !== 'object' || parsed === null) return DEFAULT_SETTINGS;
-    const { unlockAll, helpIdleMs } = parsed as Record<string, unknown>;
+    const { unlockAll, helpIdleMs, requireKanji } = parsed as Record<string, unknown>;
     return {
       unlockAll: unlockAll === true,
       helpIdleMs:
         typeof helpIdleMs === 'number' && HELP_IDLE_CHOICES.includes(helpIdleMs)
           ? helpIdleMs
           : DEFAULT_SETTINGS.helpIdleMs,
+      // 예전에 저장한 설정에는 없으므로 껐을 때만 끈다
+      requireKanji: requireKanji !== false,
     };
   } catch {
     return DEFAULT_SETTINGS;

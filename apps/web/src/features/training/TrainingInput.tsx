@@ -42,6 +42,8 @@ interface TrainingInputProps {
   layout?: 'sentence' | 'chat';
   /** chat에서 상대 말. 한자 표기 그대로 주면 후리가나를 붙여 보인다 */
   partner?: string;
+  /** 한자를 읽기(가나)대로 쳐도 맞다 (설정 「한자는 바꿔야 정답」을 끈 경우) */
+  readingOk?: boolean;
   /** 목표 바로 아래에 둘 것 (긴 글의 다음 줄 미리보기) */
   afterTarget?: ReactNode;
   /** 입력 세션이 바뀔 때마다 알린다 (종합 테스트의 시간 재기) */
@@ -51,8 +53,8 @@ interface TrainingInputProps {
   inputRef?: RefObject<HTMLInputElement | null>;
 }
 
-const newSession = (target: string, judge: JudgeMode) =>
-  createInputSession(target, judge, { completeOnCommit: true });
+const newSession = (target: string, judge: JudgeMode, readingOk: boolean) =>
+  createInputSession(target, judge, { completeOnCommit: true, readingOk });
 
 /**
  * 실제 시스템 키보드로 목표 문자열을 입력하는 입력창.
@@ -72,6 +74,7 @@ export function TrainingInput({
   gapsAfter,
   layout,
   partner,
+  readingOk = false,
   afterTarget,
   onProgress,
   placeholder,
@@ -80,12 +83,12 @@ export function TrainingInput({
 }: TrainingInputProps) {
   const localRef = useRef<HTMLInputElement>(null);
   const ref = inputRef ?? localRef;
-  const [session, setSession] = useState(() => newSession(target, judge));
+  const [session, setSession] = useState(() => newSession(target, judge, readingOk));
   const [stuckAt, setStuckAt] = useState<number | null>(null);
   const [currentKey, setCurrentKey] = useState(questionKey);
   if (currentKey !== questionKey) {
     setCurrentKey(questionKey);
-    setSession(newSession(target, judge));
+    setSession(newSession(target, judge, readingOk));
     setStuckAt(null);
   }
   // 막혔던 글자를 맞게 치고 지나가면 잊는다. 지워서 되돌아와도 다시 머뭇거려야 도움말을 띄운다.

@@ -52,6 +52,21 @@ export function Settings() {
           </label>
         </li>
         <li>
+          <label className="setting-row">
+            <span>
+              <span className="setting-name">{t('settings.requireKanji')}</span>
+              <small>{t('settings.requireKanjiHint')}</small>
+            </span>
+            <input
+              type="checkbox"
+              role="switch"
+              className="switch"
+              checked={settings.requireKanji}
+              onChange={(event) => update({ ...settings, requireKanji: event.target.checked })}
+            />
+          </label>
+        </li>
+        <li>
           <div className="setting-row is-stacked">
             <span>
               <span className="setting-name">{t('settings.helpIdle')}</span>
