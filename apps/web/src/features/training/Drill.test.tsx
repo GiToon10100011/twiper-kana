@@ -350,6 +350,27 @@ describe('Drill', () => {
     expect(screen.getByText(`あ 키 ${flickLabel(first)}`)).toBeTruthy();
   });
 
+  it('로마자 키보드 안내는 かな 키보드로 바꿔 치기 시작하면 사라진다', async () => {
+    renderDrill('L2');
+    fireEvent.click(screen.getByRole('button', { name: '시작' }));
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+    const line = currentLine();
+
+    await compose(input, 'k');
+    expect(screen.getByRole('status').textContent).toContain('로마자 키보드');
+
+    // k를 지우고 키보드를 바꿔 플릭으로 친다. 모음(あ행)은 로마자 자판에서도 바로 나오므로 자음 가나까지 친다
+    await compose(input, '');
+    let typed = '';
+    for (const char of Array.from(line)) {
+      typed += char;
+      await compose(input, typed);
+      if (!'あいうえお'.includes(char)) break;
+    }
+
+    expect(screen.getByRole('status').textContent).not.toContain('로마자 키보드');
+  });
+
   it('짧은 문장 레벨: 히라가나만 치면 밑줄 친 곳을 바꾸라고 안내하고, 한자로 바꿔 確定해야 넘어간다', async () => {
     const level = renderDrill('L22');
     expect(screen.getByText(/후보에서 그 한자를 골라 바꿔야 해요/)).toBeTruthy();

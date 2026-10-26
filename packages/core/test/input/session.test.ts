@@ -102,6 +102,35 @@ describe('InputSession — composing 판정', () => {
     expect(state.errors).toEqual([]);
   });
 
+  it('로마자 안내는 かな 자판으로 바꿔 자음 가나를 바로 치면 거두고, 기록용 표시는 남긴다', () => {
+    // k → か는 로마자 자판. 키보드를 바꾼 뒤 き가 라틴 문자 없이 바로 붙는다
+    const switched = replayInputSession('かきく', snaps(['k', 'か', 'かき']));
+
+    expect(switched.romajiActive).toBe(false);
+    expect(switched.romajiSuspected).toBe(true);
+
+    // 「小゛゜」로 끝 글자를 제자리에서 바꾸는 것도 かな 자판이다
+    expect(replayInputSession('が', snaps(['k', 'か', 'が'])).romajiActive).toBe(false);
+  });
+
+  it('로마자 자판에서도 바로 나오는 모음, 후보로 여러 글자가 바뀐 것만으로는 로마자 안내를 거두지 않는다', () => {
+    expect(replayInputSession('かい', snaps(['k', 'か', 'かい'])).romajiActive).toBe(true);
+    expect(replayInputSession('かく', snaps(['k', 'か', 'かk'])).romajiActive).toBe(true);
+    expect(
+      replayInputSession('ありがとう', snaps(['a', 'あ', 'あr', 'あり', 'ありがとう']))
+        .romajiActive,
+    ).toBe(true);
+  });
+
+  it('연타 안내는 い–お단 가나를 플릭으로 바로 치면 거두고, 기록용 표시는 남긴다', () => {
+    const flicked = replayInputSession('いく', snaps(['あ', 'い', 'いく']));
+
+    expect(flicked.toggleActive).toBe(false);
+    expect(flicked.toggleSuspected).toBe(true);
+    // あ단은 연타로도 바로 나오므로 근거가 아니다
+    expect(replayInputSession('いか', snaps(['あ', 'い', 'いか'])).toggleActive).toBe(true);
+  });
+
   it('플릭 입력과 탁점 순환은 토글이나 로마자로 보지 않는다', () => {
     const state = replayInputSession('がき', snaps(['か', 'が', 'がき']));
 
