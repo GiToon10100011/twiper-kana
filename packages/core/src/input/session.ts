@@ -26,6 +26,16 @@ const isHiragana = (char: string): boolean =>
 /** 로마자 자판에서도 라틴 문자 없이 바로 나오는 가나 (a → あ) */
 const ROMAJI_DIRECT = new Set(Array.from('あいうえお'));
 
+/**
+ * 로마자 자판으로 친 것이 분명한 입력이면 true: 라틴 문자가 그 자리에서 가나로 바뀜(k → か, n → ん).
+ * かな 자판의 ABC 모드에서 친 영문자는 가나로 바뀌지 않으므로 로마자 키보드로 보지 않는다 (틀린 글자로만 보인다)
+ */
+function typedOnRomajiKeyboard(prev: readonly string[], next: readonly string[]): boolean {
+  const i = prev.findIndex(isLatinLetter);
+  const char = i === -1 ? undefined : next[i];
+  return char !== undefined && isKana(char) && prev.slice(0, i).every((c, k) => c === next[k]);
+}
+
 /** next가 prev 끝에 한 글자를 붙인 것이면 그 글자 */
 function appended(prev: readonly string[], next: readonly string[]): string | null {
   if (next.length !== prev.length + 1 || prev.some((c, i) => c !== next[i])) return null;
@@ -238,7 +248,7 @@ export function reduceInputSession(
 
   const lastReplacedInPlace = last >= 0 && prev.length === next.length && common === last;
   const toggled = lastReplacedInPlace && sameKeyRow(prev[last] ?? '', next[last] ?? '');
-  const romaji = !target.some(isLatinLetter) && raw.some(isLatinLetter);
+  const romaji = !target.some(isLatinLetter) && typedOnRomajiKeyboard(state.raw, raw);
   const committedMatch = equalsTarget && !snapshot.composing;
   const commit = judge === 'commit';
 

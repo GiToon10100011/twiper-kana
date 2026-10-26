@@ -113,6 +113,16 @@ describe('InputSession — composing 판정', () => {
     expect(replayInputSession('が', snaps(['k', 'か', 'が'])).romajiActive).toBe(false);
   });
 
+  it('かな 자판 ABC 모드에서 친 영문자는 가나로 바뀌지 않으므로 로마자 키보드로 보지 않는다', () => {
+    // 영문자 그대로 이어 치거나, 지우고 かな 모드로 돌아와 친다
+    const abc = replayInputSession('かき', snaps(['k', 'ka', 'k', '', 'か']));
+
+    expect(abc.romajiActive).toBe(false);
+    expect(abc.romajiSuspected).toBe(false);
+    // 영문자 뒤에 かな 모드로 가나를 이어 붙여도 영문자 자리가 가나로 바뀐 것은 아니다
+    expect(replayInputSession('かき', snaps(['k', 'kか'])).romajiSuspected).toBe(false);
+  });
+
   it('로마자 자판에서도 바로 나오는 모음, 후보로 여러 글자가 바뀐 것만으로는 로마자 안내를 거두지 않는다', () => {
     expect(replayInputSession('かい', snaps(['k', 'か', 'かい'])).romajiActive).toBe(true);
     expect(replayInputSession('かく', snaps(['k', 'か', 'かk'])).romajiActive).toBe(true);

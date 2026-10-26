@@ -91,12 +91,14 @@ describe('TrainingInput', () => {
         target="か"
         onComplete={() => {}}
         matchedHint="確定"
-        notice={(session) => (session.romajiSuspected ? '로마자 키보드' : null)}
+        notice={(session) => (session.romajiActive ? '로마자 키보드' : null)}
       />,
     );
     const input = screen.getByRole<HTMLInputElement>('textbox');
 
+    // 로마자 자판: k가 か로 바뀌어 목표와 같아졌지만 確定 안내 대신 경고를 보인다
     await compose(input, 'k');
+    await compose(input, 'か');
 
     expect(screen.getByRole('status').textContent).toBe('로마자 키보드');
   });

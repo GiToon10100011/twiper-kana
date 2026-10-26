@@ -356,10 +356,13 @@ describe('Drill', () => {
     const input = screen.getByRole<HTMLInputElement>('textbox');
     const line = currentLine();
 
+    // 로마자 자판은 k가 그 자리에서 か로 바뀐다
     await compose(input, 'k');
+    expect(screen.getByRole('status').textContent).not.toContain('로마자 키보드');
+    await compose(input, 'か');
     expect(screen.getByRole('status').textContent).toContain('로마자 키보드');
 
-    // k를 지우고 키보드를 바꿔 플릭으로 친다. 모음(あ행)은 로마자 자판에서도 바로 나오므로 자음 가나까지 친다
+    // 지우고 키보드를 바꿔 플릭으로 친다. 모음(あ행)은 로마자 자판에서도 바로 나오므로 자음 가나까지 친다
     await compose(input, '');
     let typed = '';
     for (const char of Array.from(line)) {
