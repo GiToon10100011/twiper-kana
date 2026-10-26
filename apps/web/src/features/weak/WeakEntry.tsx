@@ -28,10 +28,18 @@ function UnitChip({ weak }: { weak: WeakUnit }) {
 }
 
 /**
- * 약점 연습 카드 (시안 A: 「내 실력」 맨 위). 약점 글자, 시작 버튼, 가장 약한 규칙의 레벨로 돌아가는 링크.
- * 약점이 없으면(기록이 적으면) 더 치면 찾아 준다고만 알린다
+ * 약점 연습 카드 (2026-10-26 시안 A 채택: 「내 실력」 맨 위). 약점 글자, 시작 버튼,
+ * 가장 약한 규칙의 레벨로 돌아가는 링크. 약점이 없으면 기록이 충분한지(enough)에 따라 알린다
  */
-export function WeakCard({ units, back }: { units: readonly WeakUnit[]; back?: WeakBack }) {
+export function WeakCard({
+  units,
+  back,
+  enough = false,
+}: {
+  units: readonly WeakUnit[];
+  back?: WeakBack;
+  enough?: boolean;
+}) {
   const { t } = useTranslation();
   return (
     <section className="weak-card" aria-labelledby="weak-title">
@@ -39,7 +47,7 @@ export function WeakCard({ units, back }: { units: readonly WeakUnit[]; back?: W
         {t('weak.title')}
       </h2>
       {units.length === 0 ? (
-        <p className="weak-lead">{t('weak.empty')}</p>
+        <p className="weak-lead">{enough ? t('weak.none') : t('weak.empty')}</p>
       ) : (
         <>
           <p className="weak-lead">{t('weak.lead')}</p>
@@ -67,34 +75,5 @@ export function WeakCard({ units, back }: { units: readonly WeakUnit[]; back?: W
         </Link>
       ) : null}
     </section>
-  );
-}
-
-/** 약점 연습 타일 (시안 B: 홈). 단계별 익히기와 같은 모양으로, 대표 글자는 가장 약한 글자 */
-export function WeakTile({ units }: { units: readonly WeakUnit[] }) {
-  const { t } = useTranslation();
-  const first = units[0]?.unit ?? '';
-  return (
-    <ul className="tile-list">
-      <li className="tile-item">
-        <Link className="tile-row" to="/weak">
-          <span
-            className={`tile-mark${Array.from(first).length > 1 ? ' is-long' : ''}`}
-            lang="ja"
-            aria-hidden="true"
-          >
-            {first}
-          </span>
-          <span className="tile-body">
-            <span className="tile-title">{t('weak.title')}</span>
-            <span className="tile-meta" lang="ja">
-              {units.map((weak) => weak.unit).join('・')}
-            </span>
-            <span className="tile-status">{t('weak.tileStatus', { count: units.length })}</span>
-          </span>
-          <ForwardIcon />
-        </Link>
-      </li>
-    </ul>
   );
 }

@@ -1174,16 +1174,6 @@ a.tile-row:active {
   width: 4.5rem;
 }
 
-/* 시안에서 지금 화면의 다른 부분이 들어갈 자리 */
-.lab-placeholder {
-  padding: var(--space-3) var(--space-4);
-  margin: var(--space-3) 0;
-  font-size: 0.8125rem;
-  color: var(--ink-faint);
-  border: 1px dashed var(--line-strong);
-  border-radius: var(--radius-md);
-}
-
 /* 약점 연습 카드 (내 실력 맨 위) */
 .weak-card {
   padding: var(--space-4);
@@ -1193,8 +1183,7 @@ a.tile-row:active {
   border-radius: var(--radius-lg);
 }
 
-/* .weak-card를 붙여 시안 화면(.lab h2)에서도 같은 모양으로 보이게 한다 */
-.weak-card .weak-title {
+.weak-title {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;

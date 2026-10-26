@@ -13,8 +13,6 @@ export const ko = {
     guideCheckHint: '키 배치 대조',
     courseTiles: '목록 상태 미리보기',
     courseTilesHint: '진행 상태별 코스 목록',
-    weakLab: '약점 연습 미리보기',
-    weakLabHint: '들어가는 자리 시안 비교',
   },
   weak: {
     title: '약점 연습',
@@ -25,7 +23,13 @@ export const ko = {
     empty: '아직 기록이 적어요. 연습을 더 하면 자주 틀리는 글자를 찾아 드려요.',
     back: '가장 약한 규칙은 {{name}}({{accuracy}}%)예요.',
     backLevel: '{{level}} 다시 하기',
-    tileStatus: '자주 틀리거나 느린 글자 {{count}}개',
+    none: '요즘 자주 틀리거나 느린 글자가 없어요. 종합 테스트로 실력을 확인해 보세요.',
+    intro:
+      '자주 틀리거나 느린 글자({{units}})로 {{count}}줄을 쳐요. 줄을 다 치고 確定을 누르면 다음 줄이 나와요.',
+    toStats: '내 실력으로',
+    pass: '첫 시도 정확도가 90%를 넘었어요. 내 실력에서 남은 약점을 확인해 보세요.',
+    practice:
+      '아직 자주 틀려요. 한 번 더 쳐 보거나, 내 실력에서 가장 약한 규칙의 레벨로 돌아가 보세요.',
   },
   onboarding: {
     step: '{{current}}/{{total}}',
