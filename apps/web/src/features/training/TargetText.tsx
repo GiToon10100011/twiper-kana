@@ -51,7 +51,8 @@ function keepPunctuation(pieces: readonly Piece[], target: readonly string[]): P
 
 /**
  * 한자 표기 하나의 상태: 변환함 / 읽기까지 쳐서 후보를 고를 차례 / 읽기 그대로 確定해 버림 / 아직.
- * 한자를 읽기로 쳐도 되는 설정이면 읽기를 다 친 것으로 맞다
+ * 한자를 읽기로 쳐도 되는 설정이어도 바꾸지 않은 한자에는 밑줄을 긋는다(2026-10-26 사용자 요청).
+ * 다만 틀린 것이 아니므로 確定한 뒤에도 붉은 밑줄 대신 점선(후보에서 고를 수 있는 곳)으로 둔다
  */
 function rubyStatus(
   converted: boolean,
@@ -59,9 +60,9 @@ function rubyStatus(
   composing: boolean,
   readingOk: boolean,
 ): CharStatus {
-  if (converted || (read && readingOk)) return 'correct';
+  if (converted) return 'correct';
   if (!read) return 'todo';
-  return composing ? 'pending' : 'unconverted';
+  return composing || readingOk ? 'pending' : 'unconverted';
 }
 
 /**
