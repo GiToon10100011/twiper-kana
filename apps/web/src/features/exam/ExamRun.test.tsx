@@ -1,15 +1,29 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { examSource } from '@twiper/content';
-import { advanceExam, createExam } from '@twiper/core';
+import { advanceExam, createExam, parseRuby, rubySurface } from '@twiper/core';
 import '../../i18n';
 import { trainingRepo } from '../../lib/db';
 import { loadExamRecords } from '../../lib/examRecords';
+import { hasSeenExamRules, markExamRulesSeen } from '../../lib/flags';
 import { ExamRoute } from './ExamRun';
 
+beforeAll(() => {
+  // jsdom의 <dialog>에는 모달로 열고 닫는 메서드가 없다
+  HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+    this.open = true;
+  };
+  HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+    this.open = false;
+    this.dispatchEvent(new Event('close'));
+  };
+});
+
 beforeEach(() => {
+  // 주의사항 창은 처음 한 번만 저절로 뜬다. 다른 테스트는 이미 본 것으로 시작한다
+  markExamRulesSeen();
   // 입력 스냅샷과 테스트 시간은 performance.now를 쓴다. 같이 돌려야 1분이 지난다
   vi.useFakeTimers({
     toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance', 'Date'],
@@ -115,10 +129,81 @@ describe('ExamRun (종합 테스트)', () => {
     const exam = createExam(examSource('long'), 2);
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('긴 글 테스트 · 3분');
-    expect(screen.getByLabelText('다음 줄').textContent).toBe(exam.upcoming?.text);
+    // 다음 줄도 한자에 후리가나를 붙여 보인다 (표기 {…|…}는 보이지 않는다)
+    const upcoming = screen.getByLabelText('다음 줄');
+    const { rubies } = parseRuby(exam.upcoming?.text ?? '');
+    expect(rubies.length).toBeGreaterThan(0);
+    expect([...upcoming.querySelectorAll('ruby')].map((r) => r.firstChild?.textContent)).toEqual(
+      rubies.map((ruby) => ruby.surface),
+    );
+    expect(upcoming.textContent).not.toContain('{');
     expect(document.querySelectorAll('.target-text .ch-word').length).toBe(
       exam.line.gapsAfter.length + 1,
     );
+  });
+
+  it('짧은 글의 한자는 그 한자로 바꿔 確定해야 다음 줄로 넘어가고, 읽기만 치면 밑줄 친 곳을 바꾸라고 안내한다', async () => {
+    const seed = Array.from({ length: 50 }, (_, i) => i).find(
+      (s) => parseRuby(createExam(examSource('short'), s).line.text).rubies.length > 0,
+    );
+    renderAt(`/test/short?min=1&seed=${seed}`);
+    const first = createExam(examSource('short'), seed ?? 0);
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+
+    expect(document.querySelector('.target-text ruby rt')).toBeTruthy();
+    const shown = target();
+    input.dispatchEvent(new CompositionEvent('compositionstart'));
+    input.value = parseRuby(first.line.text).chars.join('');
+    input.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText' }));
+    await tick();
+    expect(screen.getByRole('status').textContent).toContain('밑줄 친 곳을 후보에서');
+
+    // 히라가나 그대로 確定하면 넘어가지 않는다
+    input.dispatchEvent(new CompositionEvent('compositionend', { data: input.value }));
+    await tick();
+    expect(target()).toBe(shown);
+    expect(screen.getByRole('status').textContent).toContain('밑줄 친 곳은 후보에서');
+
+    input.value = '';
+    input.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+    await tick();
+    await typeLine(rubySurface(first.line.text));
+    expect(target()).not.toBe(shown);
+  });
+
+  it('처음 들어오면 주의사항 창을 띄우고, 알겠어요를 누르면 닫고 입력창으로 돌아간다. 다음부터는 저절로 띄우지 않는다', () => {
+    localStorage.clear();
+    renderAt('/test/kana?min=1&seed=5');
+    const dialog = document.querySelector('dialog');
+
+    expect(dialog?.open).toBe(true);
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('테스트 주의사항');
+    expect(screen.getByText('12키 가나 키보드로 쳐요')).toBeTruthy();
+    expect(screen.getByText('確定을 눌러야 다음 줄로 넘어가요')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: '알겠어요' }));
+    expect(dialog?.open).toBe(false);
+    expect(document.activeElement).toBe(screen.getByRole('textbox'));
+    expect(hasSeenExamRules()).toBe(true);
+
+    cleanup();
+    renderAt('/test/kana?min=1&seed=5');
+    expect(document.querySelector('dialog')?.open).toBe(false);
+  });
+
+  it('머리의 주의사항 버튼으로 언제든 다시 열고, 바깥을 누르면 닫는다', () => {
+    renderAt('/test/short?min=1&seed=1');
+    const dialog = document.querySelector('dialog');
+    expect(dialog?.open).toBe(false);
+
+    fireEvent.click(screen.getByRole('button', { name: '테스트 주의사항' }));
+    expect(dialog?.open).toBe(true);
+
+    // 배경을 누르면 dialog 자체가 눌린다 (안쪽 상자를 누르면 닫히지 않는다)
+    fireEvent.click(screen.getByText('도움말은 나오지 않아요'));
+    expect(dialog?.open).toBe(true);
+    if (dialog) fireEvent.click(dialog);
+    expect(dialog?.open).toBe(false);
   });
 
   it('알 수 없는 종목이면 홈으로 보낸다', () => {

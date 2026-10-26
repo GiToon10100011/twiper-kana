@@ -17,8 +17,11 @@ import {
 } from '@twiper/core';
 import { newId, trainingRepo } from '../../lib/db';
 import { recordExam, type ExamBest } from '../../lib/examRecords';
-import { BackIcon } from '../../ui/icons';
+import { hasSeenExamRules, markExamRulesSeen } from '../../lib/flags';
+import { BackIcon, InfoIcon } from '../../ui/icons';
+import { Furigana } from '../training/Furigana';
 import { TrainingInput } from '../training/TrainingInput';
+import { ExamRules } from './ExamRules';
 
 export const EXAM_MINUTES = [1, 3, 5] as const;
 export type ExamMinutes = (typeof EXAM_MINUTES)[number];
@@ -91,6 +94,15 @@ export function ExamRun({
   /** 이번 판을 끝냈는지. 화면이 다시 그려지기 전에 타이머가 한 번 더 돌아도 두 번 기록하지 않는다 */
   const finished = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  /** 주의사항 창. 처음 들어왔을 때 한 번 저절로 띄운다 */
+  const [rulesOpen, setRulesOpen] = useState(() => !hasSeenExamRules());
+
+  // 시험 중에 열어도 시간은 흐른다. 닫으면 그 탭 안에서 입력창으로 돌아가 키보드를 다시 띄운다
+  const closeRules = () => {
+    setRulesOpen(false);
+    markExamRulesSeen();
+    if (!finished.current) inputRef.current?.focus();
+  };
 
   /** 타이머가 늦게 돌아도 끝난 시각 뒤의 입력은 세지 않는다 */
   const pastDeadline = (time: number) => startedAt !== null && time - startedAt >= durationMs;
@@ -196,6 +208,8 @@ export function ExamRun({
   };
 
   const remaining = startedAt === null ? durationMs : Math.max(0, durationMs - (now - startedAt));
+  // 짧은 글·긴 글은 길어서 안내에 전체를 되풀이하지 않고 밑줄 친 곳을 가리킨다
+  const isSentence = mode === 'short' || mode === 'long';
 
   return (
     <main className="screen exam">
@@ -203,12 +217,24 @@ export function ExamRun({
         <Link className="icon-btn header-back" to="/" aria-label={t('drill.exit')}>
           <BackIcon />
         </Link>
-        {outcome ? null : (
-          <span className="exam-timer" role="timer" aria-label={t('exam.timer')}>
-            {clock(remaining)}
-          </span>
-        )}
+        <span className="header-actions">
+          {outcome ? null : (
+            <span className="exam-timer" role="timer" aria-label={t('exam.timer')}>
+              {clock(remaining)}
+            </span>
+          )}
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label={t('exam.rules.open')}
+            aria-haspopup="dialog"
+            onClick={() => setRulesOpen(true)}
+          >
+            <InfoIcon />
+          </button>
+        </span>
       </header>
+      <ExamRules open={rulesOpen} onClose={closeRules} />
 
       {outcome ? (
         <ExamResult name={name} minutes={minutes} outcome={outcome} onAgain={again} />
@@ -225,15 +251,17 @@ export function ExamRun({
             afterTarget={
               exam.upcoming ? (
                 <p className="exam-upcoming" lang="ja" aria-label={t('exam.next')}>
-                  {exam.upcoming.text}
+                  <Furigana text={exam.upcoming.text} />
                 </p>
               ) : null
             }
             onComplete={onComplete}
             onProgress={onProgress}
             matchedHint={t('drill.matched')}
-            convertHint={t('drill.convert', { word: exam.line.text })}
-            fixHint={t('drill.fix', { word: exam.line.text })}
+            convertHint={
+              isSentence ? t('drill.convertMarked') : t('drill.convert', { word: exam.line.text })
+            }
+            fixHint={isSentence ? t('drill.fixMarked') : t('drill.fix', { word: exam.line.text })}
             placeholder={t('training.tapInput')}
             targetLabel={t('exam.title', { name })}
             inputRef={inputRef}

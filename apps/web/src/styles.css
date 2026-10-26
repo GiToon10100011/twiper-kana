@@ -118,6 +118,15 @@ a {
   background: var(--line);
 }
 
+/* <button>으로 쓸 때(달력 넘기기·테스트 주의사항) 브라우저 기본 테두리·배경을 지운다 */
+button.icon-btn {
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
 .icon-btn svg {
   width: 1.375rem;
   height: 1.375rem;
@@ -1781,6 +1790,7 @@ a.tile-row:active {
 .test-preview {
   display: flex;
   gap: 0.06em;
+  align-items: baseline;
   margin: 1.75rem 0 1.5rem;
   overflow: hidden;
   font-size: 1.75rem;
@@ -1791,9 +1801,20 @@ a.tile-row:active {
   mask-image: linear-gradient(to right, #000 80%, transparent);
 }
 
-.test-preview span {
+.test-preview span,
+.test-preview ruby {
   padding-bottom: 2px;
   border-bottom: 2px solid transparent;
+}
+
+/* 한자 표기: 읽기를 위에 작게 (연습 화면의 후리가나와 같다) */
+.test-preview ruby {
+  ruby-position: over;
+}
+
+.test-preview rt {
+  font-size: max(0.42em, 0.625rem);
+  ruby-align: center;
 }
 
 .test-preview .is-next {
@@ -1924,6 +1945,8 @@ a.tile-row:active {
 .target-text .ch-word {
   display: inline-flex;
   gap: 0.12em;
+  /* 후리가나가 붙은 한자와 가나를 같은 밑선에 맞춘다 */
+  align-items: baseline;
   padding: 0;
   margin-inline-end: 0.3em;
   white-space: nowrap;
@@ -1944,6 +1967,91 @@ a.tile-row:active {
   font-size: 1.125rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+/* 머리 오른쪽에 여럿 둘 때 (남은 시간 + 주의사항). 아이콘 여백만큼 당겨 본문 오른쪽 선에 맞춘다 */
+.header-actions {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+  margin-inline-end: -0.6875rem;
+}
+
+/* 종합 테스트 주의사항 창. 작은 화면에서는 창 안에서 스크롤한다 */
+.rules-dialog {
+  width: min(28rem, calc(100% - 2 * var(--space-4)));
+  max-height: calc(100dvh - 2 * var(--space-4));
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+}
+
+.rules-dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.rules-body {
+  padding: var(--space-4);
+}
+
+.rules-title {
+  margin: 0 0 var(--space-3);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.rules-list {
+  display: grid;
+  gap: var(--space-3);
+  padding: 0;
+  margin: 0 0 var(--space-4);
+  list-style: none;
+  counter-reset: rule;
+}
+
+.rules-list li {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding-inline-start: 1.75rem;
+  counter-increment: rule;
+}
+
+/* 번호는 마젠타 원 */
+.rules-list li::before {
+  position: absolute;
+  top: 0.1em;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  content: counter(rule);
+  background: var(--accent-soft);
+  border-radius: var(--radius-pill);
+}
+
+.rules-list strong {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.rules-list span {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.rules-close {
+  width: 100%;
 }
 
 /* 긴 글의 다음 줄 */
@@ -2281,14 +2389,6 @@ a.tile-row:active {
   align-items: center;
   /* 제목 줄과 달력 사이는 넉넉히 (16px도 좁다는 피드백 2026-10-24) */
   margin: 0 calc(-1 * var(--space-2)) 1.75rem;
-}
-
-.cal-nav .icon-btn {
-  padding: 0;
-  font: inherit;
-  cursor: pointer;
-  background: none;
-  border: 0;
 }
 
 .cal-nav .icon-btn:disabled {

@@ -40,6 +40,15 @@ describe('parseExamLine', () => {
     expect(parseExamLine('コーヒー').judge).toBe('commit');
     expect(parseExamLine('さくら').judge).toBe('composing');
   });
+
+  it('한자 표기는 그대로 두고, 틈 위치는 읽기로 펼쳐 세며, 한자로 바꿔야 하므로 commit 판정이다', () => {
+    expect(parseExamLine('{今日|きょう}は/いい/{天気|てんき}。')).toEqual({
+      text: '{今日|きょう}はいい{天気|てんき}。',
+      // きょうは(0–3) / いい(4–5) / てんき。
+      gapsAfter: [3, 5],
+      judge: 'commit',
+    });
+  });
 });
 
 describe('createExam·advanceExam', () => {
@@ -106,6 +115,20 @@ describe('partialLineResult·summarizeExam', () => {
       firstTryUnits: 2,
       missedIndexes: [],
     });
+  });
+
+  it('치던 줄에서 한자 읽기를 틀렸으면 그 한자 표기를 틀린 글자로 센다', () => {
+    // {天気|てんき}は: て 자리에 た를 치고 이어 쳤다가 고쳐 てんき까지 맞게 쳐 둔 채 끝남
+    const session = replayInputSession(
+      '{天気|てんき}は',
+      snaps(['た', 'たん', 'た', '', 'て', 'てん', 'てんき']),
+      'commit',
+    );
+    const partial = partialLineResult(session, 0);
+
+    expect(partial.units).toBe(3);
+    expect(partial.missedIndexes).toEqual([0]);
+    expect(partial.missed).toEqual(['天気']);
   });
 
   it('속도는 시간 안에 맞게 친 가나 수 ÷ 분, 정확도는 첫 시도로 맞힌 비율', () => {

@@ -49,6 +49,20 @@ describe('TargetText — 한자 표기', () => {
     expect(view.querySelector('ruby')?.className).toBe('ch-ruby ch-unconverted');
   });
 
+  it('어절 틈이 있는 줄(종합 테스트)도 한자에 후리가나를 붙이고, 틈은 읽기 위치로 나눈다', () => {
+    // {今日|きょう}は / いい / {天気|てんき}。 — 틈은 は(3)와 い(5) 뒤
+    const session = createInputSession('{今日|きょう}はいい{天気|てんき}。', 'commit');
+    const view = render(<TargetText session={session} gapsAfter={[3, 5]} />).container;
+    const words = [...view.querySelectorAll('.ch-word')];
+
+    expect(words.map((word) => word.textContent)).toEqual(['今日きょうは', 'いい', '天気てんき。']);
+    expect([...view.querySelectorAll('ruby')].map((ruby) => ruby.firstChild?.textContent)).toEqual([
+      '今日',
+      '天気',
+    ]);
+    expect(words[0]?.querySelector('rt')?.textContent).toBe('きょう');
+  });
+
   it('읽기를 치는 중이면 한자는 아직 칠 글자로 보이고, 다음 읽기 글자에 밑줄을 긋는다', () => {
     const view = renderTarget(typed('{今日|きょう}は', 'き'));
 

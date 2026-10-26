@@ -20,6 +20,17 @@ export function ChartIcon() {
   );
 }
 
+/** 원 안의 i (Lucide "info", ISC). 종합 테스트 주의사항 */
+export function InfoIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
+    </svg>
+  );
+}
+
 /* 키보드 설명서에 그리는 iPhone かな 키보드의 기능 키 (Lucide, ISC) */
 
 /** 오른쪽 화살표 (Lucide "arrow-right"). 「→」 문자 보내기 */
