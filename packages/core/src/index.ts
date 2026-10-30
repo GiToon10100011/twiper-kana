@@ -61,9 +61,11 @@ export {
   skillStats,
   slowUnits,
   STATS_MIN_SAMPLES,
+  weakUnits,
   type SkillId,
   type SkillStat,
   type TopicSkill,
+  type WeakUnit,
 } from './stats/skills';
 export { normalizeBase, normalizeForCompare } from './text/normalize';
 export { parseRuby, rubyReading, rubySurface, type RubySpan, type RubyText } from './text/ruby';

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { DrillSummary, MistakeKind } from '@twiper/core';
 import type { Level } from '@twiper/content';
+import type { PracticeOptions } from './Drill';
 import { levelTitle } from './levelTitle';
 
 /** 다음 레벨을 권하는 첫 시도 정확도 (계획 §10.2). 숙련도 저장이 붙으면 core로 옮긴다 */
@@ -14,12 +15,21 @@ interface DrillResultProps {
   previous?: DrillSummary | null;
   next: Level | undefined;
   onAgain: () => void;
+  /** 레벨이 아닌 연습(약점 연습): 결과 문구와 맨 아래 돌아가는 곳(기본은 단계별 익히기)을 바꾼다 */
+  practice?: PracticeOptions;
 }
 
 /** +4, −3, ±0 */
 const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `\u{2212}${-n}` : '\u{00B1}0');
 
-export function DrillResult({ title, summary, previous, next, onAgain }: DrillResultProps) {
+export function DrillResult({
+  title,
+  summary,
+  previous,
+  next,
+  onAgain,
+  practice,
+}: DrillResultProps) {
   const { t } = useTranslation();
   const accuracyDelta = previous
     ? Math.round(summary.accuracy * 100) - Math.round(previous.accuracy * 100)
@@ -96,7 +106,15 @@ export function DrillResult({ title, summary, previous, next, onAgain }: DrillRe
       {summary.romajiSuspected ? <p className="result-warning">{t('result.romaji')}</p> : null}
       {summary.toggleSuspected ? <p className="result-warning">{t('result.toggle')}</p> : null}
 
-      <p className="screen-body">{passed ? t('result.pass') : t('result.practice')}</p>
+      <p className="screen-body">
+        {practice
+          ? passed
+            ? practice.passNote
+            : practice.practiceNote
+          : passed
+            ? t('result.pass')
+            : t('result.practice')}
+      </p>
       <div className="actions">
         {next && passed ? (
           <Link className="btn btn-primary" to={`/train/${next.id}`}>
@@ -115,8 +133,8 @@ export function DrillResult({ title, summary, previous, next, onAgain }: DrillRe
             {t('result.next', { level: levelTitle(next, t) })}
           </Link>
         ) : null}
-        <Link className="btn-quiet" to="/steps">
-          {t('result.steps')}
+        <Link className="btn-quiet" to={practice?.backTo ?? '/steps'}>
+          {practice?.backLabel ?? t('result.steps')}
         </Link>
       </div>
     </section>

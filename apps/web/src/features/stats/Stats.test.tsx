@@ -50,6 +50,10 @@ describe('Stats', () => {
     renderStats();
 
     expect(await screen.findByText(/아직 기록이 없어요/)).toBeTruthy();
+    // 약점 연습 카드는 기록이 없어도 보여 이런 연습이 있다는 것을 알린다
+    expect(screen.getByRole('region', { name: '약점 연습' }).textContent).toContain(
+      '아직 기록이 적어요',
+    );
     expect(screen.getByRole('link', { name: '홈으로' })).toBeTruthy();
     expect(screen.getByRole('main').getAttribute('aria-busy')).toBe('false');
   });
@@ -76,5 +80,45 @@ describe('Stats', () => {
     expect(screen.getByRole('heading', { name: '조합' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: '가타카나' })).toBeNull();
     expect(screen.getByLabelText('え 자리에 う, 1번')).toBeTruthy();
+  });
+
+  it('맨 위 약점 연습 카드에 자주 틀린 글자와 시작 링크, 가장 약한 규칙의 레벨로 돌아가는 링크를 보인다', async () => {
+    const repo = createMemoryRepo();
+    // あ행 10줄: え는 매번, お는 3번 う·え로 틀림 → あ행 정확도 37/50 = 74%
+    for (let i = 0; i < 10; i += 1) {
+      await repo.saveAttempt(
+        attempt(
+          'あいうえお',
+          i < 3
+            ? [
+                [3, 'う'],
+                [4, 'え'],
+              ]
+            : [[3, 'う']],
+        ),
+      );
+    }
+
+    renderStats(repo);
+
+    const card = await screen.findByRole('region', { name: '약점 연습' });
+    expect([...card.querySelectorAll('.weak-unit')].map((li) => li.textContent)).toEqual([
+      'え100% 틀림',
+      'お30% 틀림',
+    ]);
+    expect(screen.getByRole('link', { name: /약점 연습 시작/ }).getAttribute('href')).toBe('/weak');
+    const back = screen.getByRole('link', { name: /Lv\.1 あ행 다시 하기/ });
+    expect(back.getAttribute('href')).toBe('/train/L1');
+    expect(back.textContent).toContain('あ행(74%)');
+  });
+
+  it('기록이 충분한데 약한 글자가 없으면 카드에 그렇게 알린다', async () => {
+    const repo = createMemoryRepo();
+    for (let i = 0; i < 10; i += 1) await repo.saveAttempt(attempt('あいうえお'));
+
+    renderStats(repo);
+
+    expect(await screen.findByText(/요즘 자주 틀리거나 느린 글자가 없어요/)).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /약점 연습 시작/ })).toBeNull();
   });
 });

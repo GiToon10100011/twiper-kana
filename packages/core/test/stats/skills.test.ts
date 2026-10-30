@@ -4,6 +4,7 @@ import {
   skillsOf,
   skillStats,
   slowUnits,
+  weakUnits,
   type AttemptFlag,
   type AttemptRecord,
   type MistakeKind,
@@ -202,5 +203,51 @@ describe('slowUnits', () => {
       { unit: 'き', medianMs: 1000, samples: 2 },
       { unit: 'か', medianMs: 500, samples: 3 },
     ]);
+  });
+});
+
+describe('weakUnits', () => {
+  it('자주 틀린 단위를 틀린 비율이 높은 순으로, 같으면 느린 순으로 낸다', () => {
+    const list = weakUnits(
+      [
+        // か는 3번 중 2번, さ는 3번 중 1번 틀림. し는 틀리지 않았지만 아주 느림. あ는 첫 글자라 시간을 재지 않는다
+        attempt('あかさし', [9000, 500, 500, 3000], [[1, 'き', 'direction']]),
+        attempt(
+          'あかさし',
+          [9000, 500, 500, 3000],
+          [
+            [1, 'き', 'direction'],
+            [2, 'し', 'direction'],
+          ],
+        ),
+        attempt('あかさし', [9000, 500, 500, 3000]),
+      ],
+      { minSamples: 3 },
+    );
+
+    expect(list.map(({ unit, missRate }) => [unit, Math.round(missRate * 100)])).toEqual([
+      ['か', 67],
+      ['さ', 33],
+      ['し', 0],
+    ]);
+    expect(list.find((weak) => weak.unit === 'し')?.medianMs).toBe(3000);
+  });
+
+  it('가타카나는 히라가나로 묶고, 표본이 적거나 로마자로 친 줄·변환 실수·기호는 보지 않는다', () => {
+    const list = weakUnits(
+      [
+        attempt('あカ', [9000, 500], [[1, 'き', 'direction']]),
+        attempt('あか', [9000, 500], [[1, 'き', 'direction']]),
+        attempt('あか', [9000, 500], [[1, 'き', 'direction']], ['romaji-suspected']),
+        // 가타카나로 바꾸지 않은 것은 플릭 실수가 아니다
+        attempt('あカ', [9000, 500], [[1, 'か', 'script']]),
+        attempt('あ？', [9000, 500], [[1, '！', 'key']]),
+        attempt('あ？', [9000, 500], [[1, '！', 'key']]),
+        attempt('あ？', [9000, 500], [[1, '！', 'key']]),
+      ],
+      { minSamples: 3 },
+    );
+
+    expect(list).toEqual([{ unit: 'か', samples: 3, missRate: 2 / 3, medianMs: 500 }]);
   });
 });

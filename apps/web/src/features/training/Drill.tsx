@@ -89,10 +89,27 @@ function introKey(
   return 'drill.intro';
 }
 
+/**
+ * 레벨이 아닌 연습 (약점 연습). 제목·안내·나가는 곳을 바꾸고, 레벨 진도에는 기록하지 않는다.
+ * 시도 기록은 레벨처럼 남겨 「내 실력」 통계에 들어간다
+ */
+export interface PracticeOptions {
+  readonly title: string;
+  readonly intro: string;
+  readonly backTo: string;
+  readonly backLabel: string;
+  /** 결과 화면 문구: 첫 시도 정확도 90% 이상 / 미만 */
+  readonly passNote: string;
+  readonly practiceNote: string;
+}
+
 /** 한 레벨의 줄 드릴: 준비 → 줄마다 입력하고 確定 → 결과 */
-export function Drill({ level }: { level: Level }) {
+export function Drill({ level, practice }: { level: Level; practice?: PracticeOptions }) {
   const { t } = useTranslation();
-  const title = levelTitle(level, t);
+  const title = practice?.title ?? levelTitle(level, t);
+  const isPractice = practice !== undefined;
+  // 레벨 제목에는 가나(「Lv.3 さ행」)가 있어 일본어로 표시하고, 연습 제목은 UI 언어 그대로 둔다
+  const titleLang = isPractice ? undefined : 'ja';
   const [started, setStarted] = useState(false);
   const [drill, setDrill] = useState(() => createDrill(level.drill, newSeed()));
   const [{ helpIdleMs, requireKanji }] = useState(loadSettings);
@@ -151,7 +168,7 @@ export function Drill({ level }: { level: Level }) {
     if (!drill.done || recorded.current === drill) return;
     recorded.current = drill;
     const summary = summarizeDrill(drill.results);
-    recordLevel(level.id, summary);
+    if (!isPractice) recordLevel(level.id, summary);
 
     const session = sessionRef.current;
     if (!session) return;
@@ -168,7 +185,7 @@ export function Drill({ level }: { level: Level }) {
         if (sessionRef.current?.id !== session.id) return;
         setPrevious(sessions.find((s) => s.id !== session.id)?.summary ?? null);
       });
-  }, [drill, level.id]);
+  }, [drill, level.id, isPractice]);
 
   // 키보드를 바꾸거나 플릭으로 치기 시작하면 거둔다 (결과 화면에는 그런 줄이 있었다고 남는다)
   const notice = (session: InputSessionState) => {
@@ -208,7 +225,11 @@ export function Drill({ level }: { level: Level }) {
   return (
     <main className="screen">
       <header className="screen-header">
-        <Link className="icon-btn header-back" to="/steps" aria-label={t('drill.exit')}>
+        <Link
+          className="icon-btn header-back"
+          to={practice?.backTo ?? '/steps'}
+          aria-label={t('drill.exit')}
+        >
           <BackIcon />
         </Link>
         {started && !drill.done ? <span>{progress}</span> : null}
@@ -216,14 +237,15 @@ export function Drill({ level }: { level: Level }) {
 
       {!started ? (
         <section>
-          <h1 className="screen-title" lang="ja">
+          <h1 className="screen-title" lang={titleLang}>
             {title}
           </h1>
           <p className="screen-body">
-            {t(introKey(level, !requireKanji), {
-              count: lineCount,
-              length: level.drill.lineLength,
-            })}
+            {practice?.intro ??
+              t(introKey(level, !requireKanji), {
+                count: lineCount,
+                length: level.drill.lineLength,
+              })}
           </p>
           {level.assessment ? <p className="screen-body">{t('drill.noHelp')}</p> : null}
           {level.topic ? (
@@ -260,12 +282,13 @@ export function Drill({ level }: { level: Level }) {
           title={title}
           summary={summarizeDrill(drill.results)}
           previous={previous}
-          next={nextLevel(level.id)}
+          next={practice ? undefined : nextLevel(level.id)}
           onAgain={start}
+          practice={practice}
         />
       ) : (
         <section>
-          <h1 className="screen-title screen-title-small" lang="ja">
+          <h1 className="screen-title screen-title-small" lang={titleLang}>
             {title}
           </h1>
           <TrainingInput

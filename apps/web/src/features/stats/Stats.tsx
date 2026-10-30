@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { levelForSkill } from '@twiper/content';
 import {
   confusions,
   skillStats,
   slowUnits,
   STATS_MIN_SAMPLES,
+  weakUnits,
   type AttemptRecord,
   type SkillId,
   type SkillStat,
@@ -14,10 +16,15 @@ import {
 } from '@twiper/core';
 import { trainingRepo } from '../../lib/db';
 import { BackIcon } from '../../ui/icons';
+import { levelAccess } from '../training/access';
 import { skillName } from '../training/levelTitle';
+import { WeakCard, type WeakBack } from '../weak/WeakEntry';
 
-/** 통계에 읽어 올 최근 시도 수. 한 판이 10줄 안팎이라 수백 판 분량이다 */
-const RECENT_ATTEMPTS = 2000;
+/** 통계에 읽어 올 최근 시도 수. 한 판이 10줄 안팎이라 수백 판 분량이다 (약점 연습도 같은 기록을 본다) */
+export const RECENT_ATTEMPTS = 2000;
+
+/** 이보다 정확도가 낮은 규칙은 그 레벨로 돌아가길 권한다 (레벨 통과 기준과 같은 90%) */
+const BACK_ACCURACY = 0.9;
 
 type Stage = 'basic' | 'combo' | 'katakana' | 'symbol';
 
@@ -76,6 +83,25 @@ function SkillRow({ stat, label }: { stat: SkillStat; label: string }) {
   );
 }
 
+/**
+ * 가장 약한 규칙과 그 레벨: 표본이 충분하고 정확도가 90%보다 낮은 규칙 중 가장 낮은 것.
+ * 그 레벨이 아직 잠겨 있으면(종합 테스트로만 친 규칙) 권하지 않는다
+ */
+function weakestBack(
+  stats: readonly SkillStat[],
+  label: (skill: SkillId) => string,
+): WeakBack | undefined {
+  const weakest = stats
+    .filter((stat) => stat.samples >= STATS_MIN_SAMPLES && stat.accuracy < BACK_ACCURACY)
+    .reduce<SkillStat | undefined>(
+      (min, stat) => (!min || stat.accuracy < min.accuracy ? stat : min),
+      undefined,
+    );
+  const level = weakest ? levelForSkill(weakest.skill) : undefined;
+  if (!weakest || !level || !levelAccess().unlocked.has(level.id)) return undefined;
+  return { name: label(weakest.skill), accuracy: weakest.accuracy, level };
+}
+
 /** 규칙(행·탁음·요음·가타카나 …)별 첫 시도 정확도와 속도, 자주 틀리는 글자, 오래 걸리는 글자 */
 export function Stats({ repo }: { repo?: TrainingRepo }) {
   const { t } = useTranslation();
@@ -96,6 +122,9 @@ export function Stats({ repo }: { repo?: TrainingRepo }) {
   const stats = attempts ? skillStats(attempts) : [];
   const pairs = attempts ? confusions(attempts) : [];
   const slow = attempts ? slowUnits(attempts) : [];
+  const weak = attempts ? weakUnits(attempts) : [];
+  const enough = stats.some((stat) => stat.samples >= STATS_MIN_SAMPLES);
+  const back = weakestBack(stats, skillLabel);
 
   return (
     <main className="screen skill-screen" aria-busy={attempts === null}>
@@ -106,6 +135,8 @@ export function Stats({ repo }: { repo?: TrainingRepo }) {
       </header>
       <h1 className="screen-title">{t('stats.title')}</h1>
 
+      {/* 기록이 없어도 약점 연습 카드를 보여 처음 쓰는 사람도 이런 연습이 있는 줄 알게 한다 */}
+      {attempts === null ? null : <WeakCard units={weak} back={back} enough={enough} />}
       {attempts === null ? null : stats.length === 0 ? (
         <p className="screen-body">{t('stats.empty')}</p>
       ) : (

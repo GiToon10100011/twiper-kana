@@ -8,6 +8,7 @@ export {
   type LevelTopic,
   type SymbolTopic,
 } from './courses/levels';
+export { levelForSkill, weakDrill } from './courses/weak';
 export { iosKana } from './guides/iosKana';
 export { dakutenWords, handakutenWords, sokuonWords, yoonWords } from './words/combos';
 export { hiraganaWords } from './words/hiragana';
