@@ -311,11 +311,11 @@ describe('문장·채팅', () => {
   const replies = chatLines.map((line) => line.reply);
   const texts = [...dailySentences, ...replies];
 
-  it('짧은 문장은 40개, 채팅은 30개 이상이고 겹치지 않는다 (채팅은 답으로 상대 말을 찾는다)', () => {
+  it('짧은 문장은 120개, 채팅은 80개 이상이고 겹치지 않는다 (채팅은 답으로 상대 말을 찾는다)', () => {
     expect(new Set(dailySentences).size).toBe(dailySentences.length);
-    expect(dailySentences.length).toBeGreaterThanOrEqual(40);
+    expect(dailySentences.length).toBeGreaterThanOrEqual(120);
     expect(new Set(replies).size).toBe(replies.length);
-    expect(chatLines.length).toBeGreaterThanOrEqual(30);
+    expect(chatLines.length).toBeGreaterThanOrEqual(80);
   });
 
   it('한자는 모두 {표기|읽기} 안에 있고, 표기는 한자만, 읽기는 히라가나만 쓴다', () => {
@@ -334,6 +334,18 @@ describe('문장·채팅', () => {
     });
 
     expect(invalid).toEqual([]);
+  });
+
+  it('숫자 한자는 쓰지 않는다 (후보에서 1周·1週間처럼 숫자로 바뀌기 쉽다. 一緒·一気는 숫자가 아니다)', () => {
+    const NUMERAL = /[一二三四五六七八九十百千万]/u;
+    const NOT_NUMBER = new Set(['一緒', '一気']);
+    const numbers = texts.flatMap((text) =>
+      parseRuby(text)
+        .rubies.map((ruby) => ruby.surface)
+        .filter((surface) => NUMERAL.test(surface) && !NOT_NUMBER.has(surface)),
+    );
+
+    expect(numbers).toEqual([]);
   });
 
   it('줄로 낼 때 문장이 그대로 이어 붙고, 보이는 표기는 공백 없이 한자·가나·기호만 쓴다', () => {
