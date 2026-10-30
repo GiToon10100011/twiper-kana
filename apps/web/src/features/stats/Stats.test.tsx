@@ -50,6 +50,10 @@ describe('Stats', () => {
     renderStats();
 
     expect(await screen.findByText(/아직 기록이 없어요/)).toBeTruthy();
+    // 약점 연습 카드는 기록이 없어도 보여 이런 연습이 있다는 것을 알린다
+    expect(screen.getByRole('region', { name: '약점 연습' }).textContent).toContain(
+      '아직 기록이 적어요',
+    );
     expect(screen.getByRole('link', { name: '홈으로' })).toBeTruthy();
     expect(screen.getByRole('main').getAttribute('aria-busy')).toBe('false');
   });

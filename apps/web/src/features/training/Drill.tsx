@@ -108,6 +108,8 @@ export function Drill({ level, practice }: { level: Level; practice?: PracticeOp
   const { t } = useTranslation();
   const title = practice?.title ?? levelTitle(level, t);
   const isPractice = practice !== undefined;
+  // 레벨 제목에는 가나(「Lv.3 さ행」)가 있어 일본어로 표시하고, 연습 제목은 UI 언어 그대로 둔다
+  const titleLang = isPractice ? undefined : 'ja';
   const [started, setStarted] = useState(false);
   const [drill, setDrill] = useState(() => createDrill(level.drill, newSeed()));
   const [{ helpIdleMs, requireKanji }] = useState(loadSettings);
@@ -235,7 +237,7 @@ export function Drill({ level, practice }: { level: Level; practice?: PracticeOp
 
       {!started ? (
         <section>
-          <h1 className="screen-title" lang="ja">
+          <h1 className="screen-title" lang={titleLang}>
             {title}
           </h1>
           <p className="screen-body">
@@ -286,7 +288,7 @@ export function Drill({ level, practice }: { level: Level; practice?: PracticeOp
         />
       ) : (
         <section>
-          <h1 className="screen-title screen-title-small" lang="ja">
+          <h1 className="screen-title screen-title-small" lang={titleLang}>
             {title}
           </h1>
           <TrainingInput

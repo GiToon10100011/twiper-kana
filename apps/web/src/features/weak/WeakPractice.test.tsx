@@ -72,7 +72,10 @@ describe('WeakPractice (/weak)', () => {
 
     renderWeak(repo);
 
-    expect(await screen.findByRole('heading', { name: '약점 연습' })).toBeTruthy();
+    // 연습 제목은 UI 언어(한국어)라서 일본어로 표시하지 않는다
+    expect(
+      (await screen.findByRole('heading', { name: '약점 연습' })).getAttribute('lang'),
+    ).toBeNull();
     expect(screen.getByText(/자주 틀리거나 느린 글자\(き\)로 8줄을 쳐요/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '시작' }));
     expect(document.querySelector('.target-text')?.textContent).toContain('き');
