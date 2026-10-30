@@ -62,6 +62,18 @@ describe('종합 테스트 콘텐츠', () => {
     expect(invalid).toEqual([]);
   });
 
+  it('짧은 글·긴 글에 숫자 한자는 쓰지 않는다 (후보에서 1杯처럼 숫자로 바뀌기 쉽다. 一緒는 숫자가 아니다)', () => {
+    const NUMERAL = /[一二三四五六七八九十百千万]/u;
+    const NOT_NUMBER = new Set(['一緒', '一気']);
+    const numbers = sentenceLines.flatMap((line) =>
+      parseRuby(parseExamLine(line).text)
+        .rubies.map((ruby) => ruby.surface)
+        .filter((surface) => NUMERAL.test(surface) && !NOT_NUMBER.has(surface)),
+    );
+
+    expect(numbers).toEqual([]);
+  });
+
   it('짧은 글·긴 글은 거의 다 한자를 섞어 쓰고, 한자가 있는 줄은 바꿔야 하므로 確定으로 채점한다', () => {
     const parsed = sentenceLines.map(parseExamLine);
     const withKanji = parsed.filter((line) => parseRuby(line.text).rubies.length > 0);
