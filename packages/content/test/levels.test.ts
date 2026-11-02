@@ -311,9 +311,9 @@ describe('문장·채팅', () => {
   const replies = chatLines.map((line) => line.reply);
   const texts = [...dailySentences, ...replies];
 
-  it('짧은 문장은 120개, 채팅은 80개 이상이고 겹치지 않는다 (채팅은 답으로 상대 말을 찾는다)', () => {
+  it('짧은 문장은 200개, 채팅은 80개 이상이고 겹치지 않는다 (채팅은 답으로 상대 말을 찾는다)', () => {
     expect(new Set(dailySentences).size).toBe(dailySentences.length);
-    expect(dailySentences.length).toBeGreaterThanOrEqual(120);
+    expect(dailySentences.length).toBeGreaterThanOrEqual(200);
     expect(new Set(replies).size).toBe(replies.length);
     expect(chatLines.length).toBeGreaterThanOrEqual(80);
   });
