@@ -250,6 +250,7 @@ export const ko = {
       voiced: '탁음·반탁음',
       small: '작은 글자',
       yoon: '요음',
+      foreign: '외래음',
       symbol: '기호',
     },
     layer: '{{label}} 자판',
