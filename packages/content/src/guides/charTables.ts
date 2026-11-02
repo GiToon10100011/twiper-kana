@@ -56,8 +56,8 @@ export const charTables: readonly CharTable[] = [
     rows: [
       sounds('ウィ ウェ ウォ'),
       sounds('シェ ジェ チェ'),
-      sounds('ティ ディ デュ'),
       sounds('ツァ ツェ ツォ'),
+      sounds('ティ ディ デュ'),
       sounds('ファ フィ フェ フォ'),
       sounds('ヴァ ヴィ ヴ ヴェ ヴォ'),
     ],
