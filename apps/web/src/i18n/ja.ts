@@ -251,6 +251,7 @@ export const ja: typeof ko = {
       voiced: '濁音・半濁音',
       small: '小さい文字',
       yoon: '拗音',
+      foreign: '外来音',
       symbol: '記号',
     },
     layer: '{{label}}キーボード',

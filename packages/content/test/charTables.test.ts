@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lookupChar } from '@twiper/core';
+import { lookupChar, toHiragana } from '@twiper/core';
 import { charTables, iosKana } from '../src/index';
 
 const cells = charTables.flatMap((table) => table.rows.flat());
@@ -19,6 +19,15 @@ describe('charTables (글자 찾기 표)', () => {
   it('한 줄은 5칸을 넘지 않는다 (5열 표)', () => {
     const wide = charTables.flatMap((table) => table.rows.filter((row) => row.length > 5));
     expect(wide).toEqual([]);
+  });
+
+  it('외래음 표는 작은 ァィゥェォ·ュ가 붙는 소리와 ヴ를 담은 가타카나다 (읽기를 친 뒤 후보에서 고른다)', () => {
+    const foreign = charTables.find((table) => table.id === 'foreign')?.rows.flat() ?? [];
+
+    expect(foreign).toContain('ティ');
+    expect(foreign).toContain('ヴ');
+    expect(foreign.filter((cell) => toHiragana(cell) === cell)).toEqual([]);
+    expect(foreign.filter((cell) => cell !== 'ヴ' && !/^.[ァィゥェォュ]$/u.test(cell))).toEqual([]);
   });
 
   it('기호 표의 〜·…·々는 ☆123 자판에서 친다', () => {

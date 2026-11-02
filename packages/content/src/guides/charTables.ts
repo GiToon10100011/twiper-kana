@@ -1,5 +1,5 @@
 /** 글자 찾기(「이 글자 어떻게 쳐요?」)의 표 종류 */
-export type CharTableId = 'basic' | 'voiced' | 'small' | 'yoon' | 'symbol';
+export type CharTableId = 'basic' | 'voiced' | 'small' | 'yoon' | 'foreign' | 'symbol';
 
 export interface CharTable {
   id: CharTableId;
@@ -10,6 +10,8 @@ export interface CharTable {
 const row = (chars: string): string[] => Array.from(chars);
 const yoon = (heads: string): string[][] =>
   Array.from(heads, (head) => Array.from('ゃゅょ', (small) => head + small));
+/** 두 글자로 된 소리는 띄어 써서 나눈다: 'ファ フィ' → ['ファ', 'フィ'] */
+const sounds = (text: string): string[] => text.split(' ');
 
 /**
  * 글자 찾기 표. 기본 표는 키 하나를 한 줄로 둬서 "같은 키의 글자"가 보이게 한다.
@@ -48,6 +50,18 @@ export const charTables: readonly CharTable[] = [
     rows: [row('ぁぃぅぇぉ'), row('っ'), row('ゃゅょ'), row('ゎ')],
   },
   { id: 'yoon', rows: yoon('きしちにひみりぎじびぴ') },
+  {
+    id: 'foreign',
+    // 「外来語の表記」 제1표의 소리 + 자주 쓰는 ウィ·ウェ·ウォ + ヴ 계열 (Lv.18–19). 가타카나라서 후보에서 고른다
+    rows: [
+      sounds('ウィ ウェ ウォ'),
+      sounds('シェ ジェ チェ'),
+      sounds('ツァ ツェ ツォ'),
+      sounds('ティ ディ デュ'),
+      sounds('ファ フィ フェ フォ'),
+      sounds('ヴァ ヴィ ヴ ヴェ ヴォ'),
+    ],
+  },
   {
     id: 'symbol',
     // 〜(U+301C)·…·々·・·♪·☆는 ☆123 자판에 있다

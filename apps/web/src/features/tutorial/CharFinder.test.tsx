@@ -7,7 +7,7 @@ import { CharFinder } from './CharFinder';
 afterEach(cleanup);
 
 const input = () => screen.getByLabelText('찾을 글자');
-const TABLE_NAMES = /^(기본|탁음·반탁음|작은 글자|요음|기호)$/;
+const TABLE_NAMES = /^(기본|탁음·반탁음|작은 글자|요음|외래음|기호)$/;
 /** 한 표만 보고 있을 때 그 표 */
 const table = () => screen.getByRole('group', { name: TABLE_NAMES });
 
@@ -78,6 +78,17 @@ describe('CharFinder (글자 찾기)', () => {
     expect(screen.queryByRole('region', { name: 'ぱ 치는 법' })).toBeNull();
   });
 
+  it('외래음 표의 ティ를 누르면 て 다음에 작은 ィ를 만드는 순서와 후보에서 고르는 안내를 보여 준다', () => {
+    render(<CharFinder />);
+    fireEvent.click(screen.getByRole('button', { name: '외래음' }));
+    fireEvent.click(within(table()).getByRole('button', { name: 'ティ' }));
+    const result = screen.getByRole('region', { name: 'ティ 치는 법' });
+
+    expect(result.textContent).toMatch(/た 키 오른쪽/);
+    expect(result.textContent).toMatch(/あ 키 왼쪽 · 小゛゜ 1번/);
+    expect(result.textContent).toMatch(/てぃ → ティ/);
+  });
+
   it('처음에는 「모두」를 골라 모든 표를 제목과 함께 차례로 보여 준다', () => {
     render(<CharFinder />);
 
@@ -88,6 +99,7 @@ describe('CharFinder (글자 찾기)', () => {
       '탁음·반탁음',
       '작은 글자',
       '요음',
+      '외래음',
       '기호',
     ]);
     expect(screen.getByRole('heading', { level: 3, name: '요음' })).toBeTruthy();
