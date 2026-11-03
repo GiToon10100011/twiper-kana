@@ -28,6 +28,7 @@ const perfect = (line: string): LineResult => ({
   target: line,
   units: Array.from(line).length,
   firstTryUnits: Array.from(line).length,
+  correctUnits: Array.from(line).length,
   missed: [],
   missedIndexes: [],
   mistakeKinds: {},
@@ -175,6 +176,20 @@ describe('advanceDrill', () => {
     expect(advanceDrill(done, perfect('かき'))).toBe(done);
   });
 
+  it('retryMissed가 false면(문장) 틀린 단위를 기록만 하고 다시 내지 않는다', () => {
+    const words = ['きって', 'がっこう', 'ざっし', 'もっと'];
+    let state = createDrill(
+      spec({ focus: [], review: [], words, lineCount: 3, retryMissed: false }),
+      1,
+    );
+    state = advanceDrill(state, missing(state.line, [Array.from(state.line)[0] ?? '']));
+
+    expect(state.results[0]?.missed).toHaveLength(1);
+    expect(state.retries).toEqual([]);
+    state = runPerfect(state);
+    expect(state.results).toHaveLength(3);
+  });
+
   it('여러 글자로 된 단위(요음)는 한 단위로 다시 내고 한 단위로 센다', () => {
     const yoon = ['きゃ', 'しゅ', 'ちょ', 'にゃ'];
     for (let seed = 1; seed <= 20; seed += 1) {
@@ -246,6 +261,7 @@ describe('lineResultOf', () => {
       target: 'かきく',
       units: 3,
       firstTryUnits: 3,
+      correctUnits: 3,
       missed: [],
       missedIndexes: [],
       mistakeKinds: {},

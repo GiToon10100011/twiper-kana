@@ -5,6 +5,7 @@ import {
   pendingStep,
   reduceInputSession,
   replayInputSession,
+  submitInputSession,
   type InputSnapshot,
 } from '../../src/index';
 
@@ -213,21 +214,22 @@ describe('InputSession — commit 판정', () => {
     expect(charStatuses(state)).toEqual(['correct', 'wrong', 'correct']);
   });
 
-  it('히라가나 그대로 確定하면 완료되지 않고, 확정한 글자를 한 번만 오답으로 기록한다', () => {
+  it('히라가나 그대로 確定하면 완료되지 않고, 틀린 것으로 세지 않고 바꾸지 않은 글자로 한 번만 남긴다', () => {
     const typed = replayInputSession('カメラ', snaps(['か', 'かめ', 'かめら']), 'commit');
     const committed = reduceInputSession(typed, { t: 400, value: 'かめら', composing: false });
 
     expect(committed.completedAt).toBeNull();
-    expect(committed.errors.map((e) => [e.index, e.actual, e.cause])).toEqual([
-      [0, 'か', 'committed'],
-      [1, 'め', 'committed'],
-      [2, 'ら', 'committed'],
+    expect(committed.errors).toEqual([]);
+    expect(committed.unconverted.map((e) => [e.index, e.actual, e.cause])).toEqual([
+      [0, 'か', 'unconverted'],
+      [1, 'め', 'unconverted'],
+      [2, 'ら', 'unconverted'],
     ]);
     // 읽기는 맞으니 틀린 글자로 칠하지 않고 「바꾸지 않음」으로 보인다
     expect(charStatuses(committed)).toEqual(['unconverted', 'unconverted', 'unconverted']);
-    expect(pendingStep(committed)).toBe('fix');
+    expect(pendingStep(committed)).toBe('confirm');
 
-    // 지우고 다시 쳐서 변환하면 완료된다. 지운 글자를 또 세지 않는다.
+    // 지우고 다시 쳐서 변환해도 완료된다. 지운 글자를 틀린 것으로 세지 않는다.
     const fixed = [
       { t: 500, value: 'かめ', composing: false },
       { t: 600, value: '', composing: false },
@@ -236,7 +238,8 @@ describe('InputSession — commit 판정', () => {
       { t: 900, value: 'カメラ', composing: false },
     ].reduce(reduceInputSession, committed);
 
-    expect(fixed.errors).toHaveLength(3);
+    expect(fixed.errors).toEqual([]);
+    expect(fixed.unconverted).toHaveLength(3);
     expect(fixed.completedAt).toBe(900);
   });
 
@@ -339,12 +342,14 @@ describe('InputSession — 한자 표기 {表記|よみ}', () => {
     expect(committed.unitTimes).toEqual([100, 200, 300, 400]);
   });
 
-  it('읽기 그대로 確定하면 완료가 아니다. 틀린 것으로 기록하지는 않고 고치라고 안내한다', () => {
+  it('읽기 그대로 確定하면 완료가 아니다. 틀린 것으로 기록하지는 않고 한 번 더 누르라고 안내한다', () => {
     const committed = reduceInputSession(readTokidoki(), at(500, 'ときどき', false));
 
     expect(committed.completedAt).toBeNull();
     expect(committed.errors).toEqual([]);
-    expect(pendingStep(committed)).toBe('fix');
+    expect(committed.unconverted).toEqual([]);
+    expect(committed.matchedAt).toBe(500);
+    expect(pendingStep(committed)).toBe('confirm');
   });
 
   it('다른 한자를 고르는 동안에는 기록하지 않고, 그대로 確定하면 틀린 변환으로 기록한다', () => {
@@ -433,10 +438,10 @@ describe('InputSession — 한자를 읽기로 쳐도 되는 설정 (readingOk)'
     expect(mixed.completedAt).toBe(200);
   });
 
-  it('가타카나는 설정과 관계없이 바꿔야 한다', () => {
+  it('가타카나는 설정과 관계없이 바꾸지 않으면 바로 넘어가지 않고 한 번 더 누르라고 한다', () => {
     const hiragana = run('{友達|ともだち}とカフェ', [['ともだちとかふぇ', false]]);
     expect(hiragana.completedAt).toBeNull();
-    expect(pendingStep(hiragana)).toBe('fix');
+    expect(pendingStep(hiragana)).toBe('confirm');
 
     expect(run('{友達|ともだち}とカフェ', [['ともだちとカフェ', false]]).completedAt).toBe(100);
   });
@@ -460,5 +465,102 @@ describe('pendingStep — composing 판정', () => {
     expect(
       pendingStep(reduceInputSession(state, { t: 300, value: 'あい', composing: false })),
     ).toBeNull();
+  });
+});
+
+describe('submitInputSession — 確定한 뒤 한 번 더 누르기', () => {
+  const at = (t: number, value: string, composing: boolean): InputSnapshot => ({
+    t,
+    value,
+    composing,
+  });
+  const run = (
+    target: string,
+    values: readonly (readonly [string, boolean])[],
+    options: { submitWrong?: boolean; judge?: 'composing' | 'commit' } = {},
+  ) =>
+    values.reduce(
+      (state, [value, composing], i) =>
+        reduceInputSession(state, at((i + 1) * 100, value, composing)),
+      createInputSession(target, options.judge ?? 'commit', {
+        completeOnCommit: true,
+        submitWrong: options.submitWrong ?? false,
+      }),
+    );
+
+  it('한자·가타카나를 읽기대로만 確定했으면 정답으로 넘어가고, 정답 시각은 確定한 때다', () => {
+    const committed = run('{今日|きょう}はカフェ', [
+      ['きょうはかふぇ', true],
+      ['きょうはかふぇ', false],
+    ]);
+    expect(pendingStep(committed)).toBe('confirm');
+
+    const accepted = submitInputSession(committed, 900);
+    expect(accepted.completedAt).toBe(900);
+    expect(accepted.matchedAt).toBe(200);
+    expect(accepted.readingAccepted).toBe(true);
+    expect(accepted.errors).toEqual([]);
+    expect(pendingStep(accepted)).toBeNull();
+  });
+
+  it('읽기가 틀렸으면 정답으로 넘기지 않는다 (문장이 아니면 고쳐야 한다)', () => {
+    const wrong = run('カフェ', [
+      ['かふえ', true],
+      ['かふえ', false],
+    ]);
+    expect(pendingStep(wrong)).toBe('fix');
+    expect(submitInputSession(wrong, 900)).toBe(wrong);
+  });
+
+  it('치는 중이거나 아직 덜 쳤으면 아무것도 하지 않는다', () => {
+    const composing = run('{今日|きょう}は', [['きょうは', true]]);
+    expect(submitInputSession(composing, 900)).toBe(composing);
+
+    const partial = run('{今日|きょう}は{雨|あめ}', [['今日は', false]]);
+    expect(submitInputSession(partial, 900)).toBe(partial);
+  });
+
+  it('문장(submitWrong)은 틀린 채 끝까지 確定했으면 한 번 더 눌러 넘기고, 남은 틀린 글자를 기록한다', () => {
+    const committed = run(
+      'あめが{降|ふ}る。',
+      [
+        ['あめか', true],
+        ['あめかふる。', true],
+        ['あめか降る。', false],
+      ],
+      { submitWrong: true },
+    );
+    expect(pendingStep(committed)).toBe('submit');
+
+    const submitted = submitInputSession(committed, 900);
+    expect(submitted.completedAt).toBe(900);
+    expect(submitted.matchedAt).toBeNull();
+    expect(submitted.readingAccepted).toBe(false);
+    // か(が 자리)는 뒤에 글자를 이어 쳐서 이미 기록했으므로 한 번만 남는다
+    expect(submitted.errors.map((e) => [e.index, e.expected, e.actual])).toEqual([[2, 'が', 'か']]);
+  });
+
+  it('문장 중간에 한 글자를 빠뜨려도 끝 글자까지 쳤으면 넘길 수 있고, 치지 않은 자리도 기록한다', () => {
+    const committed = run('きょうは、あめ。', [['きょうはあめ。', false]], {
+      submitWrong: true,
+      judge: 'composing',
+    });
+    expect(pendingStep(committed)).toBe('submit');
+
+    const submitted = submitInputSession(committed, 900);
+    expect(submitted.completedAt).toBe(900);
+    expect(submitted.errors.map((e) => [e.index, e.expected, e.actual])).toEqual([
+      [4, '、', 'あ'],
+      [5, 'あ', 'め'],
+      [6, 'め', '。'],
+      [7, '。', ''],
+    ]);
+  });
+
+  it('문장 중간에 틀린 채 確定했으면 고치라고 하지 않고, 끝까지 치기 전에는 넘기지 않는다', () => {
+    const midway = run('あめが{降|ふ}る。', [['あめか', false]], { submitWrong: true });
+
+    expect(pendingStep(midway)).toBeNull();
+    expect(submitInputSession(midway, 900)).toBe(midway);
   });
 });

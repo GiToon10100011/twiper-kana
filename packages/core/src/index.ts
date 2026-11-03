@@ -42,6 +42,7 @@ export {
   pendingStep,
   reduceInputSession,
   replayInputSession,
+  submitInputSession,
 } from './input/session';
 export { classifyMistake, type MistakeKind } from './kana/classify';
 export { KANA_KEY_ROWS, danOf, keyRowOf, sameKeyRow, type Dan } from './kana/rows';

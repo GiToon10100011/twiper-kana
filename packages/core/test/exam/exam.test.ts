@@ -3,8 +3,12 @@ import {
   advanceExam,
   createExam,
   parseExamLine,
+  createInputSession,
+  lineResultOf,
   partialLineResult,
+  reduceInputSession,
   replayInputSession,
+  submitInputSession,
   summarizeExam,
   type ExamSource,
   type ExamState,
@@ -140,6 +144,7 @@ describe('partialLineResult·summarizeExam', () => {
           target: 'あいう',
           units: 3,
           firstTryUnits: 2,
+          correctUnits: 3,
           missed: ['い'],
           missedIndexes: [1],
           mistakeKinds: { key: 1 },
@@ -164,6 +169,20 @@ describe('partialLineResult·summarizeExam', () => {
       mistakeKinds: { key: 1 },
     });
     expect(summary.missed).toEqual([{ char: 'い', count: 1 }]);
+  });
+
+  it('틀린 채 넘긴 줄은 맞게 친 글자만 속도에 넣는다', () => {
+    const committed = [
+      { t: 100, value: 'あいか', composing: true },
+      { t: 200, value: 'あいか', composing: false },
+    ].reduce(
+      reduceInputSession,
+      createInputSession('あいう', 'composing', { completeOnCommit: true, submitWrong: true }),
+    );
+    const result = lineResultOf(submitInputSession(committed, 300), 0);
+
+    expect(result).toMatchObject({ units: 3, firstTryUnits: 2, correctUnits: 2, elapsedMs: null });
+    expect(summarizeExam([result], null, 60_000)).toMatchObject({ kpm: 2, accuracy: 2 / 3 });
   });
 
   it('아무것도 못 쳤으면 속도 0, 정확도 0', () => {

@@ -4,6 +4,7 @@ import {
   createInputSession,
   createMemoryRepo,
   reduceInputSession,
+  submitInputSession,
   ulid,
   type InputSessionState,
   type SessionRecord,
@@ -133,6 +134,39 @@ describe('attemptRecordOf', () => {
     expect(record.result).toBe('correct');
     expect(record.mistakes).toEqual([]);
     expect(record.input).toBe('人々');
+  });
+
+  it('가타카나를 바꾸지 않고 한 번 더 눌러 넘긴 줄은 맞은 줄이고, 바꾸지 않은 글자는 변환 실수로만 남긴다', () => {
+    const committed = [
+      { t: 1100, value: 'かめら', composing: true },
+      { t: 1200, value: 'かめら', composing: false },
+    ].reduce(reduceInputSession, createInputSession('カメラ', 'commit'));
+    const record = attemptRecordOf(submitInputSession(committed, 1500), meta);
+
+    expect(record.result).toBe('correct');
+    expect(record.flags).toEqual(['reading-only']);
+    expect(record.corrections).toBe(0);
+    expect(record.elapsedMs).toBe(200);
+    expect(record.mistakes.map((m) => [m.expected, m.actual, m.cause, m.kind])).toEqual([
+      ['カ', 'か', 'unconverted', 'script'],
+      ['メ', 'め', 'unconverted', 'script'],
+      ['ラ', 'ら', 'unconverted', 'script'],
+    ]);
+  });
+
+  it('틀린 채 낸 문장은 wrong으로 남기고 속도는 재지 않는다', () => {
+    const committed = [
+      { t: 1100, value: 'あめか', composing: true },
+      { t: 1200, value: 'あめか', composing: false },
+    ].reduce(
+      reduceInputSession,
+      createInputSession('あめが', 'commit', { completeOnCommit: true, submitWrong: true }),
+    );
+    const record = attemptRecordOf(submitInputSession(committed, 1500), meta);
+
+    expect(record.result).toBe('wrong');
+    expect(record.elapsedMs).toBeNull();
+    expect(record.mistakes.map((m) => [m.index, m.expected, m.actual])).toEqual([[2, 'が', 'か']]);
   });
 });
 

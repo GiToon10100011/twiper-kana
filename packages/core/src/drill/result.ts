@@ -1,3 +1,4 @@
+import { charStatuses } from '../input/session';
 import type { InputSessionState } from '../input/types';
 import { classifyMistake, type MistakeKind } from '../kana/classify';
 import type { DrillSummary, LineResult } from './types';
@@ -24,6 +25,9 @@ export function lineResultOf(session: InputSessionState, shownAt: number): LineR
     target: session.target.join(''),
     units: session.target.length,
     firstTryUnits: session.target.length - missedAt.length,
+    // 후보에서 바꾸지 않고 넘긴 글자(읽기는 맞음)도 맞게 친 것으로 센다
+    correctUnits: charStatuses(session).filter((s) => s === 'correct' || s === 'unconverted')
+      .length,
     missed: missedAt.map(shownAs),
     missedIndexes: missedAt,
     mistakeKinds: session.errors.reduce<KindCounts>((counts, error) => {

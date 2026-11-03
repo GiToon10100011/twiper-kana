@@ -148,7 +148,7 @@ describe('Drill', () => {
     expect(await screen.findByText('탁점')).toBeTruthy();
   });
 
-  it('가타카나 레벨: 읽기로 친 뒤 후보로 변환해 確定해야 넘어가고, 히라가나로 確定하면 「변환 안 함」으로 센다', async () => {
+  it('가타카나 레벨: 후보로 변환해 確定하면 넘어가고, 히라가나 그대로 確定하면 경고한 뒤 한 번 더 누르면 정답으로 넘어간다', async () => {
     const level = renderDrill('L16');
     expect(screen.getByText(/후보 줄에서 가타카나를 눌러요/)).toBeTruthy();
     expect(screen.getByText('かめら')).toBeTruthy();
@@ -166,18 +166,16 @@ describe('Drill', () => {
       await flush();
       expect(screen.getByRole('status').textContent).toContain('후보에서');
       if (first) {
-        // 변환하지 않고 히라가나 그대로 確定했다가 지우고 다시 친다
+        // 변환하지 않고 히라가나 그대로 確定하면 경고만 하고, 改行을 한 번 더 누르면 넘어간다
         input.dispatchEvent(new CompositionEvent('compositionend', { data: reading }));
         await flush();
-        expect(screen.getByRole('status').textContent).toContain('지우고 다시');
-        input.value = '';
-        input.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+        expect(screen.getByRole('status').textContent).toContain('한 번 더 누르면 정답으로');
+        expect(screen.getByText(`1/${level.drill.lineCount}`)).toBeTruthy();
+        fireEvent.keyDown(input, { key: 'Enter', keyCode: 13 });
         await flush();
-        input.dispatchEvent(new CompositionEvent('compositionstart'));
-        input.value = reading;
-        input.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText' }));
-        await flush();
+        expect(screen.getByText(`2/${level.drill.lineCount}`)).toBeTruthy();
         first = false;
+        continue;
       }
       // 후보를 누르면 iOS는 가타카나로 바로 確定한다
       input.value = word;
@@ -186,7 +184,9 @@ describe('Drill', () => {
     }
 
     expect(first).toBe(false);
-    expect(await screen.findByText('변환 안 함')).toBeTruthy();
+    // 읽기는 맞았으므로 틀린 것으로 세지 않는다
+    expect(await screen.findByText('100%')).toBeTruthy();
+    expect(screen.queryByText('변환 안 함')).toBeNull();
   });
 
   it('장음 레벨은 준비 화면에 わ 키 도해(→ ー)를 보여 준다', () => {
@@ -374,11 +374,12 @@ describe('Drill', () => {
     expect(screen.getByRole('status').textContent).not.toContain('로마자 키보드');
   });
 
-  it('짧은 문장 레벨: 히라가나만 치면 밑줄 친 곳을 바꾸라고 안내하고, 한자로 바꿔 確定해야 넘어간다', async () => {
+  it('짧은 문장 레벨: 히라가나만 確定하면 밑줄을 긋고 경고하며, 한 번 더 누르면 정답으로 넘어간다', async () => {
     const level = renderDrill('L22');
-    expect(screen.getByText(/후보에서 그 한자를 골라 바꿔야 해요/)).toBeTruthy();
+    expect(screen.getByText(/후보에서 그 한자를 골라 바꾸고/)).toBeTruthy();
     expect(screen.getByText(/도움말이 나오지 않아요/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '시작' }));
+    expect(screen.getByText(/틀린 문장은 다시 나오지 않아요/)).toBeTruthy();
     const input = screen.getByRole<HTMLInputElement>('textbox');
     const word = currentWord(level);
     const reading = parseRuby(word).chars.join('');
@@ -388,19 +389,37 @@ describe('Drill', () => {
     await compose(input, reading);
     expect(screen.getByRole('status').textContent).toContain('밑줄 친 곳을 후보에서 골라');
 
-    // 바꾸지 않고 히라가나 그대로 確定하면 그 한자에 밑줄을 긋고, 다음 줄로 넘어가지 않는다
+    // 바꾸지 않고 히라가나 그대로 確定하면 그 한자에 밑줄을 긋고 경고한다. 아직 넘어가지 않는다
     input.dispatchEvent(new CompositionEvent('compositionend', { data: reading }));
     await flush();
-    expect(screen.getByRole('status').textContent).toContain('밑줄 친 곳은 후보에서');
+    expect(screen.getByRole('status').textContent).toContain('한 번 더 누르면 정답으로');
+    expect(screen.getByRole('status').className).toContain('is-warning');
     expect(document.querySelector('ruby.ch-unconverted')).toBeTruthy();
     expect(screen.getByText(`1/${level.drill.lineCount}`)).toBeTruthy();
 
-    input.value = '';
-    input.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+    fireEvent.keyDown(input, { key: 'Enter', keyCode: 13 });
     await flush();
-    await compose(input, rubySurface(word), true);
-
     expect(screen.getByText(`2/${level.drill.lineCount}`)).toBeTruthy();
+  });
+
+  it('짧은 문장 레벨: 틀린 채 끝까지 確定하면 한 번 더 눌러 넘기고, 틀린 문장을 다시 내지 않는다', async () => {
+    const level = renderDrill('L22');
+    fireEvent.click(screen.getByRole('button', { name: '시작' }));
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+
+    for (let i = 0; i < level.drill.lineCount; i += 1) {
+      const chars = parseRuby(currentWord(level)).chars;
+      // 첫 글자를 다른 글자로 바꿔 친다 (끝 글자 。까지 쳤으므로 낼 수 있다)
+      const typed = [chars[0] === 'あ' ? 'い' : 'あ', ...chars.slice(1)].join('');
+      await compose(input, typed, true);
+      expect(screen.getByRole('status').textContent).toContain('이대로 다음으로 넘어가요');
+      fireEvent.keyDown(input, { key: 'Enter', keyCode: 13 });
+      await flush();
+    }
+
+    // 다시 낼 줄(「틀린 글자 복습」) 없이 8줄로 끝나고, 틀린 글자는 결과에 남는다
+    expect(await screen.findByRole('button', { name: '다시 하기' })).toBeTruthy();
+    expect(screen.queryByText('한 번도 틀리지 않았어요.')).toBeNull();
   });
 
   it('설정에서 「한자는 바꿔야 정답」을 끄면 짧은 문장의 한자는 읽기대로만 쳐도 넘어간다', async () => {

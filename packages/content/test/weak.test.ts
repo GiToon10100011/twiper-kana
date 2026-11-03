@@ -12,6 +12,7 @@ const perfect = (line: string): LineResult => ({
   target: line,
   units: Array.from(line).length,
   firstTryUnits: Array.from(line).length,
+  correctUnits: Array.from(line).length,
   missed: [],
   missedIndexes: [],
   mistakeKinds: {},
