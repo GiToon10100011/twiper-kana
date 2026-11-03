@@ -34,14 +34,25 @@ export default defineConfig([
           ],
         },
       ],
+      // no-restricted-imports는 import()를 보지 않으므로 동적 import도 같은 경계로 막는다.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ImportExpression[source.value=/^@twiper\\/web(\\/|$)|\\/apps\\//]',
+          message: 'core·content는 앱 코드를 import할 수 없습니다.',
+        },
+        {
+          selector: 'ImportExpression[source.value=/^(react|react-dom|react-router)(\\/|$)/]',
+          message: 'core·content는 UI 라이브러리에 의존할 수 없습니다.',
+        },
+      ],
       'no-restricted-globals': [
         'error',
-        'window',
-        'document',
-        'navigator',
-        'performance',
-        'localStorage',
-        'indexedDB',
+        {
+          globals: ['window', 'document', 'navigator', 'performance', 'localStorage', 'indexedDB'],
+          // globalThis.localStorage처럼 전역 객체를 거쳐 쓰는 것도 막는다.
+          checkGlobalObject: true,
+        },
       ],
     },
   },
