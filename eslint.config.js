@@ -16,8 +16,8 @@ export default defineConfig([
     },
   },
   {
-    // core는 플랫폼 독립이어야 한다: 앱 코드·UI 라이브러리·브라우저 전역에 의존하지 않는다.
-    files: ['packages/core/src/**/*.ts'],
+    // core·content는 플랫폼 독립이어야 한다: 앱 코드·UI 라이브러리·브라우저 전역에 의존하지 않는다.
+    files: ['packages/core/src/**/*.ts', 'packages/content/src/**/*.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -25,11 +25,11 @@ export default defineConfig([
           patterns: [
             {
               group: ['@twiper/web', '@twiper/web/*', '**/apps/**'],
-              message: 'core는 앱 코드를 import할 수 없습니다.',
+              message: 'core·content는 앱 코드를 import할 수 없습니다.',
             },
             {
               group: ['react', 'react/*', 'react-dom', 'react-dom/*', 'react-router'],
-              message: 'core는 UI 라이브러리에 의존할 수 없습니다.',
+              message: 'core·content는 UI 라이브러리에 의존할 수 없습니다.',
             },
           ],
         },
