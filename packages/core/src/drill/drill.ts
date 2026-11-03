@@ -138,6 +138,7 @@ export function createDrill(spec: DrillSpec, seed: number): DrillState {
  * 지금 줄의 결과를 기록하고 다음 줄을 낸다.
  * 틀린 글자는 그 글자가 속한 출제 단위로 바꿔 기록하고(요음 'きゃ'의 ゃ → 'きゃ'),
  * 2–4줄 뒤에 다시 낸다. 기본 줄이 끝날 때 남아 있으면 최대 MAX_EXTRA_LINES 줄을 덧붙인다.
+ * spec.retryMissed가 false면(문장) 기록만 하고 다시 내지 않는다.
  */
 export function advanceDrill(state: DrillState, result: LineResult): DrillState {
   if (state.done) return state;
@@ -147,7 +148,8 @@ export function advanceDrill(state: DrillState, result: LineResult): DrillState 
   const missed = unitsAt(state.lineUnits, result.missedIndexes);
   // 결과에는 보이는 표기로 남기고({時々|ときどき} → 時々), 다시 낼 때는 단어를 찾도록 표기째 쓴다
   const results = [...state.results, { ...result, missed: missed.map(rubySurface) }];
-  const retries = schedule(state.retries, missed, index, rng);
+  const retries =
+    spec.retryMissed === false ? state.retries : schedule(state.retries, missed, index, rng);
   const nextIndex = index + 1;
   const done =
     nextIndex >= spec.lineCount &&

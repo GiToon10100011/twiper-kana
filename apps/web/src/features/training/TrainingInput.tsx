@@ -4,6 +4,7 @@ import {
   HELP_POLICY,
   pendingStep,
   reduceInputSession,
+  submitInputSession,
   type InputSessionState,
   type JudgeMode,
 } from '@twiper/core';
@@ -22,7 +23,11 @@ interface TrainingInputProps {
   matchedHint: string;
   /** commit 판정에서 읽기를 다 쳤을 때 보여 줄 안내 (후보에서 고르라는 말) */
   convertHint?: string;
-  /** commit 판정에서 목표와 다르게 確定했을 때 보여 줄 안내 (지우고 다시 치라는 말) */
+  /** commit 판정에서 읽기만 맞게 確定했을 때 보여 줄 경고 (한 번 더 누르면 정답으로 넘어간다는 말) */
+  confirmHint?: string;
+  /** submitWrong에서 틀린 채 끝까지 確定했을 때 보여 줄 경고 (고치거나 한 번 더 눌러 넘기라는 말) */
+  submitHint?: string;
+  /** 목표와 다르게 確定했을 때 보여 줄 안내 (지우고 다시 치라는 말) */
   fixHint?: string;
   /** 세션 상태에 따라 보여 줄 경고(로마자 키보드 등). 없으면 null */
   notice?: (session: InputSessionState) => string | null;
@@ -44,6 +49,8 @@ interface TrainingInputProps {
   partner?: string;
   /** 한자를 읽기(가나)대로 쳐도 맞다 (설정 「한자는 바꿔야 정답」을 끈 경우) */
   readingOk?: boolean;
+  /** 틀린 채 確定한 줄도 한 번 더 눌러 넘길 수 있다 (문장 연습). 틀린 글자는 기록한다 */
+  submitWrong?: boolean;
   /** 목표 바로 아래에 둘 것 (긴 글의 다음 줄 미리보기) */
   afterTarget?: ReactNode;
   /** 입력 세션이 바뀔 때마다 알린다 (종합 테스트의 시간 재기) */
@@ -53,8 +60,8 @@ interface TrainingInputProps {
   inputRef?: RefObject<HTMLInputElement | null>;
 }
 
-const newSession = (target: string, judge: JudgeMode, readingOk: boolean) =>
-  createInputSession(target, judge, { completeOnCommit: true, readingOk });
+const newSession = (target: string, judge: JudgeMode, readingOk: boolean, submitWrong: boolean) =>
+  createInputSession(target, judge, { completeOnCommit: true, readingOk, submitWrong });
 
 /**
  * 실제 시스템 키보드로 목표 문자열을 입력하는 입력창.
@@ -67,6 +74,8 @@ export function TrainingInput({
   onComplete,
   matchedHint,
   convertHint,
+  confirmHint,
+  submitHint,
   fixHint,
   notice,
   help,
@@ -75,6 +84,7 @@ export function TrainingInput({
   layout,
   partner,
   readingOk = false,
+  submitWrong = false,
   afterTarget,
   onProgress,
   placeholder,
@@ -83,12 +93,12 @@ export function TrainingInput({
 }: TrainingInputProps) {
   const localRef = useRef<HTMLInputElement>(null);
   const ref = inputRef ?? localRef;
-  const [session, setSession] = useState(() => newSession(target, judge, readingOk));
+  const [session, setSession] = useState(() => newSession(target, judge, readingOk, submitWrong));
   const [stuckAt, setStuckAt] = useState<number | null>(null);
   const [currentKey, setCurrentKey] = useState(questionKey);
   if (currentKey !== questionKey) {
     setCurrentKey(questionKey);
-    setSession(newSession(target, judge, readingOk));
+    setSession(newSession(target, judge, readingOk, submitWrong));
     setStuckAt(null);
   }
   // 막혔던 글자를 맞게 치고 지나가면 잊는다. 지워서 되돌아와도 다시 머뭇거려야 도움말을 띄운다.
@@ -126,6 +136,21 @@ export function TrainingInput({
     });
   }, [ref]);
 
+  // 確定한 뒤 한 번 더 누른 改行(Enter)으로 줄을 낸다: 읽기만 맞으면 정답으로, 문장은 틀린 채로도 넘어간다.
+  // iOS는 조합을 끝내는 確定에 keydown을 보내지 않는다 (trace). 데스크톱은 조합 중 Enter를 isComposing·229로 보낸다
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Enter' || event.isComposing || event.keyCode === 229) return;
+      event.preventDefault();
+      const t = performance.now();
+      setSession((prev) => submitInputSession(prev, t));
+    };
+    el.addEventListener('keydown', onKeyDown);
+    return () => el.removeEventListener('keydown', onKeyDown);
+  }, [ref]);
+
   const reported = useRef<InputSessionState | null>(null);
   useEffect(() => {
     if (session.completedAt === null || reported.current === session) return;
@@ -136,8 +161,16 @@ export function TrainingInput({
   }, [session, ref]);
 
   const step = pendingStep(session);
-  const stepHint = { commit: matchedHint, convert: convertHint, fix: fixHint };
-  const warning = notice?.(session) ?? (step === 'fix' ? (fixHint ?? null) : null);
+  const stepHint = {
+    commit: matchedHint,
+    convert: convertHint,
+    confirm: confirmHint,
+    submit: submitHint,
+    fix: fixHint,
+  };
+  // 목표와 다르게 確定했으면(바꾸지 않음·틀림) 경고로 보인다
+  const warns = step === 'confirm' || step === 'submit' || step === 'fix';
+  const warning = notice?.(session) ?? (warns ? (stepHint[step] ?? null) : null);
   const hint = warning ?? (step ? (stepHint[step] ?? '') : '');
   const hintClass = warning ? ' is-warning' : step ? ' is-matched' : '';
   const targetText = <TargetText session={session} label={targetLabel} gapsAfter={gapsAfter} />;

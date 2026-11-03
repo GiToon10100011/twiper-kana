@@ -162,6 +162,7 @@ export function partialLineResult(session: InputSessionState, shownAt: number): 
     target: session.target.slice(0, matched).join(''),
     units: matched,
     firstTryUnits: matched - missedIndexes.length,
+    correctUnits: matched,
     // 한자 읽기 자리에서 틀렸으면 그 표기(天気)로 보인다 (lineResultOf와 같은 순서)
     missed: full.missed.filter((_, k) => (full.missedIndexes[k] ?? matched) < matched),
     missedIndexes,
@@ -191,13 +192,15 @@ export function summarizeExam(
   const all = partial && partial.units > 0 ? [...results, partial] : [...results];
   const units = all.reduce((sum, r) => sum + r.units, 0);
   const firstTryUnits = all.reduce((sum, r) => sum + r.firstTryUnits, 0);
+  // 틀린 채 넘긴 줄(짧은 글·긴 글)은 맞게 친 글자만 속도에 넣는다
+  const correctUnits = all.reduce((sum, r) => sum + r.correctUnits, 0);
   return {
     ...summarizeDrill(all),
     lines: results.length,
     units,
     firstTryUnits,
     accuracy: units > 0 ? firstTryUnits / units : 0,
-    kpm: durationMs > 0 ? units / (durationMs / 60_000) : 0,
+    kpm: durationMs > 0 ? correctUnits / (durationMs / 60_000) : 0,
     durationMs,
   };
 }

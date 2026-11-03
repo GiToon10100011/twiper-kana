@@ -237,7 +237,12 @@ export function ExamRun({
           </button>
         </span>
       </header>
-      <ExamRules open={rulesOpen} onClose={closeRules} readingOk={readingOk} />
+      <ExamRules
+        open={rulesOpen}
+        onClose={closeRules}
+        readingOk={readingOk}
+        sentence={isSentence}
+      />
 
       {outcome ? (
         <ExamResult name={name} minutes={minutes} outcome={outcome} onAgain={again} />
@@ -264,7 +269,13 @@ export function ExamRun({
             convertHint={
               isSentence ? t('drill.convertMarked') : t('drill.convert', { word: exam.line.text })
             }
-            fixHint={isSentence ? t('drill.fixMarked') : t('drill.fix', { word: exam.line.text })}
+            confirmHint={
+              isSentence ? t('drill.confirmMarked') : t('drill.confirm', { word: exam.line.text })
+            }
+            // 짧은 글·긴 글은 틀린 채로도 한 번 더 눌러 넘긴다 (2026-11-03 사용자 결정)
+            submitWrong={isSentence}
+            submitHint={t('drill.submitMarked')}
+            fixHint={t('drill.fix', { word: exam.line.text })}
             placeholder={t('training.tapInput')}
             targetLabel={t('exam.title', { name })}
             inputRef={inputRef}

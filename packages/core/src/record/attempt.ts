@@ -19,6 +19,11 @@ export function attemptRecordOf(session: InputSessionState, meta: AttemptMeta): 
   const flags: AttemptFlag[] = [];
   if (session.romajiSuspected) flags.push('romaji-suspected');
   if (session.toggleSuspected) flags.push('toggle-suspected');
+  if (session.readingAccepted) flags.push('reading-only');
+  // 끝낸 줄인데 정답 시각이 없으면 맞추지 못하고 틀린 채 낸 것이다 (submitInputSession)
+  const submittedWrong = session.completedAt !== null && session.matchedAt === null;
+  // 가타카나로 바꾸지 않은 글자도 변환 실수로 남긴다 (스킬 통계의 가타카나). 틀린 것으로는 세지 않는다
+  const mistakes = [...session.errors, ...session.unconverted].sort((a, b) => a.t - b.t);
 
   let previous = meta.shownAt;
   const unitMs = session.unitTimes.map((t) => {
@@ -36,12 +41,12 @@ export function attemptRecordOf(session: InputSessionState, meta: AttemptMeta): 
     target: line.target,
     ...(session.rubies.length > 0 ? { surface: session.surface.join('') } : {}),
     input: session.raw.join(''),
-    result: session.errors.length === 0 ? 'correct' : 'corrected',
+    result: submittedWrong ? 'wrong' : session.errors.length === 0 ? 'correct' : 'corrected',
     judge: session.judge,
     reactionMs: line.reactionMs,
     elapsedMs: line.elapsedMs,
     unitMs,
-    mistakes: session.errors.map(({ index, expected, actual, cause }) => ({
+    mistakes: mistakes.map(({ index, expected, actual, cause }) => ({
       index,
       expected,
       actual,

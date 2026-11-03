@@ -18,16 +18,19 @@ export type JudgeMode = 'composing' | 'commit';
 
 /**
  * continued: 틀린 글자 뒤에 다음 글자를 입력함 / deleted: 틀린 글자를 지움 /
- * committed: commit 판정에서 목표와 다른 글자로 確定함 (히라가나 그대로, 다른 한자)
+ * committed: 목표와 다른 글자로 確定함 (다른 한자 등), 또는 틀린 채 낸 줄에 남은 틀린 글자 (치지 않은 글자는 actual이 '') /
+ * unconverted: 읽기는 맞지만 가타카나로 바꾸지 않고 確定함. 틀린 것으로 세지 않고 변환 기록으로만 남긴다
  */
-export type InputErrorCause = 'continued' | 'deleted' | 'committed';
+export type InputErrorCause = 'continued' | 'deleted' | 'committed' | 'unconverted';
 
 /**
  * 값을 다 쳤지만 아직 다음 문제로 넘어가지 않은 이유. 화면 안내에 쓴다.
  * commit: 確定만 누르면 됨 / convert: 읽기는 맞음, 후보에서 목표 표기를 골라야 함 /
+ * confirm: 읽기는 다 맞게 確定했지만 후보에서 바꾸지 않음, 한 번 더 누르면 정답으로 넘어감 /
+ * submit: 목표와 다르게 確定함, 고쳐도 되고 한 번 더 누르면 틀린 채 넘어감 (submitWrong) /
  * fix: 목표와 다르게 確定함, 지우고 다시 쳐야 함
  */
-export type PendingStep = 'commit' | 'convert' | 'fix';
+export type PendingStep = 'commit' | 'convert' | 'confirm' | 'submit' | 'fix';
 
 export interface InputError {
   /** 목표 문자열에서의 위치 (code point 단위) */
@@ -57,12 +60,17 @@ export interface InputSessionState {
   /** 목표와 일치하는 선두 문자 수 */
   readonly matched: number;
   readonly errors: readonly InputError[];
+  /** 읽기는 맞지만 가타카나로 바꾸지 않고 確定한 글자 (cause 'unconverted'). errors와 달리 틀린 것으로 세지 않는다 */
+  readonly unconverted: readonly InputError[];
   /** 위치별로 이미 오류로 기록한 문자 (중복 기록 방지) */
   readonly flagged: readonly (string | null)[];
   /** 목표의 각 문자가 올바르게 입력된 시각 */
   readonly unitTimes: readonly (number | null)[];
   readonly startedAt: number | null;
-  /** 값이 처음 목표와 같아진 시각. 정답 시각이자 속도 측정 기준이다 */
+  /**
+   * 값이 처음 목표와 같아진 시각. 정답 시각이자 속도 측정 기준이다.
+   * commit 판정은 確定한 시각이고, 읽기만 맞게 確定한 때도 남긴다 (한 번 더 누르면 정답으로 넘어가므로)
+   */
   readonly matchedAt: number | null;
   /** 다음 문제로 넘어가도 되는 시각 (completeOnCommit이면 確定 후) */
   readonly completedAt: number | null;
@@ -70,6 +78,10 @@ export interface InputSessionState {
   readonly completeOnCommit: boolean;
   /** 한자 표기를 읽기대로 쳐도 맞다고 볼지 (InputSessionOptions.readingOk) */
   readonly readingOk: boolean;
+  /** 틀린 채로도 한 번 더 눌러 낼 수 있는지 (InputSessionOptions.submitWrong) */
+  readonly submitWrong: boolean;
+  /** 읽기만 맞게 確定한 줄을 한 번 더 눌러 정답으로 넘겼다 (후보에서 바꾸지 않음) */
+  readonly readingAccepted: boolean;
   /**
    * 가나 목표를 입력하는 중에 라틴 문자가 그 자리에서 가나로 바뀜(k → か) → 로마자 키보드 사용 추정
    * (기록용, 한 번 켜지면 유지). かな 자판 ABC 모드의 영문자는 가나로 바뀌지 않아 해당하지 않는다
@@ -99,8 +111,13 @@ export interface InputSessionOptions {
    */
   completeOnCommit?: boolean;
   /**
-   * 한자 표기를 읽기(가나)대로 쳐도 맞다 (설정 「한자는 바꿔야 정답」을 끈 경우, 2026-10-26 사용자 제안).
-   * 가타카나는 이 옵션과 관계없이 바꿔야 맞다
+   * 한자 표기를 읽기(가나)대로 쳐도 바로 맞다 (설정 「한자는 바꿔야 정답」을 끈 경우, 2026-10-26 사용자 제안).
+   * 끄면 읽기대로 確定했을 때 안내하고, 한 번 더 눌러야 맞다 (submitInputSession). 가타카나는 늘 그렇다
    */
   readingOk?: boolean;
+  /**
+   * 틀린 채 確定한 줄도 한 번 더 눌러 내고 넘어갈 수 있다. 틀린 글자는 기록한다.
+   * 문장 연습은 다시 치게 하지 않는다 (2026-11-03 사용자 결정)
+   */
+  submitWrong?: boolean;
 }

@@ -85,6 +85,7 @@ const perfect = (line: string): LineResult => ({
   target: line,
   units: typed(line).length,
   firstTryUnits: typed(line).length,
+  correctUnits: typed(line).length,
   missed: [],
   missedIndexes: [],
   mistakeKinds: {},
@@ -187,6 +188,12 @@ describe('levels', () => {
       'L22',
       'L23',
     ]);
+  });
+
+  it('틀린 단위를 다시 내지 않는 레벨은 문장 단계 L22·L23뿐이다 (틀린 문장은 기록만 한다)', () => {
+    expect(
+      levels.filter((level) => level.drill.retryMissed === false).map((level) => level.id),
+    ).toEqual(['L22', 'L23']);
   });
 
   it('findLevel·nextLevel', () => {
