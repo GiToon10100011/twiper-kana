@@ -557,6 +557,29 @@ describe('submitInputSession — 確定한 뒤 한 번 더 누르기', () => {
     ]);
   });
 
+  it('히라가나·한자 읽기 자리에 가타카나를 골라 確定한 것은 바꾸지 않은 것이 아니라 다른 변환이다', () => {
+    const katakana = run('にく', [
+      ['にく', true],
+      ['ニク', false],
+    ]);
+    expect(charStatuses(katakana)).toEqual(['wrong', 'wrong']);
+    expect(katakana.unconverted).toEqual([]);
+    expect(katakana.errors.map((e) => [e.expected, e.actual, e.cause])).toEqual([
+      ['に', 'ニ', 'committed'],
+      ['く', 'ク', 'committed'],
+    ]);
+    expect(pendingStep(katakana)).toBe('fix');
+    expect(submitInputSession(katakana, 900)).toBe(katakana);
+
+    const kanjiAsKatakana = run('{今日|きょう}は', [['キョウは', false]]);
+    expect(pendingStep(kanjiAsKatakana)).toBe('fix');
+
+    // 문장이면 틀린 채 넘기고, 그 글자들은 틀린 것으로 남는다
+    const sentence = run('にく。', [['ニク。', false]], { submitWrong: true });
+    expect(pendingStep(sentence)).toBe('submit');
+    expect(submitInputSession(sentence, 900).errors).toHaveLength(2);
+  });
+
   it('문장 중간에 틀린 채 確定했으면 고치라고 하지 않고, 끝까지 치기 전에는 넘기지 않는다', () => {
     const midway = run('あめが{降|ふ}る。', [['あめか', false]], { submitWrong: true });
 

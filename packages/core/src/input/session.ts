@@ -89,6 +89,16 @@ const sameReading: Same = (a, b) => a === b || toHiragana(a) === toHiragana(b);
 
 const sameFor = (judge: JudgeMode): Same => (judge === 'commit' ? sameReading : sameChar);
 
+/**
+ * 確定한 글자(actual)가 목표 자리(expected)에 읽기로 맞는지. 같은 글자이거나, 가타카나 자리에 같은 읽기의
+ * 히라가나를 둔 것(후보에서 바꾸지 않음)만 맞다. 히라가나·한자 읽기 자리에 가타카나를 고른 것은 다른 변환이다
+ */
+const readsAs: Same = (actual, expected) =>
+  actual === expected || (isHiragana(actual) && toHiragana(expected) === actual);
+
+/** 確定한 값을 목표와 견줄 때: commit 판정은 읽기로(바꾸지 않은 가타카나까지), composing 판정은 글자 그대로 */
+const committedSameFor = (judge: JudgeMode): Same => (judge === 'commit' ? readsAs : sameChar);
+
 function commonPrefixLength(
   a: readonly string[],
   b: readonly string[],
@@ -118,7 +128,7 @@ const sameChars = (a: readonly string[], b: readonly string[]): boolean =>
 
 /** 읽기로 맞춰 본 값이 목표와 끝까지 같다. 가타카나·한자를 후보에서 바꾸지 않았어도 된다 */
 const readsAsTarget = (value: readonly string[], target: readonly string[]): boolean =>
-  value.length === target.length && value.every((char, i) => sameReading(char, target[i] ?? ''));
+  value.length === target.length && value.every((char, i) => readsAs(char, target[i] ?? ''));
 
 /**
  * 입력값을 목표(한자 표기를 읽기로 펼친 것)에 맞춰 본다.
@@ -266,7 +276,7 @@ export function reduceInputSession(
       const actual = next[i] ?? '';
       const expected = target[i] ?? '';
       if (actual === expected || flagged[i] === actual) continue;
-      const cause = sameReading(actual, expected) ? 'unconverted' : 'committed';
+      const cause = readsAs(actual, expected) ? 'unconverted' : 'committed';
       (cause === 'unconverted' ? unconverted : errors).push({
         index: i,
         expected,
@@ -333,7 +343,7 @@ export function charStatuses(state: InputSessionState): CharStatus[] {
     if (actual === expected) return 'correct';
     if (commit) {
       // 확정한 글자가 목표 표기와 다르다. 읽기는 맞으면 바꾸지 않은 것(カ를 か로), 아니면 틀린 글자(다른 한자 등)
-      if (!state.composing) return sameReading(actual, expected) ? 'unconverted' : 'wrong';
+      if (!state.composing) return readsAs(actual, expected) ? 'unconverted' : 'wrong';
       // 읽기는 맞다. 변환은 確定할 때 본다
       if (sameReading(actual, expected)) return 'correct';
       if (converting) return 'pending';
@@ -352,7 +362,7 @@ export function charStatuses(state: InputSessionState): CharStatus[] {
  */
 function reachedEnd(state: InputSessionState): boolean {
   const { value, target } = state;
-  const same = sameFor(state.judge);
+  const same = committedSameFor(state.judge);
   return value.length >= target.length || same(value.at(-1) ?? '', target.at(-1) ?? '');
 }
 
@@ -360,7 +370,7 @@ function reachedEnd(state: InputSessionState): boolean {
 export function pendingStep(state: InputSessionState): PendingStep | null {
   if (state.completedAt !== null) return null;
   const { target, value, surface, raw, readingOk, judge } = state;
-  const same = sameFor(judge);
+  const same = committedSameFor(judge);
   // 確定해 둔 값에 목표와 다른 글자가 있다. 읽기만 맞고 바꾸지 않은 글자는 다른 것으로 보지 않는다
   const differs = !state.composing && value.some((char, i) => !same(char, target[i] ?? ''));
   const wrongStep = (): PendingStep | null => {
@@ -394,7 +404,7 @@ export function submitInputSession(state: InputSessionState, t: number): InputSe
   if (step === 'confirm') return { ...state, readingAccepted: true, completedAt: t };
   if (step !== 'submit') return state;
 
-  const same = sameFor(state.judge);
+  const same = committedSameFor(state.judge);
   const errors: InputError[] = [...state.errors];
   const length = Math.max(state.target.length, state.value.length);
   for (let i = 0; i < length; i += 1) {
