@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { HELP_POLICY, type InputSessionState } from '@twiper/core';
 import { TrainingInput } from './TrainingInput';
@@ -42,7 +42,7 @@ describe('TrainingInput', () => {
     expect(input.value).toBe('');
   });
 
-  it('commit 판정: 읽기를 다 치면 후보 안내, 히라가나로 確定하면 경고, 지우고 변환해도 완료', async () => {
+  it('commit 판정: 읽기를 다 치면 후보 안내, 히라가나로 確定하면 고치라는 경고, 변환해야 완료', async () => {
     const onComplete = vi.fn();
     render(
       <TrainingInput
@@ -51,7 +51,6 @@ describe('TrainingInput', () => {
         onComplete={onComplete}
         matchedHint="確定"
         convertHint="후보에서 고르세요"
-        confirmHint="한 번 더 누르세요"
         fixHint="지우고 다시"
       />,
     );
@@ -62,7 +61,7 @@ describe('TrainingInput', () => {
     expect(status().textContent).toBe('후보에서 고르세요');
 
     await commit(input);
-    expect(status().textContent).toBe('한 번 더 누르세요');
+    expect(status().textContent).toBe('지우고 다시');
     expect(status().className).toContain('is-warning');
     expect(onComplete).not.toHaveBeenCalled();
 
@@ -70,81 +69,11 @@ describe('TrainingInput', () => {
     input.value = 'カメラ';
     await commit(input);
     expect(onComplete).toHaveBeenCalledTimes(1);
-    const session = onComplete.mock.calls[0]?.[0] as InputSessionState;
-    // 바꾸지 않고 確定한 것은 틀린 것으로 세지 않는다
-    expect(session.errors).toEqual([]);
-    expect(session.readingAccepted).toBe(false);
-  });
-
-  it('읽기만 맞게 確定한 뒤 改行(Enter)을 한 번 더 누르면 정답으로 넘어간다. 조합을 끝내는 Enter는 세지 않는다', async () => {
-    const onComplete = vi.fn();
-    render(
-      <TrainingInput
-        target="{今日|きょう}はカフェ"
-        judge="commit"
-        onComplete={onComplete}
-        matchedHint="確定"
-        confirmHint="한 번 더 누르세요"
-      />,
-    );
-    const input = screen.getByRole<HTMLInputElement>('textbox');
-
-    await compose(input, 'きょうはかふぇ');
-    // 조합 중(데스크톱은 isComposing, Safari는 keyCode 229)의 Enter는 確定이다
-    fireEvent.keyDown(input, { key: 'Enter', keyCode: 229 });
-    await flush();
-    expect(onComplete).not.toHaveBeenCalled();
-
-    await commit(input);
-    fireEvent.keyDown(input, { key: 'Enter', keyCode: 229 });
-    await flush();
-    expect(onComplete).not.toHaveBeenCalled();
-
-    fireEvent.keyDown(input, { key: 'Enter', keyCode: 13 });
-    await flush();
-    expect(onComplete).toHaveBeenCalledTimes(1);
-    const session = onComplete.mock.calls[0]?.[0] as InputSessionState;
-    expect(session.readingAccepted).toBe(true);
-    expect(session.errors).toEqual([]);
-    expect(input.value).toBe('');
-  });
-
-  it('읽기가 틀렸으면 Enter로 넘어가지 않고, submitWrong(문장)이면 틀린 채 넘어간다', async () => {
-    const wrong = vi.fn();
-    const { unmount } = render(
-      <TrainingInput target="あめが" onComplete={wrong} matchedHint="" fixHint="지우고 다시" />,
-    );
-    const input = screen.getByRole<HTMLInputElement>('textbox');
-    await compose(input, 'あめか');
-    await commit(input);
-    expect(screen.getByRole('status').textContent).toBe('지우고 다시');
-    fireEvent.keyDown(input, { key: 'Enter', keyCode: 13 });
-    await flush();
-    expect(wrong).not.toHaveBeenCalled();
-    unmount();
-
-    const submitted = vi.fn();
-    render(
-      <TrainingInput
-        target="あめが"
-        onComplete={submitted}
-        matchedHint=""
-        submitWrong
-        submitHint="그대로 넘기려면 한 번 더"
-        fixHint="지우고 다시"
-      />,
-    );
-    const sentence = screen.getByRole<HTMLInputElement>('textbox');
-    await compose(sentence, 'あめか');
-    await commit(sentence);
-    expect(screen.getByRole('status').textContent).toBe('그대로 넘기려면 한 번 더');
-    expect(screen.getByRole('status').className).toContain('is-warning');
-    fireEvent.keyDown(sentence, { key: 'Enter', keyCode: 13 });
-    await flush();
-    expect(submitted).toHaveBeenCalledTimes(1);
-    const session = submitted.mock.calls[0]?.[0] as InputSessionState;
-    expect(session.errors.map((e) => [e.expected, e.actual])).toEqual([['が', 'か']]);
-    expect(session.matchedAt).toBeNull();
+    expect(onComplete.mock.calls[0]?.[0].errors.map((e: { cause: string }) => e.cause)).toEqual([
+      'committed',
+      'committed',
+      'committed',
+    ]);
   });
 
   it('목표가 바뀌어도 같은 입력창을 유지한다', async () => {
