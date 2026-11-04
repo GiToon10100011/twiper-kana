@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   advanceExam,
   createExam,
-  parseExamLine,
   createInputSession,
   lineResultOf,
+  parseExamLine,
   partialLineResult,
   reduceInputSession,
   replayInputSession,
@@ -144,9 +144,9 @@ describe('partialLineResult·summarizeExam', () => {
           target: 'あいう',
           units: 3,
           firstTryUnits: 2,
-          correctUnits: 3,
           missed: ['い'],
           missedIndexes: [1],
+          readingOnlyIndexes: [],
           mistakeKinds: { key: 1 },
           reactionMs: null,
           elapsedMs: null,
@@ -171,18 +171,65 @@ describe('partialLineResult·summarizeExam', () => {
     expect(summary.missed).toEqual([{ char: 'い', count: 1 }]);
   });
 
-  it('틀린 채 넘긴 줄은 맞게 친 글자만 속도에 넣는다', () => {
-    const committed = [
-      { t: 100, value: 'あいか', composing: true },
-      { t: 200, value: 'あいか', composing: false },
-    ].reduce(
-      reduceInputSession,
-      createInputSession('あいう', 'composing', { completeOnCommit: true, submitWrong: true }),
-    );
-    const result = lineResultOf(submitInputSession(committed, 300), 0);
+  describe('한자를 읽기대로만 確定한 자리 (부분 점수)', () => {
+    const options = { completeOnCommit: true, confirmReading: true };
+    const commit = (values: readonly (readonly [string, boolean])[]) =>
+      values.reduce(
+        (state, [value, composing], i) =>
+          reduceInputSession(state, { t: (i + 1) * 100, value, composing }),
+        createInputSession('{天気|てんき}は', 'commit', options),
+      );
 
-    expect(result).toMatchObject({ units: 3, firstTryUnits: 2, correctUnits: 2, elapsedMs: null });
-    expect(summarizeExam([result], null, 60_000)).toMatchObject({ kpm: 2, accuracy: 2 / 3 });
+    it('읽기대로 넘긴 한자는 그 읽기 글자를 속도·정확도에 절반만 센다. 바꾼 한자는 다 센다', () => {
+      const reading = lineResultOf(
+        submitInputSession(
+          commit([
+            ['てんきは', true],
+            ['てんきは', false],
+          ]),
+          300,
+        ),
+        0,
+      );
+      const converted = lineResultOf(commit([['天気は', false]]), 0);
+
+      expect(reading.readingOnlyIndexes).toEqual([0, 1, 2]);
+      expect(converted.readingOnlyIndexes).toEqual([]);
+      // てんきは 4가나 중 てんき 3가나를 절반만: 2.5가나
+      expect(summarizeExam([reading], null, 60_000)).toMatchObject({
+        units: 4,
+        kpm: 2.5,
+        accuracy: 2.5 / 4,
+      });
+      expect(summarizeExam([converted], null, 60_000)).toMatchObject({ kpm: 4, accuracy: 1 });
+    });
+
+    it('읽기를 틀렸던 자리는 정확도에서 이미 빠졌으므로 두 번 깎지 않는다', () => {
+      const result = {
+        ...lineResultOf(commit([['天気は', false]]), 0),
+        firstTryUnits: 3,
+        missed: ['天気'],
+        missedIndexes: [0],
+        readingOnlyIndexes: [0, 1, 2],
+      };
+
+      // 한 번에 맞힌 3자 중 읽기만 친 き·ん 2자를 절반만: (3 − 1) / 4
+      expect(summarizeExam([result], null, 60_000)).toMatchObject({ accuracy: 0.5, kpm: 2.5 });
+    });
+
+    it('시간이 끝났을 때 읽기대로 確定해 둔 줄은 절반만 세고, 조합 중이던 한자는 아직 바꿀 수 있으므로 다 센다', () => {
+      const committed = partialLineResult(
+        commit([
+          ['てんき', true],
+          ['てんき', false],
+        ]),
+        0,
+      );
+      const composing = partialLineResult(commit([['てんき', true]]), 0);
+
+      expect(committed.readingOnlyIndexes).toEqual([0, 1, 2]);
+      expect(composing.readingOnlyIndexes).toEqual([]);
+    });
   });
 
   it('아무것도 못 쳤으면 속도 0, 정확도 0', () => {

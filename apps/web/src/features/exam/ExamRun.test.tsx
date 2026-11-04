@@ -3,7 +3,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { examSource } from '@twiper/content';
-import { advanceExam, createExam, parseRuby, toHiragana } from '@twiper/core';
+import { advanceExam, createExam, parseRuby, rubySurface } from '@twiper/core';
 import '../../i18n';
 import { trainingRepo } from '../../lib/db';
 import { loadExamRecords } from '../../lib/examRecords';
@@ -143,7 +143,8 @@ describe('ExamRun (종합 테스트)', () => {
     );
   });
 
-  it('짧은 글의 한자를 읽기 그대로 確定하면 밑줄 친 곳을 경고하고, 한 번 더 누르면 다음 줄로 넘어간다', async () => {
+  /** 한자가 든 첫 줄을 내는 짧은 글 테스트를 열고, 한자를 읽기대로 친 채 確定한다 */
+  async function commitReadingOnly() {
     const seed = Array.from({ length: 50 }, (_, i) => i).find(
       (s) => parseRuby(createExam(examSource('short'), s).line.text).rubies.length > 0,
     );
@@ -154,42 +155,34 @@ describe('ExamRun (종합 테스트)', () => {
     expect(document.querySelector('.target-text ruby rt')).toBeTruthy();
     const shown = target();
     input.dispatchEvent(new CompositionEvent('compositionstart'));
-    input.value = toHiragana(parseRuby(first.line.text).chars.join(''));
+    input.value = parseRuby(first.line.text).chars.join('');
     input.dispatchEvent(new InputEvent('input', { inputType: 'insertCompositionText' }));
     await tick();
     expect(screen.getByRole('status').textContent).toContain('밑줄 친 곳을 후보에서');
 
-    // 히라가나 그대로 確定하면 아직 넘어가지 않고 경고한다
     input.dispatchEvent(new CompositionEvent('compositionend', { data: input.value }));
     await tick();
-    expect(target()).toBe(shown);
-    expect(screen.getByRole('status').textContent).toContain('한 번 더 누르면 정답으로');
+    return { first, input, shown };
+  }
 
-    fireEvent.keyDown(input, { key: 'Enter', keyCode: 13 });
+  it('짧은 글의 한자를 읽기대로만 確定하면 절반만 센다고 경고하고, 한 번 더 누르면 다음 줄로 넘어간다', async () => {
+    const { input, shown } = await commitReadingOnly();
+    expect(target()).toBe(shown);
+    expect(screen.getByRole('status').textContent).toContain('점수에 절반만');
+
+    fireEvent.keyDown(input, { key: 'Enter' });
     await tick();
     expect(target()).not.toBe(shown);
   });
 
-  it('짧은 글은 틀린 채 끝까지 確定해도 한 번 더 눌러 넘기고, 단어는 고쳐야 넘어간다', async () => {
-    renderAt('/test/short?min=1&seed=3');
-    const line = parseRuby(createExam(examSource('short'), 3).line.text).chars;
-    const shown = target();
-    // 첫 글자만 틀리게 치고 끝까지 確定한다
-    await typeLine([line[0] === 'あ' ? 'い' : 'あ', ...line.slice(1)].join(''));
-    expect(target()).toBe(shown);
-    expect(screen.getByRole('status').textContent).toContain('이대로 다음으로 넘어가요');
-    fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter', keyCode: 13 });
-    await tick();
-    expect(target()).not.toBe(shown);
-    cleanup();
+  it('짧은 글의 한자를 읽기대로 確定한 뒤에도 지우고 그 한자로 바꿔 確定하면 넘어간다', async () => {
+    const { first, input, shown } = await commitReadingOnly();
 
-    renderAt('/test/word?min=1&seed=3');
-    const word = parseRuby(createExam(examSource('word'), 3).line.text).chars;
-    const shownWord = target();
-    await typeLine([word[0] === 'あ' ? 'い' : 'あ', ...word.slice(1)].join(''));
-    fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter', keyCode: 13 });
+    input.value = '';
+    input.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
     await tick();
-    expect(target()).toBe(shownWord);
+    await typeLine(rubySurface(first.line.text));
+    expect(target()).not.toBe(shown);
   });
 
   it('처음 들어오면 주의사항 창을 띄우고, 알겠어요를 누르면 닫고 입력창으로 돌아간다. 다음부터는 저절로 띄우지 않는다', () => {
@@ -201,8 +194,6 @@ describe('ExamRun (종합 테스트)', () => {
     expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('테스트 주의사항');
     expect(screen.getByText('12키 가나 키보드로 쳐요')).toBeTruthy();
     expect(screen.getByText('確定을 눌러야 다음 줄로 넘어가요')).toBeTruthy();
-    // 글자 테스트는 틀린 글자를 고쳐야 넘어간다
-    expect(screen.getByText('틀린 글자는 지우고 고쳐야 넘어가요')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: '알겠어요' }));
     expect(dialog?.open).toBe(false);
@@ -238,8 +229,7 @@ describe('ExamRun (종합 테스트)', () => {
     const first = createExam(examSource('short'), seed ?? 0);
 
     fireEvent.click(screen.getByRole('button', { name: '테스트 주의사항' }));
-    expect(screen.getByText('가타카나는 후보에서 골라 바꿔요')).toBeTruthy();
-    expect(screen.getByText('짧은 글·긴 글은 틀려도 넘어갈 수 있어요')).toBeTruthy();
+    expect(screen.getByText('가타카나는 후보에서 골라 바꿔야 맞아요')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '알겠어요' }));
 
     const shown = target();

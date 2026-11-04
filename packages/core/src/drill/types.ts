@@ -22,7 +22,7 @@ export interface DrillSpec {
   readonly judge?: JudgeMode;
   /**
    * 틀린 단위를 몇 줄 뒤에 다시 낼지. 기본은 다시 낸다.
-   * 문장 연습은 틀린 채 넘기고 다시 내지 않는다 (2026-11-03 사용자 결정, 틀린 글자는 기록한다)
+   * 문장 연습은 틀린 문장을 다시 내지 않는다 (2026-11-03 사용자 결정, 틀린 글자는 기록한다)
    */
   readonly retryMissed?: boolean;
 }
@@ -34,8 +34,6 @@ export interface LineResult {
   readonly units: number;
   /** 한 번도 틀리지 않은 글자 수 */
   readonly firstTryUnits: number;
-  /** 줄을 낼 때 맞게(읽기가 같게) 들어가 있던 글자 수. 끝까지 맞춘 줄은 units, 틀린 채 낸 줄은 그보다 적다 */
-  readonly correctUnits: number;
   /**
    * 틀린 적이 있는 것. lineResultOf는 목표 글자를, advanceDrill은 그 글자가 속한 출제 단위를 담는다
    * (요음 'きゃ'의 ゃ를 틀리면 'きゃ').
@@ -43,6 +41,8 @@ export interface LineResult {
   readonly missed: readonly string[];
   /** 틀린 적이 있는 목표 글자의 위치 (code point 단위, 오름차순) */
   readonly missedIndexes: readonly number[];
+  /** 한자를 후보에서 바꾸지 않고 읽기대로 確定한 자리 (읽기 글자 위치, 오름차순). 종합 테스트는 절반만 센다 */
+  readonly readingOnlyIndexes: readonly number[];
   /** 틀린 종류별 횟수 */
   readonly mistakeKinds: Readonly<Partial<Record<MistakeKind, number>>>;
   /** 줄이 나타난 뒤 첫 입력까지 (ms) */

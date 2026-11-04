@@ -91,13 +91,10 @@ const sameFor = (judge: JudgeMode): Same => (judge === 'commit' ? sameReading : 
 
 /**
  * 確定한 글자(actual)가 목표 자리(expected)에 읽기로 맞는지. 같은 글자이거나, 가타카나 자리에 같은 읽기의
- * 히라가나를 둔 것(후보에서 바꾸지 않음)만 맞다. 히라가나·한자 읽기 자리에 가타카나를 고른 것은 다른 변환이다
+ * 히라가나를 둔 것(후보에서 바꾸지 않음)만 맞다. 히라가나 자리에 가타카나를 고른 것은 다른 변환이다
  */
 const readsAs: Same = (actual, expected) =>
   actual === expected || (isHiragana(actual) && toHiragana(expected) === actual);
-
-/** 確定한 값을 목표와 견줄 때: commit 판정은 읽기로(바꾸지 않은 가타카나까지), composing 판정은 글자 그대로 */
-const committedSameFor = (judge: JudgeMode): Same => (judge === 'commit' ? readsAs : sameChar);
 
 function commonPrefixLength(
   a: readonly string[],
@@ -125,10 +122,6 @@ const isConverting = (value: readonly string[], composing: boolean): boolean =>
 
 const sameChars = (a: readonly string[], b: readonly string[]): boolean =>
   a.length === b.length && a.every((char, i) => char === b[i]);
-
-/** 읽기로 맞춰 본 값이 목표와 끝까지 같다. 가타카나·한자를 후보에서 바꾸지 않았어도 된다 */
-const readsAsTarget = (value: readonly string[], target: readonly string[]): boolean =>
-  value.length === target.length && value.every((char, i) => readsAs(char, target[i] ?? ''));
 
 /**
  * 입력값을 목표(한자 표기를 읽기로 펼친 것)에 맞춰 본다.
@@ -166,10 +159,8 @@ function alignToTarget(
 /**
  * 목표 문자열로 입력 세션을 만든다. 한자는 `{時々|ときどき}`처럼 읽기를 붙여 쓴다.
  * 읽기로 맞춰 보며 플릭 실수를 찾고, 완료는 그 한자로 변환해 確定했을 때다
- * (options.readingOk면 읽기 그대로 確定해도 된다).
- * 읽기만 치고 변환하지 않은 것은 틀린 것으로 기록하지 않고 안내한다 (pendingStep: convert·confirm).
- * 읽기를 다 맞게 確定했으면 한 번 더 눌러 정답으로 넘어간다 (submitInputSession, 2026-11-03 사용자 결정:
- * 「읽기는 제대로 쳤는데 후보 못골랐다고 틀리면」 다시 치기가 스트레스다).
+ * (options.readingOk면 읽기 그대로 確定해도 된다. options.confirmReading면 안내한 뒤 한 번 더 눌러 넘긴다).
+ * 읽기만 치고 변환하지 않은 것은 틀린 것으로 기록하지 않고 안내만 한다 (pendingStep: convert·fix).
  * 한자만 따로 익히는 단계는 두지 않는다 (사용자 결정 2026-10-26).
  */
 export function createInputSession(
@@ -189,7 +180,6 @@ export function createInputSession(
     composing: false,
     matched: 0,
     errors: [],
-    unconverted: [],
     flagged: [],
     unitTimes: chars.map(() => null),
     startedAt: null,
@@ -197,8 +187,7 @@ export function createInputSession(
     completedAt: null,
     completeOnCommit: options.completeOnCommit ?? false,
     readingOk: options.readingOk ?? false,
-    submitWrong: options.submitWrong ?? false,
-    readingAccepted: false,
+    confirmReading: options.confirmReading ?? false,
     romajiSuspected: false,
     toggleSuspected: false,
     romajiActive: false,
@@ -268,22 +257,13 @@ export function reduceInputSession(
     flagged.push(alreadyFlagged || continued ? actual : null);
   }
 
-  // commit 판정에서 確定한 값이 목표 표기와 다르면(다른 한자, 틀린 글자) 그 글자들을 기록한다.
-  // 읽기는 맞지만 가타카나로 바꾸지 않은 글자는 틀린 것으로 세지 않고 따로 남긴다.
-  const unconverted: InputError[] = [...state.unconverted];
+  // commit 판정에서 確定한 값이 목표 표기와 다르면(히라가나 그대로, 다른 한자) 그 글자들을 기록한다.
   if (committing) {
     for (let i = 0; i <= last; i += 1) {
       const actual = next[i] ?? '';
       const expected = target[i] ?? '';
       if (actual === expected || flagged[i] === actual) continue;
-      const cause = readsAs(actual, expected) ? 'unconverted' : 'committed';
-      (cause === 'unconverted' ? unconverted : errors).push({
-        index: i,
-        expected,
-        actual,
-        cause,
-        t,
-      });
+      errors.push({ index: i, expected, actual, cause: 'committed', t });
       flagged[i] = actual;
     }
   }
@@ -292,9 +272,9 @@ export function reduceInputSession(
   const toggled = lastReplacedInPlace && sameKeyRow(prev[last] ?? '', next[last] ?? '');
   const romaji = !target.some(isLatinLetter) && typedOnRomajiKeyboard(state.raw, raw);
   const committedMatch = equalsTarget && !snapshot.composing;
+  // 한자만 읽기대로 確定해 넘길 수 있는 줄이면 그때가 정답 시각이다 (한 번 더 누른 시각이 아니다)
+  const committedReading = state.confirmReading && !snapshot.composing && sameChars(next, target);
   const commit = judge === 'commit';
-  // 읽기만 맞게 確定했으면 그때가 정답 시각이다. 한 번 더 눌러 넘길 때(submitInputSession) 그대로 쓴다
-  const committedReading = !snapshot.composing && readsAsTarget(next, target);
 
   return {
     ...state,
@@ -304,7 +284,6 @@ export function reduceInputSession(
     composing: snapshot.composing,
     matched,
     errors,
-    unconverted,
     flagged,
     unitTimes: state.unitTimes.map((time, i) => (i < matched ? (time ?? t) : null)),
     startedAt,
@@ -356,62 +335,34 @@ export function charStatuses(state: InputSessionState): CharStatus[] {
   });
 }
 
-/**
- * 틀린 채 낸 줄로 볼 만큼 쳤는지. 목표 길이만큼 쳤거나 끝 글자(대개 。？！)까지 쳤으면 된다.
- * 중간에 한 글자를 빠뜨려도(、·っ) 끝까지 쳤으면 낼 수 있고, 반쯤 친 줄은 실수로 넘기지 않는다
- */
-function reachedEnd(state: InputSessionState): boolean {
-  const { value, target } = state;
-  const same = committedSameFor(state.judge);
-  return value.length >= target.length || same(value.at(-1) ?? '', target.at(-1) ?? '');
-}
-
 /** 다음 문제로 넘어가기 전에 사용자가 해야 할 일. 없으면 null */
 export function pendingStep(state: InputSessionState): PendingStep | null {
   if (state.completedAt !== null) return null;
-  const { target, value, surface, raw, readingOk, judge } = state;
-  const same = committedSameFor(judge);
-  // 確定해 둔 값에 목표와 다른 글자가 있다. 읽기만 맞고 바꾸지 않은 글자는 다른 것으로 보지 않는다
-  const differs = !state.composing && value.some((char, i) => !same(char, target[i] ?? ''));
-  const wrongStep = (): PendingStep | null => {
-    if (!differs) return null;
-    if (!state.submitWrong) return 'fix';
-    // 문장은 고치지 않아도 된다. 끝까지 쳤으면 한 번 더 눌러 넘기라고 안내하고, 치는 중에는 그대로 둔다
-    return reachedEnd(state) ? 'submit' : null;
-  };
-  if (judge === 'composing') return state.matchedAt !== null ? 'commit' : wrongStep();
+  if (state.judge === 'composing') return state.matchedAt !== null ? 'commit' : null;
 
-  // 가타카나·한자는 표기 그대로 確定해야 바로 넘어간다. 읽기만 맞으면 후보에서 골라야 하고(convert),
-  // 읽기 그대로 確定해 버렸으면 한 번 더 눌러 정답으로 넘길 수 있다(confirm).
+  // 가타카나·한자는 표기 그대로여야 確定할 수 있다. 읽기만 맞으면 후보에서 골라야 하고(convert),
+  // 읽기 그대로 確定해 버렸으면 지우고 다시 쳐야 한다(fix).
   // 한자를 읽기로 쳐도 되는 설정이면 한자는 읽기로 맞춰 본 값(value)으로 비교한다
+  const { target, value, surface, raw, readingOk } = state;
   const full = value.length === target.length;
   if (state.composing) {
     if (sameChars(raw, surface) || (readingOk && sameChars(value, target))) return 'commit';
     return full && state.matched === target.length ? 'convert' : null;
   }
-  if (readsAsTarget(value, target)) return 'confirm';
-  return wrongStep();
+  // 한자만 읽기대로 確定했고 나머지는 다 맞다. 한 번 더 누르면 넘어간다 (종합 테스트 짧은 글·긴 글).
+  // 그런 줄은 한자를 읽기대로 둔 채 이어 치는 중에도 고치라고 하지 않는다
+  if (state.confirmReading && sameChars(value, target)) return 'confirm';
+  const differs =
+    readingOk || state.confirmReading
+      ? value.some((char, i) => char !== target[i])
+      : raw.some((char, i) => char !== surface[i]);
+  return differs ? 'fix' : null;
 }
 
 /**
  * 確定해 둔 줄을 그대로 낸다: 確定한 뒤 한 번 더 누른 改行(Enter).
- * 읽기를 다 맞게 確定했으면(confirm) 정답으로 넘어가고, submitWrong이면 틀린 채로도 넘어간다(submit).
- * 틀린 채 내면 아직 기록하지 않은 틀린 글자(끝 글자)와 치지 않은 글자를 'committed'로 남긴다.
- * 그 밖에는 아무것도 하지 않는다 (고쳐야 넘어가는 줄, 치는 중인 줄)
+ * 한자만 읽기대로 確定한 줄(confirm)만 넘어간다. 그 밖에는 아무것도 하지 않는다 (고쳐야 넘어가는 줄, 치는 중인 줄)
  */
 export function submitInputSession(state: InputSessionState, t: number): InputSessionState {
-  const step = pendingStep(state);
-  if (step === 'confirm') return { ...state, readingAccepted: true, completedAt: t };
-  if (step !== 'submit') return state;
-
-  const same = committedSameFor(state.judge);
-  const errors: InputError[] = [...state.errors];
-  const length = Math.max(state.target.length, state.value.length);
-  for (let i = 0; i < length; i += 1) {
-    const actual = state.value[i] ?? '';
-    const expected = state.target[i] ?? '';
-    if (same(actual, expected) || state.flagged[i] === actual) continue;
-    errors.push({ index: i, expected, actual, cause: 'committed', t });
-  }
-  return { ...state, errors, completedAt: t };
+  return pendingStep(state) === 'confirm' ? { ...state, completedAt: t } : state;
 }

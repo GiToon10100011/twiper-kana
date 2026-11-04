@@ -2,8 +2,7 @@ import type { DrillSummary } from '../drill/types';
 import type { InputErrorCause, JudgeMode } from '../input/types';
 import type { MistakeKind } from '../kana/classify';
 
-/** reading-only: 읽기만 맞게 確定하고 후보에서 바꾸지 않은 채 정답으로 넘겼다 (2026-11-03부터) */
-export type AttemptFlag = 'romaji-suspected' | 'toggle-suspected' | 'reading-only';
+export type AttemptFlag = 'romaji-suspected' | 'toggle-suspected';
 
 /**
  * 한 줄을 푼 기록 (계획 §12 Attempt). 원본 로그이며, 통계는 이 로그에서 다시 계산한다.
@@ -21,11 +20,8 @@ export interface AttemptRecord {
   readonly surface?: string;
   /** 입력창에 確定한 실제 값 */
   readonly input: string;
-  /**
-   * correct: 한 번도 틀리지 않음 / corrected: 틀렸다가 고쳐서 통과 /
-   * wrong: 틀린 채 냄 (문장 연습, 2026-11-03부터)
-   */
-  readonly result: 'correct' | 'corrected' | 'wrong';
+  /** correct: 한 번도 틀리지 않음 / corrected: 틀렸다가 고쳐서 통과 */
+  readonly result: 'correct' | 'corrected';
   readonly judge: JudgeMode;
   readonly reactionMs: number | null;
   readonly elapsedMs: number | null;

@@ -162,10 +162,10 @@ export function partialLineResult(session: InputSessionState, shownAt: number): 
     target: session.target.slice(0, matched).join(''),
     units: matched,
     firstTryUnits: matched - missedIndexes.length,
-    correctUnits: matched,
     // 한자 읽기 자리에서 틀렸으면 그 표기(天気)로 보인다 (lineResultOf와 같은 순서)
     missed: full.missed.filter((_, k) => (full.missedIndexes[k] ?? matched) < matched),
     missedIndexes,
+    readingOnlyIndexes: full.readingOnlyIndexes.filter((i) => i < matched),
     mistakeKinds: session.errors
       .filter((error) => error.index < matched)
       .reduce<KindCounts>((counts, error) => {
@@ -179,7 +179,10 @@ export function partialLineResult(session: InputSessionState, shownAt: number): 
 export interface ExamSummary extends DrillSummary {
   /** 테스트 시간 (ms) */
   readonly durationMs: number;
-  /** 시간 안에 맞게 친 가나 수 ÷ 분. 確定을 누르는 시간까지 든 실제 속도다 */
+  /**
+   * 시간 안에 맞게 친 가나 수 ÷ 분. 確定을 누르는 시간까지 든 실제 속도다.
+   * 한자를 읽기대로만 確定한 자리는 절반만 센다 (정확도도 같다)
+   */
   readonly kpm: number;
 }
 
@@ -192,15 +195,20 @@ export function summarizeExam(
   const all = partial && partial.units > 0 ? [...results, partial] : [...results];
   const units = all.reduce((sum, r) => sum + r.units, 0);
   const firstTryUnits = all.reduce((sum, r) => sum + r.firstTryUnits, 0);
-  // 틀린 채 넘긴 줄(짧은 글·긴 글)은 맞게 친 글자만 속도에 넣는다
-  const correctUnits = all.reduce((sum, r) => sum + r.correctUnits, 0);
+  // 한자를 후보에서 바꾸지 않고 읽기대로만 確定한 자리는 절반만 센다 (2026-11-03 사용자 결정 「부분점수」).
+  // 정확도는 한 번에 맞힌 자리만 깎는다 (틀린 자리는 이미 빠져 있다)
+  const readingOnly = all.reduce((sum, r) => sum + r.readingOnlyIndexes.length, 0);
+  const readingOnlyFirstTry = all.reduce(
+    (sum, r) => sum + r.readingOnlyIndexes.filter((i) => !r.missedIndexes.includes(i)).length,
+    0,
+  );
   return {
     ...summarizeDrill(all),
     lines: results.length,
     units,
     firstTryUnits,
-    accuracy: units > 0 ? firstTryUnits / units : 0,
-    kpm: durationMs > 0 ? correctUnits / (durationMs / 60_000) : 0,
+    accuracy: units > 0 ? (firstTryUnits - readingOnlyFirstTry / 2) / units : 0,
+    kpm: durationMs > 0 ? (units - readingOnly / 2) / (durationMs / 60_000) : 0,
     durationMs,
   };
 }

@@ -1,4 +1,3 @@
-import { charStatuses } from '../input/session';
 import type { InputSessionState } from '../input/types';
 import { classifyMistake, type MistakeKind } from '../kana/classify';
 import type { DrillSummary, LineResult } from './types';
@@ -25,11 +24,16 @@ export function lineResultOf(session: InputSessionState, shownAt: number): LineR
     target: session.target.join(''),
     units: session.target.length,
     firstTryUnits: session.target.length - missedAt.length,
-    // 후보에서 바꾸지 않고 넘긴 글자(읽기는 맞음)도 맞게 친 것으로 센다
-    correctUnits: charStatuses(session).filter((s) => s === 'correct' || s === 'unconverted')
-      .length,
     missed: missedAt.map(shownAs),
     missedIndexes: missedAt,
+    // 確定한 줄에서 후보로 바꾸지 않은 한자 자리. 조합 중이면 아직 바꿀 수 있으므로 넣지 않는다
+    readingOnlyIndexes: session.composing
+      ? []
+      : session.rubies.flatMap((ruby, n) =>
+          session.converted[n]
+            ? []
+            : Array.from({ length: ruby.end - ruby.start }, (_, k) => ruby.start + k),
+        ),
     mistakeKinds: session.errors.reduce<KindCounts>((counts, error) => {
       addKind(counts, classifyMistake(error.expected, error.actual));
       return counts;
