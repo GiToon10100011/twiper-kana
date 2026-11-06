@@ -5,6 +5,8 @@ import {
   createInputSession,
   createMemoryRepo,
   type AttemptRecord,
+  type InputErrorCause,
+  type JudgeMode,
 } from '@twiper/core';
 import { backupFileName, createBackup, parseBackup, restoreBackup } from './backup';
 import { loadExamRecords, recordExam } from './examRecords';
@@ -38,6 +40,29 @@ describe('backup', () => {
     expect(Object.keys(parsed?.progress ?? {})).toEqual(['L1']);
     expect(parsed?.exams.short?.best?.kpm).toBe(60);
     expect(parsed?.attempts.map((a) => a.id)).toEqual(['A1']);
+  });
+
+  it('틀린 원인과 판정 방식이 무엇이든 내보내고 가져오는 동안 시도 기록이 빠지지 않는다', async () => {
+    const causes: InputErrorCause[] = ['continued', 'deleted', 'committed'];
+    const judges: JudgeMode[] = ['composing', 'commit'];
+    const source = createMemoryRepo();
+    const saved: AttemptRecord[] = causes.flatMap((cause, i) =>
+      judges.map((judge, j) => ({
+        ...attempt(`A${i}${j}`, i * 2 + j),
+        result: 'corrected' as const,
+        judge,
+        mistakes: [{ index: 0, expected: 'か', actual: 'さ', cause, kind: 'key' as const }],
+        corrections: 1,
+      })),
+    );
+    for (const record of saved) await source.saveAttempt(record);
+
+    const backup = parseBackup(JSON.stringify(await createBackup(source, day(6))));
+    if (!backup) throw new Error('백업을 읽지 못함');
+    const repo = createMemoryRepo();
+
+    expect(await restoreBackup(backup, repo)).toEqual({ attempts: saved.length, changed: false });
+    expect((await repo.dumpRecords()).attempts).toEqual(saved);
   });
 
   it('파일 이름은 기기 날짜를 붙인다', () => {
