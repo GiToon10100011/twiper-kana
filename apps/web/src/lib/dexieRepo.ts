@@ -1,5 +1,10 @@
 import Dexie, { type EntityTable } from 'dexie';
-import type { AttemptRecord, SessionRecord, TrainingRepo } from '@twiper/core';
+import {
+  replacesSession,
+  type AttemptRecord,
+  type SessionRecord,
+  type TrainingRepo,
+} from '@twiper/core';
 
 class TwiperDB extends Dexie {
   attempts!: EntityTable<AttemptRecord, 'id'>;
@@ -46,6 +51,27 @@ export function createDexieRepo(name = 'twiper'): TrainingRepo {
     },
     attemptsSince(at) {
       return db.attempts.where('at').aboveOrEqual(at).sortBy('at');
+    },
+    async dumpRecords() {
+      const [attempts, sessions] = await Promise.all([
+        db.attempts.orderBy('at').toArray(),
+        db.sessions.toArray(),
+      ]);
+      return { attempts, sessions };
+    },
+    mergeRecords(dump) {
+      return db.transaction('rw', db.attempts, db.sessions, async () => {
+        // 파일 안에서 같은 id가 겹쳐도 한 번만 넣는다
+        const attemptsIn = [...new Map(dump.attempts.map((a) => [a.id, a])).values()];
+        const known = await db.attempts.bulkGet(attemptsIn.map((a) => a.id));
+        const fresh = attemptsIn.filter((_, i) => known[i] === undefined);
+        await db.attempts.bulkAdd(fresh);
+        const sessionsIn = [...new Map(dump.sessions.map((s) => [s.id, s])).values()];
+        const current = await db.sessions.bulkGet(sessionsIn.map((s) => s.id));
+        const replaced = sessionsIn.filter((s, i) => replacesSession(current[i], s));
+        await db.sessions.bulkPut(replaced);
+        return { attempts: fresh.length, sessions: replaced.length, persisted: true };
+      });
     },
   };
 }

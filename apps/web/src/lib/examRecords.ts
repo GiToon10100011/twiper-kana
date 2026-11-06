@@ -40,15 +40,29 @@ const isRecord = (value: unknown): value is ExamRecord => {
 
 // 브라우저 저장소를 쓸 수 없어도(사생활 보호 모드 등) 테스트는 할 수 있어야 하므로 실패는 삼킨다.
 
+/** 저장해 둔 값이나 가져온 백업 파일에서 종목별 기록만 골라낸다 */
+export function parseExamRecords(value: unknown): ExamRecords {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
+  return Object.fromEntries(Object.entries(value).filter(([, record]) => isRecord(record)));
+}
+
 export function loadExamRecords(): ExamRecords {
   try {
     const raw = localStorage.getItem(EXAM_KEY);
-    if (!raw) return {};
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return {};
-    return Object.fromEntries(Object.entries(parsed).filter(([, value]) => isRecord(value)));
+    return raw ? parseExamRecords(JSON.parse(raw)) : {};
   } catch {
     return {};
+  }
+}
+
+/** 저장했으면 true. 저장 공간이 차는 등으로 쓰지 못하면 false */
+function saveExamRecords(records: ExamRecords): boolean {
+  try {
+    localStorage.setItem(EXAM_KEY, JSON.stringify(records));
+    return true;
+  } catch {
+    // 저장하지 못해도 결과 화면은 보여 준다.
+    return false;
   }
 }
 
@@ -67,10 +81,29 @@ export function recordExam(
     ? { kpm: summary.kpm, accuracy: summary.accuracy, minutes, at: now.toISOString() }
     : previous;
   const updated: ExamRecords = { ...records, [mode]: { plays: (prev?.plays ?? 0) + 1, best } };
-  try {
-    localStorage.setItem(EXAM_KEY, JSON.stringify(updated));
-  } catch {
-    // 저장하지 못해도 결과 화면은 보여 준다.
-  }
+  saveExamRecords(updated);
   return { records: updated, isBest: faster, previous };
+}
+
+const fasterBest = (a: ExamBest | null, b: ExamBest | null) =>
+  a === null ? b : b === null || a.kpm >= b.kpm ? a : b;
+
+/**
+ * 백업 파일의 종목별 기록을 합친다. 횟수는 큰 쪽, 최고 기록은 빠른 쪽을 남겨
+ * 같은 파일을 두 번 합쳐도 그대로다. 바뀐 종목 수와, 바뀐 기록을 저장했는지(바뀐 게 없으면 true)를 돌려준다
+ */
+export function mergeExamRecords(incoming: ExamRecords): { changed: number; persisted: boolean } {
+  const records = loadExamRecords();
+  const merged: Partial<Record<string, ExamRecord>> = { ...records };
+  let changed = 0;
+  for (const [mode, record] of Object.entries(incoming)) {
+    const prev = merged[mode];
+    const next: ExamRecord = prev
+      ? { plays: Math.max(prev.plays, record.plays), best: fasterBest(prev.best, record.best) }
+      : record;
+    if (prev && prev.plays === next.plays && prev.best === next.best) continue;
+    merged[mode] = next;
+    changed += 1;
+  }
+  return { changed, persisted: changed === 0 || saveExamRecords(merged) };
 }

@@ -455,5 +455,20 @@ export const ja: typeof ko = {
     idleMinutes: '{{count}}分',
     idleOff: 'オフ',
     home: 'ホームへ',
+    backup: '記録のバックアップ',
+    export: '書き出し',
+    exportHint:
+      '進み具合・最高記録・練習記録を1つのファイルに保存します。共有シートが開いたら「“ファイル”に保存」を選んでください。',
+    exportButton: 'ファイルに保存',
+    import: '読み込み',
+    importHint:
+      '書き出したファイルを選ぶと、今の記録に合わせます。今の記録は消えません。新しいiPhoneやホーム画面のアプリに記録を移すときに使います。',
+    importButton: 'ファイルを選ぶ',
+    importedLines: '練習記録を{{count}}行追加しました。進み具合と最高記録も合わせました。',
+    importedProgress: '進み具合と最高記録を合わせました。',
+    importedNothing: 'すでに全部入っている記録です。',
+    importInvalid: 'twiperで書き出した記録ファイルではありません。',
+    importNotSaved:
+      '記録を合わせましたが、この端末に保存できませんでした。アプリを開き直すと、読み込んだ記録が消えることがあります。',
   },
 };
