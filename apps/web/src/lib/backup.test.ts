@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   attemptRecordOf,
   createInputSession,
@@ -7,12 +7,25 @@ import {
   type AttemptRecord,
   type InputErrorCause,
   type JudgeMode,
+  type TrainingRepo,
 } from '@twiper/core';
 import { backupFileName, createBackup, parseBackup, restoreBackup } from './backup';
 import { loadExamRecords, recordExam } from './examRecords';
 import { loadProgress, recordLevel } from './progress';
 
-afterEach(() => localStorage.clear());
+afterEach(() => {
+  vi.restoreAllMocks();
+  localStorage.clear();
+});
+
+/** IndexedDB처럼 다시 열어도 남는 저장소로 치는 메모리 저장소 */
+const savedRepo = (): TrainingRepo => {
+  const repo = createMemoryRepo();
+  return {
+    ...repo,
+    mergeRecords: async (dump) => ({ ...(await repo.mergeRecords(dump)), persisted: true }),
+  };
+};
 
 const attempt = (id: string, minute: number): AttemptRecord =>
   attemptRecordOf(createInputSession('か'), {
@@ -59,9 +72,13 @@ describe('backup', () => {
 
     const backup = parseBackup(JSON.stringify(await createBackup(source, day(6))));
     if (!backup) throw new Error('백업을 읽지 못함');
-    const repo = createMemoryRepo();
+    const repo = savedRepo();
 
-    expect(await restoreBackup(backup, repo)).toEqual({ attempts: saved.length, changed: false });
+    expect(await restoreBackup(backup, repo)).toEqual({
+      attempts: saved.length,
+      changed: false,
+      persisted: true,
+    });
     expect((await repo.dumpRecords()).attempts).toEqual(saved);
   });
 
@@ -93,7 +110,7 @@ describe('backup', () => {
   it('가져오면 지금 기록에 합친다: 처음 끝낸 날은 이른 쪽, 횟수·최고 기록은 큰 쪽', async () => {
     recordLevel('L1', { accuracy: 0.8, kpm: 50 }, day(3));
     recordExam('short', { kpm: 70, accuracy: 0.9 }, 1, day(3));
-    const repo = createMemoryRepo();
+    const repo = savedRepo();
     await repo.saveAttempt(attempt('A1', 1));
 
     const backup = parseBackup(
@@ -114,7 +131,11 @@ describe('backup', () => {
     );
     if (!backup) throw new Error('백업을 읽지 못함');
 
-    expect(await restoreBackup(backup, repo)).toEqual({ attempts: 1, changed: true });
+    expect(await restoreBackup(backup, repo)).toEqual({
+      attempts: 1,
+      changed: true,
+      persisted: true,
+    });
     expect(loadProgress()).toEqual({
       L1: { clearedAt: day(1).toISOString(), plays: 4, bestAccuracy: 0.95, bestKpm: 50 },
       L2: { clearedAt: day(2).toISOString(), plays: 1, bestAccuracy: 1, bestKpm: null },
@@ -134,10 +155,49 @@ describe('backup', () => {
     const backup = await createBackup(source, day(6));
     localStorage.clear();
 
-    const repo = createMemoryRepo();
-    expect(await restoreBackup(backup, repo)).toEqual({ attempts: 1, changed: true });
-    expect(await restoreBackup(backup, repo)).toEqual({ attempts: 0, changed: false });
+    const repo = savedRepo();
+    expect(await restoreBackup(backup, repo)).toEqual({
+      attempts: 1,
+      changed: true,
+      persisted: true,
+    });
+    expect(await restoreBackup(backup, repo)).toEqual({
+      attempts: 0,
+      changed: false,
+      persisted: true,
+    });
     expect(loadProgress().L1?.plays).toBe(1);
     expect(loadExamRecords().kana?.plays).toBe(1);
+  });
+
+  it('메모리 저장소에 합쳤으면(IndexedDB를 쓸 수 없을 때) 기기에 남지 않았다고 알린다', async () => {
+    const source = createMemoryRepo();
+    await source.saveAttempt(attempt('A1', 1));
+    const backup = await createBackup(source, day(6));
+
+    expect(await restoreBackup(backup, createMemoryRepo())).toEqual({
+      attempts: 1,
+      changed: false,
+      persisted: false,
+    });
+  });
+
+  it('진도·종합 테스트 기록을 쓰지 못하면 기기에 남지 않았다고 알린다', async () => {
+    recordLevel('L1', { accuracy: 0.9, kpm: 40 }, day(1));
+    recordExam('kana', { kpm: 90, accuracy: 0.9 }, 1, day(1));
+    const backup = await createBackup(createMemoryRepo(), day(6));
+    localStorage.clear();
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('저장 공간이 찼음', 'QuotaExceededError');
+    });
+
+    expect(await restoreBackup(backup, savedRepo())).toEqual({
+      attempts: 0,
+      changed: true,
+      persisted: false,
+    });
+    expect(loadProgress()).toEqual({});
+    // 훈련 결과는 저장하지 못해도 화면에 보여 줄 기록을 돌려준다
+    expect(recordLevel('L2', { accuracy: 1, kpm: 50 }, day(6)).L2?.plays).toBe(1);
   });
 });

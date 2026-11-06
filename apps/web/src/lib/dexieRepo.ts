@@ -70,7 +70,7 @@ export function createDexieRepo(name = 'twiper'): TrainingRepo {
         const current = await db.sessions.bulkGet(sessionsIn.map((s) => s.id));
         const replaced = sessionsIn.filter((s, i) => replacesSession(current[i], s));
         await db.sessions.bulkPut(replaced);
-        return { attempts: fresh.length, sessions: replaced.length };
+        return { attempts: fresh.length, sessions: replaced.length, persisted: true };
       });
     },
   };

@@ -76,6 +76,8 @@ export interface RestoreResult {
   readonly attempts: number;
   /** 진도·최고 기록이나 세션 기록이 바뀌었는지 */
   readonly changed: boolean;
+  /** 합친 기록이 기기에 남았는지. 쓰지 못했거나 메모리 저장소에 합쳤으면 false (다시 열면 사라진다) */
+  readonly persisted: boolean;
 }
 
 /** 백업을 지금 기록에 합친다. 지금 기록은 지우지 않고, 같은 파일을 두 번 합쳐도 늘지 않는다 */
@@ -83,7 +85,11 @@ export async function restoreBackup(backup: Backup, repo: TrainingRepo): Promise
   const levels = mergeProgress(backup.progress);
   const exams = mergeExamRecords(backup.exams);
   const added = await repo.mergeRecords(backup);
-  return { attempts: added.attempts, changed: levels + exams + added.sessions > 0 };
+  return {
+    attempts: added.attempts,
+    changed: levels.changed + exams.changed + added.sessions > 0,
+    persisted: levels.persisted && exams.persisted && added.persisted,
+  };
 }
 
 /**

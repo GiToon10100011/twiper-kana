@@ -46,11 +46,14 @@ export function loadProgress(): Progress {
   }
 }
 
-function saveProgress(progress: Progress): void {
+/** 저장했으면 true. 저장 공간이 차는 등으로 쓰지 못하면 false */
+function saveProgress(progress: Progress): boolean {
   try {
     localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    return true;
   } catch {
     // 저장하지 못해도 결과 화면은 보여 준다.
+    return false;
   }
 }
 
@@ -80,9 +83,10 @@ export function recordLevel(
 
 /**
  * 백업 파일의 레벨 기록을 합친다. 처음 끝낸 시각은 이른 쪽, 횟수와 최고 기록은 큰 쪽을 남긴다.
- * 그래서 같은 파일을 두 번 합쳐도 그대로다 (두 기기에서 따로 푼 횟수는 더하지 않는다). 바뀐 레벨 수를 돌려준다
+ * 그래서 같은 파일을 두 번 합쳐도 그대로다 (두 기기에서 따로 푼 횟수는 더하지 않는다).
+ * 바뀐 레벨 수와, 바뀐 기록을 저장했는지(바뀐 게 없으면 true)를 돌려준다
  */
-export function mergeProgress(incoming: Progress): number {
+export function mergeProgress(incoming: Progress): { changed: number; persisted: boolean } {
   const progress = loadProgress();
   const merged: Record<string, LevelRecord> = { ...progress };
   let changed = 0;
@@ -106,8 +110,7 @@ export function mergeProgress(incoming: Progress): number {
     merged[id] = next;
     changed += 1;
   }
-  if (changed > 0) saveProgress(merged);
-  return changed;
+  return { changed, persisted: changed === 0 || saveProgress(merged) };
 }
 
 export const clearedLevels = (progress: Progress): Set<string> => new Set(Object.keys(progress));

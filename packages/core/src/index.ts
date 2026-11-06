@@ -55,6 +55,7 @@ export type {
   AttemptFlag,
   AttemptRecord,
   RecordDump,
+  RecordMerge,
   SessionRecord,
   TrainingRepo,
 } from './record/types';

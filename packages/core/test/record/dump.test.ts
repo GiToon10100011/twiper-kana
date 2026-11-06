@@ -117,7 +117,7 @@ describe('createMemoryRepo 내보내기·합치기', () => {
       sessions: [session('S1', true), session('S2', true)],
     });
 
-    expect(added).toEqual({ attempts: 1, sessions: 2 });
+    expect(added).toEqual({ attempts: 1, sessions: 2, persisted: false });
     expect((await repo.attemptTimes()).length).toBe(3);
     expect((await repo.finishedSessions('L1', 10)).map((s) => s.id).sort()).toEqual(['S1', 'S2']);
   });
@@ -129,8 +129,8 @@ describe('createMemoryRepo 내보내기·합치기', () => {
       sessions: [session('S1', true)],
     };
 
-    expect(await repo.mergeRecords(dump)).toEqual({ attempts: 1, sessions: 1 });
-    expect(await repo.mergeRecords(dump)).toEqual({ attempts: 0, sessions: 0 });
+    expect(await repo.mergeRecords(dump)).toEqual({ attempts: 1, sessions: 1, persisted: false });
+    expect(await repo.mergeRecords(dump)).toEqual({ attempts: 0, sessions: 0, persisted: false });
     expect((await repo.dumpRecords()).attempts.length).toBe(1);
   });
 });

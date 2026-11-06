@@ -46,6 +46,11 @@ export function BackupSection({ repo }: { repo?: TrainingRepo }) {
       return;
     }
     const result = await restoreBackup(backup, repo ?? trainingRepo());
+    setRevision((n) => n + 1);
+    if (!result.persisted) {
+      setStatus({ text: t('settings.importNotSaved'), warn: true });
+      return;
+    }
     const text =
       result.attempts > 0
         ? t('settings.importedLines', { count: result.attempts })
@@ -53,7 +58,6 @@ export function BackupSection({ repo }: { repo?: TrainingRepo }) {
           ? t('settings.importedProgress')
           : t('settings.importedNothing');
     setStatus({ text, warn: false });
-    setRevision((n) => n + 1);
   };
 
   return (

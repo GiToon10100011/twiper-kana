@@ -55,6 +55,16 @@ export interface RecordDump {
   readonly sessions: readonly SessionRecord[];
 }
 
+/** 기록을 합친 결과 */
+export interface RecordMerge {
+  /** 새로 넣은 시도 수 */
+  readonly attempts: number;
+  /** 새로 넣거나 바꾼 세션 수 */
+  readonly sessions: number;
+  /** 다시 열어도 남는 저장소에 합쳤는지. 메모리 저장소면 false (다시 열면 사라진다) */
+  readonly persisted: boolean;
+}
+
 /** 훈련 기록 저장소. 웹은 IndexedDB, 테스트는 메모리, 네이티브 앱은 SQLite로 구현한다 (계획 §13) */
 export interface TrainingRepo {
   saveAttempt(attempt: AttemptRecord): Promise<void>;
@@ -74,7 +84,7 @@ export interface TrainingRepo {
   dumpRecords(): Promise<RecordDump>;
   /**
    * 내보낸 기록을 합친다. 이미 있는 id는 그대로 두고, 끝나지 않은 세션만 끝난 쪽으로 바꾼다.
-   * 같은 파일을 두 번 가져와도 기록이 늘지 않는다. 새로 넣거나 바꾼 시도·세션 수를 돌려준다
+   * 같은 파일을 두 번 가져와도 기록이 늘지 않는다
    */
-  mergeRecords(dump: RecordDump): Promise<{ readonly attempts: number; readonly sessions: number }>;
+  mergeRecords(dump: RecordDump): Promise<RecordMerge>;
 }

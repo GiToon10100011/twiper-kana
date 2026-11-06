@@ -468,5 +468,7 @@ export const ja: typeof ko = {
     importedProgress: '進み具合と最高記録を合わせました。',
     importedNothing: 'すでに全部入っている記録です。',
     importInvalid: 'twiperで書き出した記録ファイルではありません。',
+    importNotSaved:
+      '記録を合わせましたが、この端末に保存できませんでした。アプリを開き直すと、読み込んだ記録が消えることがあります。',
   },
 };

@@ -462,5 +462,7 @@ export const ko = {
     importedProgress: '진도와 최고 기록을 합쳤어요.',
     importedNothing: '이미 다 들어 있는 기록이에요.',
     importInvalid: 'twiper에서 내보낸 기록 파일이 아니에요.',
+    importNotSaved:
+      '기록을 합쳤지만 이 기기에 저장하지 못했어요. 앱을 다시 열면 가져온 기록이 사라질 수 있어요.',
   },
 };

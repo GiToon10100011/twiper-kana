@@ -59,7 +59,8 @@ export function createMemoryRepo(): TrainingRepo {
         sessions.set(session.id, session);
         replaced += 1;
       }
-      return Promise.resolve({ attempts: added, sessions: replaced });
+      // 메모리에만 있으므로 다시 열면 사라진다
+      return Promise.resolve({ attempts: added, sessions: replaced, persisted: false });
     },
   };
 }

@@ -1,7 +1,12 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { attemptRecordOf, createInputSession, createMemoryRepo } from '@twiper/core';
+import {
+  attemptRecordOf,
+  createInputSession,
+  createMemoryRepo,
+  type TrainingRepo,
+} from '@twiper/core';
 import '../../i18n';
 import { loadProgress, recordLevel } from '../../lib/progress';
 import { BackupSection } from './BackupSection';
@@ -17,6 +22,15 @@ afterEach(() => {
 const allowShare = (share: (data: ShareData) => Promise<void>) => {
   Object.defineProperty(navigator, 'canShare', { configurable: true, value: () => true });
   Object.defineProperty(navigator, 'share', { configurable: true, value: share });
+};
+
+/** IndexedDB처럼 다시 열어도 남는 저장소로 치는 메모리 저장소 */
+const savedRepo = (): TrainingRepo => {
+  const repo = createMemoryRepo();
+  return {
+    ...repo,
+    mergeRecords: async (dump) => ({ ...(await repo.mergeRecords(dump)), persisted: true }),
+  };
 };
 
 const attempt = (id: string) =>
@@ -69,7 +83,7 @@ describe('BackupSection', () => {
   });
 
   it('고른 파일을 지금 기록에 합치고 몇 줄을 더했는지 알린다. 같은 파일을 다시 고르면 더할 게 없다', async () => {
-    const repo = createMemoryRepo();
+    const repo = savedRepo();
     render(<BackupSection repo={repo} />);
 
     choose(backupText([attempt('A1'), attempt('A2')]));
@@ -90,5 +104,14 @@ describe('BackupSection', () => {
     const status = await screen.findByText('twiper에서 내보낸 기록 파일이 아니에요.');
     expect(status.className).toContain('is-warning');
     expect(loadProgress()).toEqual({});
+  });
+
+  it('합친 기록이 기기에 남지 않으면(메모리 저장소) 다시 열면 사라질 수 있다고 경고한다', async () => {
+    render(<BackupSection repo={createMemoryRepo()} />);
+
+    choose(backupText([attempt('A1')]));
+
+    const status = await screen.findByText(/이 기기에 저장하지 못했어요/);
+    expect(status.className).toContain('is-warning');
   });
 });

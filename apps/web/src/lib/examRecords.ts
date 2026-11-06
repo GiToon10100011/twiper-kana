@@ -55,11 +55,14 @@ export function loadExamRecords(): ExamRecords {
   }
 }
 
-function saveExamRecords(records: ExamRecords): void {
+/** 저장했으면 true. 저장 공간이 차는 등으로 쓰지 못하면 false */
+function saveExamRecords(records: ExamRecords): boolean {
   try {
     localStorage.setItem(EXAM_KEY, JSON.stringify(records));
+    return true;
   } catch {
     // 저장하지 못해도 결과 화면은 보여 준다.
+    return false;
   }
 }
 
@@ -87,9 +90,9 @@ const fasterBest = (a: ExamBest | null, b: ExamBest | null) =>
 
 /**
  * 백업 파일의 종목별 기록을 합친다. 횟수는 큰 쪽, 최고 기록은 빠른 쪽을 남겨
- * 같은 파일을 두 번 합쳐도 그대로다. 바뀐 종목 수를 돌려준다
+ * 같은 파일을 두 번 합쳐도 그대로다. 바뀐 종목 수와, 바뀐 기록을 저장했는지(바뀐 게 없으면 true)를 돌려준다
  */
-export function mergeExamRecords(incoming: ExamRecords): number {
+export function mergeExamRecords(incoming: ExamRecords): { changed: number; persisted: boolean } {
   const records = loadExamRecords();
   const merged: Partial<Record<string, ExamRecord>> = { ...records };
   let changed = 0;
@@ -102,6 +105,5 @@ export function mergeExamRecords(incoming: ExamRecords): number {
     merged[mode] = next;
     changed += 1;
   }
-  if (changed > 0) saveExamRecords(merged);
-  return changed;
+  return { changed, persisted: changed === 0 || saveExamRecords(merged) };
 }

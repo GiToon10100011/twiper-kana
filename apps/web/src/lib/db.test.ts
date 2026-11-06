@@ -125,11 +125,19 @@ describe('createDexieRepo', () => {
         session('S3', 'L2', at(9), true),
       ],
     };
-    expect(await repo.mergeRecords(incoming)).toEqual({ attempts: 1, sessions: 2 });
+    expect(await repo.mergeRecords(incoming)).toEqual({
+      attempts: 1,
+      sessions: 2,
+      persisted: true,
+    });
     expect(await repo.attemptTimes()).toEqual([at(1), at(2), at(3)]);
     expect((await repo.finishedSessions('L1', 10)).map((x) => x.id)).toEqual(['S2', 'S1']);
 
-    expect(await repo.mergeRecords(incoming)).toEqual({ attempts: 0, sessions: 0 });
+    expect(await repo.mergeRecords(incoming)).toEqual({
+      attempts: 0,
+      sessions: 0,
+      persisted: true,
+    });
   });
 });
 
@@ -151,5 +159,12 @@ describe('resilientRepo', () => {
     await repo.saveSession(session('S1', 'L1', '2026-10-18T01:00:00.000Z', true));
 
     expect((await repo.finishedSessions('L1', 1)).map((s) => s.id)).toEqual(['S1']);
+
+    // 메모리 저장소에 합친 기록은 다시 열면 사라지므로 가져오기 화면이 경고할 수 있게 알린다
+    const merged = await repo.mergeRecords({
+      attempts: [],
+      sessions: [session('S2', 'L1', '2026-10-18T02:00:00.000Z', true)],
+    });
+    expect(merged).toEqual({ attempts: 0, sessions: 1, persisted: false });
   });
 });

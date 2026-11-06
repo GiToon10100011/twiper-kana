@@ -3,6 +3,7 @@ import { createMemoryRepo, ulid, type TrainingRepo } from '@twiper/core';
 /**
  * 저장소가 실패해도 훈련은 계속되어야 하므로, 처음 실패하면 이번 실행 동안은 메모리 저장소로 바꾼다.
  * (사생활 보호 모드 등에서 IndexedDB를 열 수 없는 경우)
+ * 바꾼 뒤에 합친 기록은 메모리 저장소가 persisted: false로 알리므로, 가져오기 화면이 경고할 수 있다
  */
 export function resilientRepo(primary: TrainingRepo, fallback = createMemoryRepo()): TrainingRepo {
   let active = primary;
