@@ -51,8 +51,15 @@ export { tokenizeKana } from './kana/tokenize';
 export { sameVariantFamily, variantBase } from './kana/variants';
 export { addDays, dayKey, recentDays, streakOf, type Streak } from './progress/streak';
 export { frontierLevel, unlockedLevels } from './progress/unlock';
-export type { AttemptFlag, AttemptRecord, SessionRecord, TrainingRepo } from './record/types';
+export type {
+  AttemptFlag,
+  AttemptRecord,
+  RecordDump,
+  SessionRecord,
+  TrainingRepo,
+} from './record/types';
 export { attemptRecordOf, type AttemptMeta } from './record/attempt';
+export { isAttemptRecord, isSessionRecord, replacesSession } from './record/dump';
 export { createMemoryRepo } from './record/memoryRepo';
 export { ulid } from './record/ulid';
 export {

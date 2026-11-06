@@ -449,5 +449,18 @@ export const ko = {
     idleMinutes: '{{count}}분',
     idleOff: '끄기',
     home: '홈으로',
+    backup: '기록 백업',
+    export: '내보내기',
+    exportHint:
+      '진도·최고 기록·연습 기록을 파일 하나로 저장해요. 공유 창이 뜨면 「파일에 저장」을 고르세요.',
+    exportButton: '파일로 저장',
+    import: '가져오기',
+    importHint:
+      '내보낸 파일을 고르면 지금 기록에 합쳐요. 지금 기록은 지워지지 않아요. 새 iPhone이나 홈 화면 앱으로 기록을 옮길 때 쓰세요.',
+    importButton: '파일 고르기',
+    importedLines: '연습 기록 {{count}}줄을 더했어요. 진도와 최고 기록도 합쳤어요.',
+    importedProgress: '진도와 최고 기록을 합쳤어요.',
+    importedNothing: '이미 다 들어 있는 기록이에요.',
+    importInvalid: 'twiper에서 내보낸 기록 파일이 아니에요.',
   },
 };

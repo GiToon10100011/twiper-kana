@@ -22,6 +22,8 @@ export function resilientRepo(primary: TrainingRepo, fallback = createMemoryRepo
     recentAttempts: (limit) => run((repo) => repo.recentAttempts(limit)),
     attemptTimes: () => run((repo) => repo.attemptTimes()),
     attemptsSince: (at) => run((repo) => repo.attemptsSince(at)),
+    dumpRecords: () => run((repo) => repo.dumpRecords()),
+    mergeRecords: (dump) => run((repo) => repo.mergeRecords(dump)),
   };
 }
 
@@ -37,6 +39,8 @@ function lazyDexieRepo(): TrainingRepo {
     recentAttempts: async (limit) => (await repo()).recentAttempts(limit),
     attemptTimes: async () => (await repo()).attemptTimes(),
     attemptsSince: async (at) => (await repo()).attemptsSince(at),
+    dumpRecords: async () => (await repo()).dumpRecords(),
+    mergeRecords: async (dump) => (await repo()).mergeRecords(dump),
   };
 }
 

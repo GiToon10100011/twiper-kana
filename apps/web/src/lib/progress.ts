@@ -31,15 +31,26 @@ const isLevelRecord = (value: unknown): value is LevelRecord => {
 
 // 브라우저 저장소를 쓸 수 없어도(사생활 보호 모드 등) 훈련은 할 수 있어야 하므로 실패는 삼킨다.
 
+/** 저장해 둔 값이나 가져온 백업 파일에서 레벨 기록만 골라낸다 */
+export function parseProgress(value: unknown): Progress {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return {};
+  return Object.fromEntries(Object.entries(value).filter(([, record]) => isLevelRecord(record)));
+}
+
 export function loadProgress(): Progress {
   try {
     const raw = localStorage.getItem(PROGRESS_KEY);
-    if (!raw) return {};
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return {};
-    return Object.fromEntries(Object.entries(parsed).filter(([, value]) => isLevelRecord(value)));
+    return raw ? parseProgress(JSON.parse(raw)) : {};
   } catch {
     return {};
+  }
+}
+
+function saveProgress(progress: Progress): void {
+  try {
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+  } catch {
+    // 저장하지 못해도 결과 화면은 보여 준다.
   }
 }
 
@@ -63,12 +74,40 @@ export function recordLevel(
       bestKpm: higher(prev?.bestKpm ?? null, summary.kpm),
     },
   };
-  try {
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(updated));
-  } catch {
-    // 저장하지 못해도 결과 화면은 보여 준다.
-  }
+  saveProgress(updated);
   return updated;
+}
+
+/**
+ * 백업 파일의 레벨 기록을 합친다. 처음 끝낸 시각은 이른 쪽, 횟수와 최고 기록은 큰 쪽을 남긴다.
+ * 그래서 같은 파일을 두 번 합쳐도 그대로다 (두 기기에서 따로 푼 횟수는 더하지 않는다). 바뀐 레벨 수를 돌려준다
+ */
+export function mergeProgress(incoming: Progress): number {
+  const progress = loadProgress();
+  const merged: Record<string, LevelRecord> = { ...progress };
+  let changed = 0;
+  for (const [id, record] of Object.entries(incoming)) {
+    const prev = progress[id];
+    const next: LevelRecord = prev
+      ? {
+          clearedAt: prev.clearedAt <= record.clearedAt ? prev.clearedAt : record.clearedAt,
+          plays: Math.max(prev.plays, record.plays),
+          bestAccuracy: Math.max(prev.bestAccuracy, record.bestAccuracy),
+          bestKpm: higher(prev.bestKpm, record.bestKpm),
+        }
+      : record;
+    const same =
+      prev &&
+      prev.clearedAt === next.clearedAt &&
+      prev.plays === next.plays &&
+      prev.bestAccuracy === next.bestAccuracy &&
+      prev.bestKpm === next.bestKpm;
+    if (same) continue;
+    merged[id] = next;
+    changed += 1;
+  }
+  if (changed > 0) saveProgress(merged);
+  return changed;
 }
 
 export const clearedLevels = (progress: Progress): Set<string> => new Set(Object.keys(progress));

@@ -9,6 +9,7 @@ import {
 } from '../../lib/settings';
 import { BackIcon } from '../../ui/icons';
 import { Pills } from '../../ui/Pills';
+import { BackupSection } from './BackupSection';
 
 export function Settings() {
   const { t } = useTranslation();
@@ -81,6 +82,7 @@ export function Settings() {
           </div>
         </li>
       </ul>
+      <BackupSection />
     </main>
   );
 }

@@ -1332,6 +1332,27 @@ a.tile-row:active {
   margin-bottom: 0;
 }
 
+/* 기록 백업: 설명 오른쪽의 버튼은 줄지 않게 */
+.setting-row .btn {
+  flex: none;
+  white-space: nowrap;
+}
+
+.setting-row .btn:disabled {
+  color: var(--ink-muted);
+}
+
+.backup-status {
+  min-height: 1.25rem;
+  margin: var(--space-3) var(--space-1) 0;
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.backup-status.is-warning {
+  color: var(--danger);
+}
+
 .switch {
   position: relative;
   flex: none;
