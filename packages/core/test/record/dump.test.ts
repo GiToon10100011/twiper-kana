@@ -8,6 +8,8 @@ import {
   replacesSession,
   summarizeDrill,
   type AttemptRecord,
+  type InputErrorCause,
+  type JudgeMode,
   type SessionRecord,
 } from '../../src/index';
 
@@ -37,6 +39,27 @@ describe('isAttemptRecord', () => {
     expect(isAttemptRecord({ ...record, surface: '時々' })).toBe(true);
   });
 
+  it('틀린 원인·판정 방식·표시는 타입의 모든 값을 받는다', () => {
+    const record = attempt('A1', '2026-11-06T01:00:00.000Z');
+    const causes: InputErrorCause[] = ['continued', 'deleted', 'committed'];
+    const judges: JudgeMode[] = ['composing', 'commit'];
+
+    for (const cause of causes) {
+      for (const judge of judges) {
+        const mistake = { index: 0, expected: 'か', actual: 'さ', cause, kind: 'key' as const };
+        const withMistake: AttemptRecord = {
+          ...record,
+          result: 'corrected',
+          judge,
+          mistakes: [mistake],
+          corrections: 1,
+          flags: ['romaji-suspected', 'toggle-suspected'],
+        };
+        expect(isAttemptRecord(JSON.parse(JSON.stringify(withMistake)))).toBe(true);
+      }
+    }
+  });
+
   it('화면과 통계가 읽는 필드가 빠지거나 모양이 다르면 받지 않는다', () => {
     const record = attempt('A1', '2026-11-06T01:00:00.000Z');
 
@@ -45,6 +68,7 @@ describe('isAttemptRecord', () => {
     expect(isAttemptRecord({ ...record, id: 1 })).toBe(false);
     expect(isAttemptRecord({ ...record, at: 'yesterday' })).toBe(false);
     expect(isAttemptRecord({ ...record, result: 'wrong' })).toBe(false);
+    expect(isAttemptRecord({ ...record, judge: 'toString' })).toBe(false);
     expect(isAttemptRecord({ ...record, unitMs: ['fast'] })).toBe(false);
     expect(isAttemptRecord({ ...record, flags: ['cheat'] })).toBe(false);
     expect(

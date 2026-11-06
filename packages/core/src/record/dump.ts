@@ -1,4 +1,5 @@
-import type { AttemptRecord, SessionRecord } from './types';
+import type { InputErrorCause, JudgeMode } from '../input/types';
+import type { AttemptFlag, AttemptRecord, SessionRecord } from './types';
 
 /**
  * 기록 가져오기에서 파일로 읽은 값을 확인한다.
@@ -21,15 +22,20 @@ const isNumberOrNull = (value: unknown) => value === null || isNumber(value);
 const isTime = (value: unknown): value is string =>
   isString(value) && !Number.isNaN(Date.parse(value));
 
-const CAUSES: readonly unknown[] = ['continued', 'deleted', 'committed'];
-const FLAGS: readonly unknown[] = ['romaji-suspected', 'toggle-suspected'];
+// 받을 값의 표. 타입에 값이 늘거나 바뀌면 여기서 컴파일이 깨지도록 Record로 둔다
+const CAUSES: Record<InputErrorCause, true> = { continued: true, deleted: true, committed: true };
+const JUDGES: Record<JudgeMode, true> = { composing: true, commit: true };
+const FLAGS: Record<AttemptFlag, true> = { 'romaji-suspected': true, 'toggle-suspected': true };
+
+const isOneOf = <K extends string>(table: Record<K, true>, value: unknown): value is K =>
+  isString(value) && Object.hasOwn(table, value);
 
 const isMistake = (value: unknown) =>
   isObject(value) &&
   isNumber(value.index) &&
   isString(value.expected) &&
   isString(value.actual) &&
-  CAUSES.includes(value.cause) &&
+  isOneOf(CAUSES, value.cause) &&
   (value.kind === undefined || isString(value.kind));
 
 /** 한 줄을 푼 기록 모양인지 */
@@ -41,7 +47,7 @@ export function isAttemptRecord(value: unknown): value is AttemptRecord {
     isTime(value.at) &&
     (value.surface === undefined || isString(value.surface)) &&
     (value.result === 'correct' || value.result === 'corrected') &&
-    (value.judge === 'composing' || value.judge === 'commit') &&
+    isOneOf(JUDGES, value.judge) &&
     isNumberOrNull(value.reactionMs) &&
     isNumberOrNull(value.elapsedMs) &&
     Array.isArray(unitMs) &&
@@ -50,7 +56,7 @@ export function isAttemptRecord(value: unknown): value is AttemptRecord {
     mistakes.every(isMistake) &&
     isNumber(value.corrections) &&
     Array.isArray(flags) &&
-    flags.every((flag) => FLAGS.includes(flag))
+    flags.every((flag) => isOneOf(FLAGS, flag))
   );
 }
 
