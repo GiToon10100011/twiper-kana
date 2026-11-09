@@ -30,6 +30,7 @@ const guide: KeyboardGuide = {
     ],
     direct: [],
   },
+  caseKey: { label: 'a/A', row: 3, col: 0, samples: [] },
 };
 
 describe('explainChar', () => {

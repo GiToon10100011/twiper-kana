@@ -29,7 +29,10 @@ const guide: KeyboardGuide = {
       switchLabel: '☆123',
       keys: [{ id: '1', label: '1', row: 0, col: 0, outputs: { tap: '1' } }],
     },
-    alpha: { switchLabel: 'ABC', keys: [] },
+    alpha: {
+      switchLabel: 'ABC',
+      keys: [{ id: 'abc', label: 'ABC', row: 0, col: 1, outputs: { tap: 'a', up: 'c' } }],
+    },
   },
   modifier: {
     label: '小゛゜',
@@ -38,6 +41,7 @@ const guide: KeyboardGuide = {
     cycles: [{ chars: ['は', 'ば', 'ぱ'] }, { chars: ['や', 'ゃ'], unverified: true }],
     direct: [{ dir: 'right', base: 'は', out: 'ぱ' }],
   },
+  caseKey: { label: 'a/A', row: 3, col: 0, samples: ['c'], unverified: true },
 };
 
 describe('findKeyStep', () => {
@@ -70,6 +74,8 @@ describe('guideClaims', () => {
       'kana.ya.tap',
       'kana.ya.left',
       'number.1.tap',
+      'alpha.abc.tap',
+      'alpha.abc.up',
     ]);
     expect(byId.get('kana.ha.left')?.expected).toBe('ひ');
   });
@@ -97,6 +103,24 @@ describe('guideClaims', () => {
     expect(direct?.expected).toBe('ぱ');
     expect(direct?.unverified).toBe(true);
     expect(direct?.steps[1]).toEqual({ kind: 'modifier', dir: 'right', times: 1, out: 'ぱ' });
+  });
+
+  it('대문자는 ABC 자판에서 소문자를 친 뒤 a/A 키를 탭하는 동작으로 푼다', () => {
+    const upper = byId.get('case.c');
+
+    expect(upper?.expected).toBe('C');
+    expect(upper?.layer).toBe('alpha');
+    expect(upper?.unverified).toBe(true);
+    expect(upper?.steps).toEqual([
+      { kind: 'key', layer: 'alpha', keyId: 'abc', label: 'ABC', dir: 'up', out: 'c' },
+      { kind: 'case', out: 'C' },
+    ]);
+  });
+
+  it('대문자 보기 글자를 낼 키가 ABC 자판에 없으면 데이터 오류로 본다', () => {
+    const broken: KeyboardGuide = { ...guide, caseKey: { ...guide.caseKey, samples: ['z'] } };
+
+    expect(() => guideClaims(broken)).toThrow(/alpha.*z/);
   });
 
   it('기본 문자를 낼 키가 없으면 데이터 오류로 본다', () => {

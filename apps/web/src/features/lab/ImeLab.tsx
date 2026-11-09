@@ -45,6 +45,11 @@ const LINES: readonly LabLine[] = [
   { target: 'きゃきゅきょ', judge: 'composing' },
   { target: 'カメラ', judge: 'commit' },
   { target: 'ー、。？！', judge: 'composing' },
+  // 영어·숫자 섞어 치기: ABC·☆123 모드로 바꿔 친 글자가 조합에 어떻게 들어오고 어떻게 確定되는지 본다
+  { target: 'OKです', judge: 'commit' },
+  { target: 'iPhoneで', judge: 'commit' },
+  { target: 'LINEする', judge: 'commit' },
+  { target: '3時に', judge: 'commit' },
 ];
 
 const STRATEGIES: readonly { id: ResetStrategy; label: string; hint: string }[] = [

@@ -15,6 +15,7 @@ export {
 } from './exam/exam';
 export type {
   FlickDirection,
+  GuideCaseKey,
   GuideClaim,
   GuideKey,
   GuideLayer,
