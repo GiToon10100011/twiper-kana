@@ -155,7 +155,7 @@ export function Stats({ repo }: { repo?: TrainingRepo }) {
       {/* 기록이 없어도 약점 연습 카드를 보여 처음 쓰는 사람도 이런 연습이 있는 줄 알게 한다 */}
       {attempts === null ? null : <WeakCard units={weak} back={back} enough={enough} />}
       {attempts === null ? null : stats.length === 0 ? (
-        <p className="screen-body">{t('stats.empty')}</p>
+        <p className="screen-note">{t('stats.empty')}</p>
       ) : (
         <>
           <TrendSection attempts={recent} today={today} />

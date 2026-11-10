@@ -113,7 +113,7 @@ export function TrendLab() {
       </header>
       {choice('기록', SAMPLES, sample, setSample)}
       {sample === 'real' && real !== null && real.length === 0 ? (
-        <p className="lab-note">
+        <p className="screen-note">
           이 주소(미리보기)에는 기록이 없어요. 설정 › 기록 백업에서 정식 앱에서 내보낸 파일을
           가져오면 내 기록으로 볼 수 있어요.
         </p>
