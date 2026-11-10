@@ -2,7 +2,7 @@ import type { DrillSpec } from '@twiper/core';
 import { dakutenWords, handakutenWords, sokuonWords, yoonWords } from '../words/combos';
 import { hiraganaWords } from '../words/hiragana';
 import { foreignWords, katakanaWords, longVowelWords, vuWords } from '../words/katakana';
-import { punctPhrases, symbolPhrases } from '../words/phrases';
+import { alnumPhrases, punctPhrases, symbolPhrases } from '../words/phrases';
 import { chatLines, type ChatLine } from '../sentences/chat';
 import { dailySentences } from '../sentences/daily';
 
@@ -12,8 +12,11 @@ export type ComboTopic = 'dakuten' | 'handakuten' | 'small' | 'yoon' | 'sokuon';
 /** 가타카나 단계에서 다루는 규칙. 읽는 대로 친 뒤 변환 후보에서 골라 確定한다 */
 export type KatakanaTopic = 'katakana' | 'longVowel' | 'foreign' | 'vu';
 
-/** 기호 단계에서 다루는 규칙. punct: かな 자판의 문장부호 / symbol: ☆123 자판의 기호 */
-export type SymbolTopic = 'punct' | 'symbol';
+/**
+ * 기호 단계에서 다루는 규칙. punct: かな 자판의 문장부호 / symbol: ☆123 자판의 기호 /
+ * alnum: ABC 자판의 영문자와 ☆123 자판의 숫자
+ */
+export type SymbolTopic = 'punct' | 'symbol' | 'alnum';
 
 export type LevelTopic = ComboTopic | KatakanaTopic | SymbolTopic;
 
@@ -193,7 +196,7 @@ const phrase = (
 });
 
 /**
- * 기호 단계 L20–L21. 문장부호는 かな 자판에서 이어 치므로 조합 중에 맞으면 정답이다.
+ * 기호 단계 L20–L21 (영어·숫자 L24는 levels 끝). 문장부호는 かな 자판에서 이어 치므로 조합 중에 맞으면 정답이다.
  * ☆123 기호는 자판을 바꾸는 사이에 앞 글자가 確定될 수 있어 確定한 결과로 채점한다(commit).
  * 도해는 「、。?!」·や 키, ☆123 자판의 1(☆♪)·4(・)·0(〜…) 키를 보여 준다.
  */
@@ -265,6 +268,8 @@ export const levels: readonly Level[] = [
   ...katakanaLevels,
   ...symbolLevels,
   ...sentenceLevels,
+  // 나중에 넣은 레벨. id는 기록의 열쇠라서 번호를 당기지 않고 맨 끝에 둔다 (목록에서는 기호 탭에 보인다)
+  phrase(24, 'alnum', alnumPhrases, ['a'], 'commit'),
 ];
 
 export function findLevel(id: string): Level | undefined {

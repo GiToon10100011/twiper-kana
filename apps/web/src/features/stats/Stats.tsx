@@ -41,6 +41,7 @@ const TOPIC_STAGE: Record<TopicSkill, Stage> = {
   vu: 'katakana',
   punct: 'symbol',
   symbol: 'symbol',
+  alnum: 'symbol',
 };
 
 const stageOf = (skill: SkillId): Stage =>

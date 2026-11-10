@@ -13,13 +13,14 @@ interface HelpCardProps {
 
 /**
  * 상황별 도움말: 막힌 글자를 어느 키로 어느 방향에 치고, 「小゛゜」를 몇 번 누르는지 보여 준다.
- * ☆123 자판의 기호면 자판을 바꾸라는 표시를 앞에 붙인다.
+ * ☆123·ABC 자판의 글자면 자판을 바꾸라는 표시를 앞에 붙이고, 영문 대문자면 뒤에 「a/A」를 붙인다.
  * 키보드가 화면 아래를 덮으므로 입력창 바로 아래에 작게 띄운다.
  */
 export function HelpCard({ char, steps, labels }: HelpCardProps) {
   const { t } = useTranslation();
   const keyStep = steps.find((step) => step.kind === 'key');
   const modStep = steps.find((step) => step.kind === 'modifier');
+  const caseStep = steps.find((step) => step.kind === 'case');
   const layer = keyStep ? iosKana.layers[keyStep.layer] : undefined;
   const keyDef = keyStep && layer?.keys.find((key) => key.id === keyStep.keyId);
   if (!keyStep || !layer || !keyDef) return null;
@@ -30,6 +31,7 @@ export function HelpCard({ char, steps, labels }: HelpCardProps) {
     otherLayer ? t('find.layer', { label: layer.switchLabel }) : null,
     t('help.key', { key: keyStep.label, dir: labels[keyStep.dir] }),
     modStep ? t('help.modifier', { label: iosKana.modifier.label, times: modStep.times }) : null,
+    caseStep ? t('help.modifier', { label: iosKana.caseKey.label, times: 1 }) : null,
   ]
     .filter(Boolean)
     .join(', ');
@@ -53,6 +55,12 @@ export function HelpCard({ char, steps, labels }: HelpCardProps) {
               {iosKana.modifier.label}
               {modStep.times > 1 ? <small>×{modStep.times}</small> : null}
             </span>
+          </>
+        ) : null}
+        {caseStep ? (
+          <>
+            <span className="howto-plus">+</span>
+            <span className="howto-key is-mod">{iosKana.caseKey.label}</span>
           </>
         ) : null}
         <span className="howto-eq">=</span>

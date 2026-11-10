@@ -12,6 +12,7 @@ import {
   type LineResult,
 } from '@twiper/core';
 import {
+  alnumPhrases,
   chatLines,
   dailySentences,
   dakutenWords,
@@ -52,6 +53,8 @@ const SMALL_VOWELS = 'ァィゥェォ';
 const PUNCT = '、。？！「」';
 /** ☆123 기호 레벨에서 배우는 기호 (〜는 U+301C) */
 const SYMBOLS = '\u{301C}…・♪☆';
+/** 영어·숫자 레벨에서 배우는 반각 영문자와 숫자 */
+const ALNUM = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 /**
  * 이 레벨까지 배운 글자. 가타카나 레벨은 그때까지 배운 히라가나의 가타카나를, 장음 레벨은 ー를,
@@ -66,6 +69,7 @@ function allowedFor(level: Level): Set<string> {
     else if (prev.topic === 'vu') allowed.add('ヴ');
     else if (prev.topic === 'punct') for (const char of PUNCT) allowed.add(char);
     else if (prev.topic === 'symbol') for (const char of SYMBOLS) allowed.add(char);
+    else if (prev.topic === 'alnum') for (const char of ALNUM) allowed.add(char);
     else if (prev.topic) for (const char of INTRODUCES[prev.topic]) allowed.add(char);
   }
   return allowed;
@@ -96,12 +100,12 @@ const perfect = (line: string): LineResult => ({
 });
 
 describe('levels', () => {
-  it('L1부터 L23까지 번호와 id가 차례로 이어지고, 기초 10개·조합 5개·가타카나 4개·기호 2개·문장 2개다', () => {
+  it('L1부터 L24까지 번호와 id가 차례로 이어지고, 기초 10개·조합 5개·가타카나 4개·기호 3개·문장 2개다', () => {
     expect(levels.map((level) => level.id)).toEqual(
-      Array.from({ length: 23 }, (_, i) => `L${i + 1}`),
+      Array.from({ length: 24 }, (_, i) => `L${i + 1}`),
     );
     expect(levels.map((level) => level.number)).toEqual(
-      Array.from({ length: 23 }, (_, i) => i + 1),
+      Array.from({ length: 24 }, (_, i) => i + 1),
     );
     expect(levels.filter((level) => level.stage === 'sentence').map((l) => l.kind)).toEqual([
       'sentence',
@@ -116,6 +120,7 @@ describe('levels', () => {
     expect(levels.filter((level) => level.stage === 'symbol').map((l) => l.topic)).toEqual([
       'punct',
       'symbol',
+      'alnum',
     ]);
     expect(levels.filter((level) => level.stage === 'basic')).toHaveLength(10);
     expect(levels.filter((level) => level.stage === 'combo').map((l) => l.topic)).toEqual([
@@ -206,7 +211,8 @@ describe('levels', () => {
     expect(nextLevel('L18')?.id).toBe('L19');
     expect(nextLevel('L19')?.id).toBe('L20');
     expect(nextLevel('L21')?.id).toBe('L22');
-    expect(nextLevel('L23')).toBeUndefined();
+    expect(nextLevel('L23')?.id).toBe('L24');
+    expect(nextLevel('L24')).toBeUndefined();
   });
 });
 
@@ -223,6 +229,7 @@ describe('단어 목록', () => {
     ['vuWords', vuWords, 20],
     ['punctPhrases', punctPhrases, 30],
     ['symbolPhrases', symbolPhrases, 30],
+    ['alnumPhrases', alnumPhrases, 30],
   ] as const)('%s: 겹치는 단어가 없고 %#번째 기준 개수 이상', (_, words, min) => {
     expect(new Set(words).size).toBe(words.length);
     expect(words.length).toBeGreaterThanOrEqual(min);
@@ -306,10 +313,27 @@ describe('단어 목록', () => {
     ).toEqual([]);
   });
 
-  it('문장부호 레벨은 조합 중에 맞으면, ☆123 기호 레벨은 確定한 결과로 채점한다', () => {
+  it('문장부호 레벨은 조합 중에 맞으면, ☆123 기호·영어·숫자 레벨은 確定한 결과로 채점한다', () => {
     expect(findLevel('L20')?.drill.judge).toBeUndefined();
     expect(findLevel('L21')?.drill.judge).toBe('commit');
-    expect(levels.filter((level) => level.drill.judge === 'commit')).toHaveLength(7);
+    expect(findLevel('L24')?.drill.judge).toBe('commit');
+    expect(levels.filter((level) => level.drill.judge === 'commit')).toHaveLength(8);
+  });
+
+  it('영어·숫자 레벨의 짧은 말은 영문자나 숫자를 하나 이상 담고, 가타카나 없이 히라가나·문장부호·후리가나 붙인 단위 한자로 쓴다', () => {
+    const allowed = (c: string) =>
+      (isKana(c) && toHiragana(c) === c) || ALNUM.includes(c) || PUNCT.includes(c);
+    const invalid = alnumPhrases.filter((phrase) => {
+      const { surface } = parseRuby(phrase);
+      const kanji = Array.from(surface).filter((c) => /\p{Script=Han}/u.test(c));
+      return (
+        !Array.from(surface).some((c) => ALNUM.includes(c)) ||
+        !Array.from(surface).every((c) => allowed(c) || kanji.includes(c)) ||
+        !kanji.every((c) => '時分円'.includes(c))
+      );
+    });
+
+    expect(invalid).toEqual([]);
   });
 });
 

@@ -27,7 +27,7 @@ export function explainChar(guide: KeyboardGuide, char: string): InputStep[] | n
 
 /**
  * 키로 칠 수 있는 글자를 찾는다. かな 자판(가타카나는 읽기로)에서 먼저 찾고, 없으면 ☆123·ABC 자판에서 찾는다.
- * 어느 자판에도 없으면 null (한자 등)
+ * 영문 대문자는 ABC 자판에서 소문자를 친 뒤 a/A 키를 누르는 동작이다. 어느 자판에도 없으면 null (한자 등)
  */
 export function lookupChar(guide: KeyboardGuide, char: string): InputStep[] | null {
   const kana = explainChar(guide, char);
@@ -36,7 +36,9 @@ export function lookupChar(guide: KeyboardGuide, char: string): InputStep[] | nu
     const step = findKeyStep(guide, char, layer);
     if (step) return [step];
   }
-  return null;
+  const lower = char.toLowerCase();
+  const letter = lower !== char ? findKeyStep(guide, lower, 'alpha') : null;
+  return letter ? [letter, { kind: 'case', out: char }] : null;
 }
 
 /** 글자 찾기에서 한 소리 단위 (きゃ처럼 작은 글자는 앞 글자와 묶는다) */

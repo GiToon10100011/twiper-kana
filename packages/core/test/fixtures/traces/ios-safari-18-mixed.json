@@ -1,0 +1,6514 @@
+{
+  "schema": "twiper.trace/1",
+  "label": "ios-browser",
+  "recordedAt": "2026-11-09T23:58:24.269Z",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Mobile/15E148 Safari/604.1",
+  "standalone": false,
+  "results": [
+    {
+      "session": 1,
+      "round": 1,
+      "line": 0,
+      "target": "あいうえお",
+      "judge": "composing",
+      "strategy": "swap",
+      "emit": "task",
+      "elapsedMs": null,
+      "errors": [],
+      "romajiSuspected": false,
+      "toggleSuspected": false,
+      "skipped": true
+    },
+    {
+      "session": 2,
+      "round": 1,
+      "line": 1,
+      "target": "かきくけこ",
+      "judge": "composing",
+      "strategy": "swap",
+      "emit": "task",
+      "elapsedMs": null,
+      "errors": [],
+      "romajiSuspected": false,
+      "toggleSuspected": false,
+      "skipped": true
+    },
+    {
+      "session": 3,
+      "round": 1,
+      "line": 2,
+      "target": "がぎぐげご",
+      "judge": "composing",
+      "strategy": "swap",
+      "emit": "task",
+      "elapsedMs": null,
+      "errors": [],
+      "romajiSuspected": false,
+      "toggleSuspected": false,
+      "skipped": true
+    },
+    {
+      "session": 4,
+      "round": 1,
+      "line": 3,
+      "target": "きゃきゅきょ",
+      "judge": "composing",
+      "strategy": "swap",
+      "emit": "task",
+      "elapsedMs": null,
+      "errors": [],
+      "romajiSuspected": false,
+      "toggleSuspected": false,
+      "skipped": true
+    },
+    {
+      "session": 5,
+      "round": 1,
+      "line": 4,
+      "target": "カメラ",
+      "judge": "commit",
+      "strategy": "swap",
+      "emit": "task",
+      "elapsedMs": null,
+      "errors": [],
+      "romajiSuspected": false,
+      "toggleSuspected": false,
+      "skipped": true
+    },
+    {
+      "session": 6,
+      "round": 1,
+      "line": 5,
+      "target": "ー、。？！",
+      "judge": "composing",
+      "strategy": "swap",
+      "emit": "task",
+      "elapsedMs": null,
+      "errors": [],
+      "romajiSuspected": false,
+      "toggleSuspected": false,
+      "skipped": true
+    },
+    {
+      "session": 7,
+      "round": 1,
+      "line": 6,
+      "target": "OKです",
+      "judge": "commit",
+      "strategy": "swap",
+      "emit": "task",
+      "elapsedMs": 26630,
+      "errors": [
+        {
+          "index": 1,
+          "expected": "K",
+          "actual": "L",
+          "cause": "deleted",
+          "t": 20348
+        },
+        {
+          "index": 2,
+          "expected": "で",
+          "actual": "ち",
+          "cause": "deleted",
+          "t": 26103
+        }
+      ],
+      "romajiSuspected": false,
+      "toggleSuspected": false,
+      "skipped": false
+    },
+    {
+      "session": 8,
+      "round": 1,
+      "line": 7,
+      "target": "iPhoneで",
+      "judge": "commit",
+      "strategy": "swap",
+      "emit": "task",
+      "elapsedMs": 24132,
+      "errors": [
+        {
+          "index": 1,
+          "expected": "P",
+          "actual": "p",
+          "cause": "deleted",
+          "t": 52930
+        },
+        {
+          "index": 2,
+          "expected": "h",
+          "actual": "i",
+          "cause": "deleted",
+          "t": 58694
+        },
+        {
+          "index": 2,
+          "expected": "h",
+          "actual": "H",
+          "cause": "continued",
+          "t": 61486
+        },
+        {
+          "index": 3,
+          "expected": "o",
+          "actual": "O",
+          "cause": "deleted",
+          "t": 63609
+        }
+      ],
+      "romajiSuspected": false,
+      "toggleSuspected": false,
+      "skipped": false
+    },
+    {
+      "session": 9,
+      "round": 1,
+      "line": 8,
+      "target": "LINEする",
+      "judge": "commit",
+      "strategy": "swap",
+      "emit": "task",
+      "elapsedMs": 16568,
+      "errors": [
+        {
+          "index": 2,
+          "expected": "N",
+          "actual": "o",
+          "cause": "deleted",
+          "t": 98355
+        }
+      ],
+      "romajiSuspected": false,
+      "toggleSuspected": false,
+      "skipped": false
+    },
+    {
+      "session": 10,
+      "round": 1,
+      "line": 9,
+      "target": "3時に",
+      "judge": "commit",
+      "strategy": "swap",
+      "emit": "task",
+      "elapsedMs": 18076,
+      "errors": [],
+      "romajiSuspected": false,
+      "toggleSuspected": false,
+      "skipped": false
+    }
+  ],
+  "marks": [],
+  "viewport": [
+    {
+      "t": 1715,
+      "reason": "mount",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 775,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 1731,
+      "reason": "mount",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 775,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 13174,
+      "reason": "focus:A",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 775,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 13714,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 85104,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 16,
+      "vvScale": 1
+    },
+    {
+      "t": 85122,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 24,
+      "vvScale": 1
+    },
+    {
+      "t": 85130,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 36,
+      "vvScale": 1
+    },
+    {
+      "t": 85147,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 51,
+      "vvScale": 1
+    },
+    {
+      "t": 85163,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 67,
+      "vvScale": 1
+    },
+    {
+      "t": 85179,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 82,
+      "vvScale": 1
+    },
+    {
+      "t": 85196,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 96,
+      "vvScale": 1
+    },
+    {
+      "t": 85213,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 110,
+      "vvScale": 1
+    },
+    {
+      "t": 85230,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 124,
+      "vvScale": 1
+    },
+    {
+      "t": 85246,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 137,
+      "vvScale": 1
+    },
+    {
+      "t": 85263,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 150,
+      "vvScale": 1
+    },
+    {
+      "t": 85279,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 162,
+      "vvScale": 1
+    },
+    {
+      "t": 85296,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 174,
+      "vvScale": 1
+    },
+    {
+      "t": 85313,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 186,
+      "vvScale": 1
+    },
+    {
+      "t": 85329,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 197,
+      "vvScale": 1
+    },
+    {
+      "t": 85346,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 208,
+      "vvScale": 1
+    },
+    {
+      "t": 85363,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 218,
+      "vvScale": 1
+    },
+    {
+      "t": 85380,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 228,
+      "vvScale": 1
+    },
+    {
+      "t": 85396,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 238,
+      "vvScale": 1
+    },
+    {
+      "t": 85413,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 247,
+      "vvScale": 1
+    },
+    {
+      "t": 85429,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 256,
+      "vvScale": 1
+    },
+    {
+      "t": 85446,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 265,
+      "vvScale": 1
+    },
+    {
+      "t": 85463,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 274,
+      "vvScale": 1
+    },
+    {
+      "t": 85479,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 282,
+      "vvScale": 1
+    },
+    {
+      "t": 85505,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 290,
+      "vvScale": 1
+    },
+    {
+      "t": 85583,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 301,
+      "vvScale": 1
+    },
+    {
+      "t": 85597,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 308,
+      "vvScale": 1
+    },
+    {
+      "t": 85627,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 336,
+      "vvScale": 1
+    },
+    {
+      "t": 85642,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 348,
+      "vvScale": 1
+    },
+    {
+      "t": 85659,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 85859,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 85860,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 85875,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 85876,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 85926,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 85926,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 85959,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 85959,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 85975,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 85976,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86009,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86009,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86042,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86042,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86059,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86059,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86076,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86076,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86092,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86092,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86109,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86109,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86126,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86126,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86142,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86142,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86159,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86159,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86192,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86192,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86209,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86209,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86225,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86226,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86242,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86242,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86255,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86255,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86267,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86267,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86280,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86280,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86292,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86292,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86305,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86305,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86342,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86342,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86380,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86380,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86417,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86418,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86430,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86430,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86442,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86442,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86455,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86455,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86467,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86467,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86480,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86480,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86505,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86505,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86530,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86530,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86592,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86593,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86639,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86639,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86704,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86704,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86718,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86718,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86735,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86735,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86768,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86768,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86785,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86785,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86806,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86806,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86831,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86831,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86848,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86848,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86864,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 86864,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 87033,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 356,
+      "vvScale": 1
+    },
+    {
+      "t": 87056,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 356,
+      "vvScale": 1
+    },
+    {
+      "t": 87057,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 356,
+      "vvScale": 1
+    },
+    {
+      "t": 87073,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 355,
+      "vvScale": 1
+    },
+    {
+      "t": 87090,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 354,
+      "vvScale": 1
+    },
+    {
+      "t": 87090,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 354,
+      "vvScale": 1
+    },
+    {
+      "t": 87106,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 353,
+      "vvScale": 1
+    },
+    {
+      "t": 87106,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 353,
+      "vvScale": 1
+    },
+    {
+      "t": 87140,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 353,
+      "vvScale": 1
+    },
+    {
+      "t": 87140,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 353,
+      "vvScale": 1
+    },
+    {
+      "t": 87351,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 352,
+      "vvScale": 1
+    },
+    {
+      "t": 87351,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 352,
+      "vvScale": 1
+    },
+    {
+      "t": 87373,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 352,
+      "vvScale": 1
+    },
+    {
+      "t": 87373,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 352,
+      "vvScale": 1
+    },
+    {
+      "t": 87389,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 349,
+      "vvScale": 1
+    },
+    {
+      "t": 87397,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 344,
+      "vvScale": 1
+    },
+    {
+      "t": 87413,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 339,
+      "vvScale": 1
+    },
+    {
+      "t": 87414,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 339,
+      "vvScale": 1
+    },
+    {
+      "t": 87434,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 334,
+      "vvScale": 1
+    },
+    {
+      "t": 87447,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 331,
+      "vvScale": 1
+    },
+    {
+      "t": 87447,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 331,
+      "vvScale": 1
+    },
+    {
+      "t": 87460,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 328,
+      "vvScale": 1
+    },
+    {
+      "t": 87555,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 329,
+      "vvScale": 1
+    },
+    {
+      "t": 87555,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 329,
+      "vvScale": 1
+    },
+    {
+      "t": 87577,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 330,
+      "vvScale": 1
+    },
+    {
+      "t": 87577,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 330,
+      "vvScale": 1
+    },
+    {
+      "t": 87593,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 331,
+      "vvScale": 1
+    },
+    {
+      "t": 87594,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 331,
+      "vvScale": 1
+    },
+    {
+      "t": 87609,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 332,
+      "vvScale": 1
+    },
+    {
+      "t": 87609,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 332,
+      "vvScale": 1
+    },
+    {
+      "t": 87644,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 328,
+      "vvScale": 1
+    },
+    {
+      "t": 87656,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 301,
+      "vvScale": 1
+    },
+    {
+      "t": 87656,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 301,
+      "vvScale": 1
+    },
+    {
+      "t": 87668,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 267,
+      "vvScale": 1
+    },
+    {
+      "t": 87680,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 228,
+      "vvScale": 1
+    },
+    {
+      "t": 87680,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 228,
+      "vvScale": 1
+    },
+    {
+      "t": 87693,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 189,
+      "vvScale": 1
+    },
+    {
+      "t": 87705,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 166,
+      "vvScale": 1
+    },
+    {
+      "t": 87718,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 131,
+      "vvScale": 1
+    },
+    {
+      "t": 87730,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 97,
+      "vvScale": 1
+    },
+    {
+      "t": 87730,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 97,
+      "vvScale": 1
+    },
+    {
+      "t": 87743,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 64,
+      "vvScale": 1
+    },
+    {
+      "t": 87743,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 64,
+      "vvScale": 1
+    },
+    {
+      "t": 87755,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 31,
+      "vvScale": 1
+    },
+    {
+      "t": 87768,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 87805,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 87818,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 87855,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 87893,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 87905,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 87918,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 87955,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 87980,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 87994,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -6,
+      "vvScale": 1
+    },
+    {
+      "t": 88013,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -22,
+      "vvScale": 1
+    },
+    {
+      "t": 88030,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -36,
+      "vvScale": 1
+    },
+    {
+      "t": 88047,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -45,
+      "vvScale": 1
+    },
+    {
+      "t": 88068,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -50,
+      "vvScale": 1
+    },
+    {
+      "t": 88080,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -52,
+      "vvScale": 1
+    },
+    {
+      "t": 88097,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -52,
+      "vvScale": 1
+    },
+    {
+      "t": 88113,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -51,
+      "vvScale": 1
+    },
+    {
+      "t": 88130,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -49,
+      "vvScale": 1
+    },
+    {
+      "t": 88147,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -47,
+      "vvScale": 1
+    },
+    {
+      "t": 88159,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -43,
+      "vvScale": 1
+    },
+    {
+      "t": 88172,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -41,
+      "vvScale": 1
+    },
+    {
+      "t": 88184,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -38,
+      "vvScale": 1
+    },
+    {
+      "t": 88197,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -36,
+      "vvScale": 1
+    },
+    {
+      "t": 88209,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -33,
+      "vvScale": 1
+    },
+    {
+      "t": 88222,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -30,
+      "vvScale": 1
+    },
+    {
+      "t": 88234,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -28,
+      "vvScale": 1
+    },
+    {
+      "t": 88247,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -26,
+      "vvScale": 1
+    },
+    {
+      "t": 88259,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -24,
+      "vvScale": 1
+    },
+    {
+      "t": 88272,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -22,
+      "vvScale": 1
+    },
+    {
+      "t": 88284,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -20,
+      "vvScale": 1
+    },
+    {
+      "t": 88297,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -18,
+      "vvScale": 1
+    },
+    {
+      "t": 88309,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -16,
+      "vvScale": 1
+    },
+    {
+      "t": 88326,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -15,
+      "vvScale": 1
+    },
+    {
+      "t": 88343,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -13,
+      "vvScale": 1
+    },
+    {
+      "t": 88359,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -11,
+      "vvScale": 1
+    },
+    {
+      "t": 88376,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -10,
+      "vvScale": 1
+    },
+    {
+      "t": 88393,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -9,
+      "vvScale": 1
+    },
+    {
+      "t": 88409,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -8,
+      "vvScale": 1
+    },
+    {
+      "t": 88426,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -7,
+      "vvScale": 1
+    },
+    {
+      "t": 88443,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -6,
+      "vvScale": 1
+    },
+    {
+      "t": 88459,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -5,
+      "vvScale": 1
+    },
+    {
+      "t": 88476,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -4,
+      "vvScale": 1
+    },
+    {
+      "t": 88493,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -4,
+      "vvScale": 1
+    },
+    {
+      "t": 88509,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -3,
+      "vvScale": 1
+    },
+    {
+      "t": 88526,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -3,
+      "vvScale": 1
+    },
+    {
+      "t": 88543,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -2,
+      "vvScale": 1
+    },
+    {
+      "t": 88559,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -2,
+      "vvScale": 1
+    },
+    {
+      "t": 88576,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -2,
+      "vvScale": 1
+    },
+    {
+      "t": 88594,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -1,
+      "vvScale": 1
+    },
+    {
+      "t": 88610,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -1,
+      "vvScale": 1
+    },
+    {
+      "t": 88659,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": -1,
+      "vvScale": 1
+    },
+    {
+      "t": 88701,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 0,
+      "vvScale": 1
+    },
+    {
+      "t": 127937,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 15,
+      "vvScale": 1
+    },
+    {
+      "t": 127952,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 21,
+      "vvScale": 1
+    },
+    {
+      "t": 127969,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 35,
+      "vvScale": 1
+    },
+    {
+      "t": 127986,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 48,
+      "vvScale": 1
+    },
+    {
+      "t": 128002,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 59,
+      "vvScale": 1
+    },
+    {
+      "t": 128018,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 72,
+      "vvScale": 1
+    },
+    {
+      "t": 128035,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 85,
+      "vvScale": 1
+    },
+    {
+      "t": 128052,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 98,
+      "vvScale": 1
+    },
+    {
+      "t": 128068,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 110,
+      "vvScale": 1
+    },
+    {
+      "t": 128085,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 121,
+      "vvScale": 1
+    },
+    {
+      "t": 128102,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 133,
+      "vvScale": 1
+    },
+    {
+      "t": 128118,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 143,
+      "vvScale": 1
+    },
+    {
+      "t": 128135,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 154,
+      "vvScale": 1
+    },
+    {
+      "t": 128152,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 164,
+      "vvScale": 1
+    },
+    {
+      "t": 128168,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 174,
+      "vvScale": 1
+    },
+    {
+      "t": 128185,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 184,
+      "vvScale": 1
+    },
+    {
+      "t": 128202,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 193,
+      "vvScale": 1
+    },
+    {
+      "t": 128218,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 202,
+      "vvScale": 1
+    },
+    {
+      "t": 128237,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 210,
+      "vvScale": 1
+    },
+    {
+      "t": 128252,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 219,
+      "vvScale": 1
+    },
+    {
+      "t": 128268,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 227,
+      "vvScale": 1
+    },
+    {
+      "t": 128285,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 235,
+      "vvScale": 1
+    },
+    {
+      "t": 128302,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 242,
+      "vvScale": 1
+    },
+    {
+      "t": 128318,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 250,
+      "vvScale": 1
+    },
+    {
+      "t": 128335,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 257,
+      "vvScale": 1
+    },
+    {
+      "t": 128352,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 264,
+      "vvScale": 1
+    },
+    {
+      "t": 128368,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 270,
+      "vvScale": 1
+    },
+    {
+      "t": 128385,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 277,
+      "vvScale": 1
+    },
+    {
+      "t": 128402,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 283,
+      "vvScale": 1
+    },
+    {
+      "t": 128418,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 289,
+      "vvScale": 1
+    },
+    {
+      "t": 128435,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 294,
+      "vvScale": 1
+    },
+    {
+      "t": 128452,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 300,
+      "vvScale": 1
+    },
+    {
+      "t": 128468,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 306,
+      "vvScale": 1
+    },
+    {
+      "t": 128485,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 311,
+      "vvScale": 1
+    },
+    {
+      "t": 128502,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 316,
+      "vvScale": 1
+    },
+    {
+      "t": 128523,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 321,
+      "vvScale": 1
+    },
+    {
+      "t": 128535,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 324,
+      "vvScale": 1
+    },
+    {
+      "t": 128549,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 328,
+      "vvScale": 1
+    },
+    {
+      "t": 128560,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 331,
+      "vvScale": 1
+    },
+    {
+      "t": 128573,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 334,
+      "vvScale": 1
+    },
+    {
+      "t": 128585,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 338,
+      "vvScale": 1
+    },
+    {
+      "t": 128598,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 341,
+      "vvScale": 1
+    },
+    {
+      "t": 128610,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 344,
+      "vvScale": 1
+    },
+    {
+      "t": 128623,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 347,
+      "vvScale": 1
+    },
+    {
+      "t": 128635,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 350,
+      "vvScale": 1
+    },
+    {
+      "t": 128648,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 353,
+      "vvScale": 1
+    },
+    {
+      "t": 128660,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 355,
+      "vvScale": 1
+    },
+    {
+      "t": 128673,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129231,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129231,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129252,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129252,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129264,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129265,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129277,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129277,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129299,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129299,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 357,
+      "vvScale": 1
+    },
+    {
+      "t": 129379,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 354,
+      "vvScale": 1
+    },
+    {
+      "t": 129379,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 354,
+      "vvScale": 1
+    },
+    {
+      "t": 129399,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 352,
+      "vvScale": 1
+    },
+    {
+      "t": 129411,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 350,
+      "vvScale": 1
+    },
+    {
+      "t": 129411,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 350,
+      "vvScale": 1
+    },
+    {
+      "t": 129423,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 348,
+      "vvScale": 1
+    },
+    {
+      "t": 129423,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 348,
+      "vvScale": 1
+    },
+    {
+      "t": 129436,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 345,
+      "vvScale": 1
+    },
+    {
+      "t": 129448,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 344,
+      "vvScale": 1
+    },
+    {
+      "t": 129460,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 342,
+      "vvScale": 1
+    },
+    {
+      "t": 129461,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 342,
+      "vvScale": 1
+    },
+    {
+      "t": 129473,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 340,
+      "vvScale": 1
+    },
+    {
+      "t": 129490,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 339,
+      "vvScale": 1
+    },
+    {
+      "t": 129490,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 339,
+      "vvScale": 1
+    },
+    {
+      "t": 129506,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 337,
+      "vvScale": 1
+    },
+    {
+      "t": 129523,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 336,
+      "vvScale": 1
+    },
+    {
+      "t": 129523,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 336,
+      "vvScale": 1
+    },
+    {
+      "t": 129540,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 335,
+      "vvScale": 1
+    },
+    {
+      "t": 129556,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 334,
+      "vvScale": 1
+    },
+    {
+      "t": 129556,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 334,
+      "vvScale": 1
+    },
+    {
+      "t": 129573,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 333,
+      "vvScale": 1
+    },
+    {
+      "t": 129590,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 332,
+      "vvScale": 1
+    },
+    {
+      "t": 129606,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 331,
+      "vvScale": 1
+    },
+    {
+      "t": 129624,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 330,
+      "vvScale": 1
+    },
+    {
+      "t": 129624,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 330,
+      "vvScale": 1
+    },
+    {
+      "t": 129676,
+      "reason": "vv-resize",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 329,
+      "vvScale": 1
+    },
+    {
+      "t": 129676,
+      "reason": "vv-scroll",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 329,
+      "vvScale": 1
+    },
+    {
+      "t": 133319,
+      "reason": "blur:A",
+      "innerHeight": 775,
+      "clientHeight": 775,
+      "vvHeight": 418,
+      "vvOffsetTop": 329,
+      "vvScale": 1
+    }
+  ],
+  "events": [
+    {
+      "t": 13173,
+      "type": "focus",
+      "data": null,
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 16405,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": false,
+      "key": "o",
+      "keyCode": 229,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 16414,
+      "type": "compositionstart",
+      "data": "",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 16416,
+      "type": "compositionupdate",
+      "data": "o",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 16419,
+      "type": "beforeinput",
+      "data": "o",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 16422,
+      "type": "input",
+      "data": "o",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "o",
+      "src": "A"
+    },
+    {
+      "t": 16425,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "o",
+      "keyCode": 79,
+      "value": "o",
+      "src": "A"
+    },
+    {
+      "t": 16779,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 229,
+      "value": "o",
+      "src": "A"
+    },
+    {
+      "t": 16794,
+      "type": "compositionupdate",
+      "data": "O",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "o",
+      "src": "A"
+    },
+    {
+      "t": 16799,
+      "type": "beforeinput",
+      "data": "O",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "o",
+      "src": "A"
+    },
+    {
+      "t": 16803,
+      "type": "input",
+      "data": "O",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "O",
+      "src": "A"
+    },
+    {
+      "t": 16807,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 0,
+      "value": "O",
+      "src": "A"
+    },
+    {
+      "t": 19651,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "l",
+      "keyCode": 229,
+      "value": "O",
+      "src": "A"
+    },
+    {
+      "t": 19661,
+      "type": "compositionupdate",
+      "data": "Ol",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "O",
+      "src": "A"
+    },
+    {
+      "t": 19667,
+      "type": "beforeinput",
+      "data": "Ol",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "O",
+      "src": "A"
+    },
+    {
+      "t": 19671,
+      "type": "input",
+      "data": "Ol",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "Ol",
+      "src": "A"
+    },
+    {
+      "t": 19675,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "l",
+      "keyCode": 76,
+      "value": "Ol",
+      "src": "A"
+    },
+    {
+      "t": 19868,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 229,
+      "value": "Ol",
+      "src": "A"
+    },
+    {
+      "t": 19877,
+      "type": "compositionupdate",
+      "data": "OL",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "Ol",
+      "src": "A"
+    },
+    {
+      "t": 19883,
+      "type": "beforeinput",
+      "data": "OL",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "Ol",
+      "src": "A"
+    },
+    {
+      "t": 19888,
+      "type": "input",
+      "data": "OL",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OL",
+      "src": "A"
+    },
+    {
+      "t": 19892,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 0,
+      "value": "OL",
+      "src": "A"
+    },
+    {
+      "t": 20327,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 229,
+      "value": "OL",
+      "src": "A"
+    },
+    {
+      "t": 20340,
+      "type": "compositionupdate",
+      "data": "O",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "OL",
+      "src": "A"
+    },
+    {
+      "t": 20344,
+      "type": "beforeinput",
+      "data": "O",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OL",
+      "src": "A"
+    },
+    {
+      "t": 20348,
+      "type": "input",
+      "data": "O",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "O",
+      "src": "A"
+    },
+    {
+      "t": 20351,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 8,
+      "value": "O",
+      "src": "A"
+    },
+    {
+      "t": 20918,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "k",
+      "keyCode": 229,
+      "value": "O",
+      "src": "A"
+    },
+    {
+      "t": 20929,
+      "type": "compositionupdate",
+      "data": "Ok",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "O",
+      "src": "A"
+    },
+    {
+      "t": 20934,
+      "type": "beforeinput",
+      "data": "Ok",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "O",
+      "src": "A"
+    },
+    {
+      "t": 20938,
+      "type": "input",
+      "data": "Ok",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "Ok",
+      "src": "A"
+    },
+    {
+      "t": 20941,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "k",
+      "keyCode": 75,
+      "value": "Ok",
+      "src": "A"
+    },
+    {
+      "t": 21359,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 229,
+      "value": "Ok",
+      "src": "A"
+    },
+    {
+      "t": 21368,
+      "type": "compositionupdate",
+      "data": "OK",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "Ok",
+      "src": "A"
+    },
+    {
+      "t": 21372,
+      "type": "beforeinput",
+      "data": "OK",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "Ok",
+      "src": "A"
+    },
+    {
+      "t": 21375,
+      "type": "input",
+      "data": "OK",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OK",
+      "src": "A"
+    },
+    {
+      "t": 21378,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 0,
+      "value": "OK",
+      "src": "A"
+    },
+    {
+      "t": 25197,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "ち",
+      "keyCode": 229,
+      "value": "OK",
+      "src": "A"
+    },
+    {
+      "t": 25215,
+      "type": "compositionupdate",
+      "data": "OKち",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "OK",
+      "src": "A"
+    },
+    {
+      "t": 25220,
+      "type": "beforeinput",
+      "data": "OKち",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OK",
+      "src": "A"
+    },
+    {
+      "t": 25224,
+      "type": "input",
+      "data": "OKち",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKち",
+      "src": "A"
+    },
+    {
+      "t": 25232,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "ち",
+      "keyCode": 0,
+      "value": "OKち",
+      "src": "A"
+    },
+    {
+      "t": 26082,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 229,
+      "value": "OKち",
+      "src": "A"
+    },
+    {
+      "t": 26094,
+      "type": "compositionupdate",
+      "data": "OK",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "OKち",
+      "src": "A"
+    },
+    {
+      "t": 26099,
+      "type": "beforeinput",
+      "data": "OK",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKち",
+      "src": "A"
+    },
+    {
+      "t": 26103,
+      "type": "input",
+      "data": "OK",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OK",
+      "src": "A"
+    },
+    {
+      "t": 26107,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 8,
+      "value": "OK",
+      "src": "A"
+    },
+    {
+      "t": 26395,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "て",
+      "keyCode": 229,
+      "value": "OK",
+      "src": "A"
+    },
+    {
+      "t": 26405,
+      "type": "compositionupdate",
+      "data": "OKて",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "OK",
+      "src": "A"
+    },
+    {
+      "t": 26411,
+      "type": "beforeinput",
+      "data": "OKて",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OK",
+      "src": "A"
+    },
+    {
+      "t": 26416,
+      "type": "input",
+      "data": "OKて",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKて",
+      "src": "A"
+    },
+    {
+      "t": 26420,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "て",
+      "keyCode": 0,
+      "value": "OKて",
+      "src": "A"
+    },
+    {
+      "t": 27116,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "゛",
+      "keyCode": 229,
+      "value": "OKて",
+      "src": "A"
+    },
+    {
+      "t": 27127,
+      "type": "compositionupdate",
+      "data": "OKで",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "OKて",
+      "src": "A"
+    },
+    {
+      "t": 27133,
+      "type": "beforeinput",
+      "data": "OKで",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKて",
+      "src": "A"
+    },
+    {
+      "t": 27138,
+      "type": "input",
+      "data": "OKで",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKで",
+      "src": "A"
+    },
+    {
+      "t": 27142,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "゛",
+      "keyCode": 0,
+      "value": "OKで",
+      "src": "A"
+    },
+    {
+      "t": 28124,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "す",
+      "keyCode": 229,
+      "value": "OKで",
+      "src": "A"
+    },
+    {
+      "t": 28135,
+      "type": "compositionupdate",
+      "data": "OKです",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "OKで",
+      "src": "A"
+    },
+    {
+      "t": 28141,
+      "type": "beforeinput",
+      "data": "OKです",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKで",
+      "src": "A"
+    },
+    {
+      "t": 28146,
+      "type": "input",
+      "data": "OKです",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKです",
+      "src": "A"
+    },
+    {
+      "t": 28150,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "す",
+      "keyCode": 0,
+      "value": "OKです",
+      "src": "A"
+    },
+    {
+      "t": 43012,
+      "type": "compositionupdate",
+      "data": "OKです",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "OKです",
+      "src": "A"
+    },
+    {
+      "t": 43026,
+      "type": "beforeinput",
+      "data": "OKです",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKです",
+      "src": "A"
+    },
+    {
+      "t": 43032,
+      "type": "input",
+      "data": "OKです",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKです",
+      "src": "A"
+    },
+    {
+      "t": 43037,
+      "type": "beforeinput",
+      "data": null,
+      "inputType": "deleteCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKです",
+      "src": "A"
+    },
+    {
+      "t": 43041,
+      "type": "input",
+      "data": null,
+      "inputType": "deleteCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 43045,
+      "type": "beforeinput",
+      "data": "OKです",
+      "inputType": "insertFromComposition",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 43049,
+      "type": "input",
+      "data": "OKです",
+      "inputType": "insertFromComposition",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "OKです",
+      "src": "A"
+    },
+    {
+      "t": 43052,
+      "type": "compositionend",
+      "data": "OKです",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "OKです",
+      "src": "A"
+    },
+    {
+      "t": 51971,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": false,
+      "key": "i",
+      "keyCode": 229,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 51982,
+      "type": "compositionstart",
+      "data": "",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 51988,
+      "type": "compositionupdate",
+      "data": "i",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 51993,
+      "type": "beforeinput",
+      "data": "i",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 51998,
+      "type": "input",
+      "data": "i",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "i",
+      "src": "A"
+    },
+    {
+      "t": 52002,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "i",
+      "keyCode": 73,
+      "value": "i",
+      "src": "A"
+    },
+    {
+      "t": 52274,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "p",
+      "keyCode": 229,
+      "value": "i",
+      "src": "A"
+    },
+    {
+      "t": 52285,
+      "type": "compositionupdate",
+      "data": "ip",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "i",
+      "src": "A"
+    },
+    {
+      "t": 52292,
+      "type": "beforeinput",
+      "data": "ip",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "i",
+      "src": "A"
+    },
+    {
+      "t": 52297,
+      "type": "input",
+      "data": "ip",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "ip",
+      "src": "A"
+    },
+    {
+      "t": 52302,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "p",
+      "keyCode": 80,
+      "value": "ip",
+      "src": "A"
+    },
+    {
+      "t": 52909,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 229,
+      "value": "ip",
+      "src": "A"
+    },
+    {
+      "t": 52921,
+      "type": "compositionupdate",
+      "data": "i",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "ip",
+      "src": "A"
+    },
+    {
+      "t": 52926,
+      "type": "beforeinput",
+      "data": "i",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "ip",
+      "src": "A"
+    },
+    {
+      "t": 52930,
+      "type": "input",
+      "data": "i",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "i",
+      "src": "A"
+    },
+    {
+      "t": 52934,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 8,
+      "value": "i",
+      "src": "A"
+    },
+    {
+      "t": 53405,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "p",
+      "keyCode": 229,
+      "value": "i",
+      "src": "A"
+    },
+    {
+      "t": 53415,
+      "type": "compositionupdate",
+      "data": "ip",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "i",
+      "src": "A"
+    },
+    {
+      "t": 53422,
+      "type": "beforeinput",
+      "data": "ip",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "i",
+      "src": "A"
+    },
+    {
+      "t": 53427,
+      "type": "input",
+      "data": "ip",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "ip",
+      "src": "A"
+    },
+    {
+      "t": 53432,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "p",
+      "keyCode": 80,
+      "value": "ip",
+      "src": "A"
+    },
+    {
+      "t": 53621,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 229,
+      "value": "ip",
+      "src": "A"
+    },
+    {
+      "t": 53631,
+      "type": "compositionupdate",
+      "data": "iP",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "ip",
+      "src": "A"
+    },
+    {
+      "t": 53637,
+      "type": "beforeinput",
+      "data": "iP",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "ip",
+      "src": "A"
+    },
+    {
+      "t": 53642,
+      "type": "input",
+      "data": "iP",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 53646,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 0,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 58198,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "i",
+      "keyCode": 229,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 58214,
+      "type": "compositionupdate",
+      "data": "iPi",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 58219,
+      "type": "beforeinput",
+      "data": "iPi",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 58222,
+      "type": "input",
+      "data": "iPi",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPi",
+      "src": "A"
+    },
+    {
+      "t": 58227,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "i",
+      "keyCode": 73,
+      "value": "iPi",
+      "src": "A"
+    },
+    {
+      "t": 58673,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 229,
+      "value": "iPi",
+      "src": "A"
+    },
+    {
+      "t": 58684,
+      "type": "compositionupdate",
+      "data": "iP",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPi",
+      "src": "A"
+    },
+    {
+      "t": 58690,
+      "type": "beforeinput",
+      "data": "iP",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPi",
+      "src": "A"
+    },
+    {
+      "t": 58694,
+      "type": "input",
+      "data": "iP",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 58699,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 8,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 58946,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "h",
+      "keyCode": 229,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 58963,
+      "type": "compositionupdate",
+      "data": "iPh",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 58967,
+      "type": "beforeinput",
+      "data": "iPh",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 58970,
+      "type": "input",
+      "data": "iPh",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPh",
+      "src": "A"
+    },
+    {
+      "t": 58974,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "h",
+      "keyCode": 72,
+      "value": "iPh",
+      "src": "A"
+    },
+    {
+      "t": 59672,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 229,
+      "value": "iPh",
+      "src": "A"
+    },
+    {
+      "t": 59683,
+      "type": "compositionupdate",
+      "data": "iPH",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPh",
+      "src": "A"
+    },
+    {
+      "t": 59689,
+      "type": "beforeinput",
+      "data": "iPH",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPh",
+      "src": "A"
+    },
+    {
+      "t": 59695,
+      "type": "input",
+      "data": "iPH",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPH",
+      "src": "A"
+    },
+    {
+      "t": 59699,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 0,
+      "value": "iPH",
+      "src": "A"
+    },
+    {
+      "t": 61465,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "o",
+      "keyCode": 229,
+      "value": "iPH",
+      "src": "A"
+    },
+    {
+      "t": 61475,
+      "type": "compositionupdate",
+      "data": "iPHo",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPH",
+      "src": "A"
+    },
+    {
+      "t": 61481,
+      "type": "beforeinput",
+      "data": "iPHo",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPH",
+      "src": "A"
+    },
+    {
+      "t": 61486,
+      "type": "input",
+      "data": "iPHo",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPHo",
+      "src": "A"
+    },
+    {
+      "t": 61490,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "o",
+      "keyCode": 79,
+      "value": "iPHo",
+      "src": "A"
+    },
+    {
+      "t": 61681,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 229,
+      "value": "iPHo",
+      "src": "A"
+    },
+    {
+      "t": 61692,
+      "type": "compositionupdate",
+      "data": "iPHO",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPHo",
+      "src": "A"
+    },
+    {
+      "t": 61699,
+      "type": "beforeinput",
+      "data": "iPHO",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPHo",
+      "src": "A"
+    },
+    {
+      "t": 61704,
+      "type": "input",
+      "data": "iPHO",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPHO",
+      "src": "A"
+    },
+    {
+      "t": 61709,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 0,
+      "value": "iPHO",
+      "src": "A"
+    },
+    {
+      "t": 63588,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 229,
+      "value": "iPHO",
+      "src": "A"
+    },
+    {
+      "t": 63597,
+      "type": "compositionupdate",
+      "data": "iPH",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPHO",
+      "src": "A"
+    },
+    {
+      "t": 63605,
+      "type": "beforeinput",
+      "data": "iPH",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPHO",
+      "src": "A"
+    },
+    {
+      "t": 63609,
+      "type": "input",
+      "data": "iPH",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPH",
+      "src": "A"
+    },
+    {
+      "t": 63613,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 8,
+      "value": "iPH",
+      "src": "A"
+    },
+    {
+      "t": 63843,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 229,
+      "value": "iPH",
+      "src": "A"
+    },
+    {
+      "t": 63853,
+      "type": "compositionupdate",
+      "data": "iP",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPH",
+      "src": "A"
+    },
+    {
+      "t": 63859,
+      "type": "beforeinput",
+      "data": "iP",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPH",
+      "src": "A"
+    },
+    {
+      "t": 63862,
+      "type": "input",
+      "data": "iP",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 63866,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 8,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 65354,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "h",
+      "keyCode": 229,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 65363,
+      "type": "compositionupdate",
+      "data": "iPh",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 65370,
+      "type": "beforeinput",
+      "data": "iPh",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iP",
+      "src": "A"
+    },
+    {
+      "t": 65376,
+      "type": "input",
+      "data": "iPh",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPh",
+      "src": "A"
+    },
+    {
+      "t": 65381,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "h",
+      "keyCode": 72,
+      "value": "iPh",
+      "src": "A"
+    },
+    {
+      "t": 66016,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "o",
+      "keyCode": 229,
+      "value": "iPh",
+      "src": "A"
+    },
+    {
+      "t": 66025,
+      "type": "compositionupdate",
+      "data": "iPho",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPh",
+      "src": "A"
+    },
+    {
+      "t": 66031,
+      "type": "beforeinput",
+      "data": "iPho",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPh",
+      "src": "A"
+    },
+    {
+      "t": 66034,
+      "type": "input",
+      "data": "iPho",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPho",
+      "src": "A"
+    },
+    {
+      "t": 66038,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "o",
+      "keyCode": 79,
+      "value": "iPho",
+      "src": "A"
+    },
+    {
+      "t": 70818,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "n",
+      "keyCode": 229,
+      "value": "iPho",
+      "src": "A"
+    },
+    {
+      "t": 70831,
+      "type": "compositionupdate",
+      "data": "iPhon",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPho",
+      "src": "A"
+    },
+    {
+      "t": 70837,
+      "type": "beforeinput",
+      "data": "iPhon",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPho",
+      "src": "A"
+    },
+    {
+      "t": 70841,
+      "type": "input",
+      "data": "iPhon",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhon",
+      "src": "A"
+    },
+    {
+      "t": 70846,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "n",
+      "keyCode": 78,
+      "value": "iPhon",
+      "src": "A"
+    },
+    {
+      "t": 72801,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "e",
+      "keyCode": 229,
+      "value": "iPhon",
+      "src": "A"
+    },
+    {
+      "t": 72812,
+      "type": "compositionupdate",
+      "data": "iPhone",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhon",
+      "src": "A"
+    },
+    {
+      "t": 72818,
+      "type": "beforeinput",
+      "data": "iPhone",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhon",
+      "src": "A"
+    },
+    {
+      "t": 72823,
+      "type": "input",
+      "data": "iPhone",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhone",
+      "src": "A"
+    },
+    {
+      "t": 72828,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "e",
+      "keyCode": 69,
+      "value": "iPhone",
+      "src": "A"
+    },
+    {
+      "t": 74734,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "て",
+      "keyCode": 229,
+      "value": "iPhone",
+      "src": "A"
+    },
+    {
+      "t": 74751,
+      "type": "compositionupdate",
+      "data": "iPhoneて",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhone",
+      "src": "A"
+    },
+    {
+      "t": 74755,
+      "type": "beforeinput",
+      "data": "iPhoneて",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhone",
+      "src": "A"
+    },
+    {
+      "t": 74758,
+      "type": "input",
+      "data": "iPhoneて",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhoneて",
+      "src": "A"
+    },
+    {
+      "t": 74761,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "て",
+      "keyCode": 0,
+      "value": "iPhoneて",
+      "src": "A"
+    },
+    {
+      "t": 75154,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "゛",
+      "keyCode": 229,
+      "value": "iPhoneて",
+      "src": "A"
+    },
+    {
+      "t": 75164,
+      "type": "compositionupdate",
+      "data": "iPhoneで",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhoneて",
+      "src": "A"
+    },
+    {
+      "t": 75170,
+      "type": "beforeinput",
+      "data": "iPhoneで",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhoneて",
+      "src": "A"
+    },
+    {
+      "t": 75175,
+      "type": "input",
+      "data": "iPhoneで",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhoneで",
+      "src": "A"
+    },
+    {
+      "t": 75179,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "゛",
+      "keyCode": 0,
+      "value": "iPhoneで",
+      "src": "A"
+    },
+    {
+      "t": 76090,
+      "type": "compositionupdate",
+      "data": "iPhoneで",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhoneで",
+      "src": "A"
+    },
+    {
+      "t": 76103,
+      "type": "beforeinput",
+      "data": "iPhoneで",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhoneで",
+      "src": "A"
+    },
+    {
+      "t": 76110,
+      "type": "input",
+      "data": "iPhoneで",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhoneで",
+      "src": "A"
+    },
+    {
+      "t": 76115,
+      "type": "beforeinput",
+      "data": null,
+      "inputType": "deleteCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhoneで",
+      "src": "A"
+    },
+    {
+      "t": 76119,
+      "type": "input",
+      "data": null,
+      "inputType": "deleteCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 76123,
+      "type": "beforeinput",
+      "data": "iPhoneで",
+      "inputType": "insertFromComposition",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 76127,
+      "type": "input",
+      "data": "iPhoneで",
+      "inputType": "insertFromComposition",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhoneで",
+      "src": "A"
+    },
+    {
+      "t": 76130,
+      "type": "compositionend",
+      "data": "iPhoneで",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "iPhoneで",
+      "src": "A"
+    },
+    {
+      "t": 89731,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": false,
+      "key": "l",
+      "keyCode": 229,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 89742,
+      "type": "compositionstart",
+      "data": "",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 89747,
+      "type": "compositionupdate",
+      "data": "l",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 89750,
+      "type": "beforeinput",
+      "data": "l",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 89753,
+      "type": "input",
+      "data": "l",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "l",
+      "src": "A"
+    },
+    {
+      "t": 89757,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "l",
+      "keyCode": 76,
+      "value": "l",
+      "src": "A"
+    },
+    {
+      "t": 91859,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 229,
+      "value": "l",
+      "src": "A"
+    },
+    {
+      "t": 91871,
+      "type": "compositionupdate",
+      "data": "L",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "l",
+      "src": "A"
+    },
+    {
+      "t": 91877,
+      "type": "beforeinput",
+      "data": "L",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "l",
+      "src": "A"
+    },
+    {
+      "t": 91882,
+      "type": "input",
+      "data": "L",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "L",
+      "src": "A"
+    },
+    {
+      "t": 91887,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 0,
+      "value": "L",
+      "src": "A"
+    },
+    {
+      "t": 94107,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "i",
+      "keyCode": 229,
+      "value": "L",
+      "src": "A"
+    },
+    {
+      "t": 94123,
+      "type": "compositionupdate",
+      "data": "Li",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "L",
+      "src": "A"
+    },
+    {
+      "t": 94128,
+      "type": "beforeinput",
+      "data": "Li",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "L",
+      "src": "A"
+    },
+    {
+      "t": 94132,
+      "type": "input",
+      "data": "Li",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "Li",
+      "src": "A"
+    },
+    {
+      "t": 94137,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "i",
+      "keyCode": 73,
+      "value": "Li",
+      "src": "A"
+    },
+    {
+      "t": 94438,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 229,
+      "value": "Li",
+      "src": "A"
+    },
+    {
+      "t": 94449,
+      "type": "compositionupdate",
+      "data": "LI",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "Li",
+      "src": "A"
+    },
+    {
+      "t": 94456,
+      "type": "beforeinput",
+      "data": "LI",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "Li",
+      "src": "A"
+    },
+    {
+      "t": 94462,
+      "type": "input",
+      "data": "LI",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LI",
+      "src": "A"
+    },
+    {
+      "t": 94466,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 0,
+      "value": "LI",
+      "src": "A"
+    },
+    {
+      "t": 96353,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "o",
+      "keyCode": 229,
+      "value": "LI",
+      "src": "A"
+    },
+    {
+      "t": 96368,
+      "type": "compositionupdate",
+      "data": "LIo",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "LI",
+      "src": "A"
+    },
+    {
+      "t": 96374,
+      "type": "beforeinput",
+      "data": "LIo",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LI",
+      "src": "A"
+    },
+    {
+      "t": 96378,
+      "type": "input",
+      "data": "LIo",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LIo",
+      "src": "A"
+    },
+    {
+      "t": 96383,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "o",
+      "keyCode": 79,
+      "value": "LIo",
+      "src": "A"
+    },
+    {
+      "t": 98329,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 229,
+      "value": "LIo",
+      "src": "A"
+    },
+    {
+      "t": 98346,
+      "type": "compositionupdate",
+      "data": "LI",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "LIo",
+      "src": "A"
+    },
+    {
+      "t": 98351,
+      "type": "beforeinput",
+      "data": "LI",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LIo",
+      "src": "A"
+    },
+    {
+      "t": 98355,
+      "type": "input",
+      "data": "LI",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LI",
+      "src": "A"
+    },
+    {
+      "t": 98359,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "Backspace",
+      "keyCode": 8,
+      "value": "LI",
+      "src": "A"
+    },
+    {
+      "t": 98757,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "n",
+      "keyCode": 229,
+      "value": "LI",
+      "src": "A"
+    },
+    {
+      "t": 98767,
+      "type": "compositionupdate",
+      "data": "LIn",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "LI",
+      "src": "A"
+    },
+    {
+      "t": 98772,
+      "type": "beforeinput",
+      "data": "LIn",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LI",
+      "src": "A"
+    },
+    {
+      "t": 98776,
+      "type": "input",
+      "data": "LIn",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LIn",
+      "src": "A"
+    },
+    {
+      "t": 98780,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "n",
+      "keyCode": 78,
+      "value": "LIn",
+      "src": "A"
+    },
+    {
+      "t": 98990,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 229,
+      "value": "LIn",
+      "src": "A"
+    },
+    {
+      "t": 99001,
+      "type": "compositionupdate",
+      "data": "LIN",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "LIn",
+      "src": "A"
+    },
+    {
+      "t": 99008,
+      "type": "beforeinput",
+      "data": "LIN",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LIn",
+      "src": "A"
+    },
+    {
+      "t": 99013,
+      "type": "input",
+      "data": "LIN",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LIN",
+      "src": "A"
+    },
+    {
+      "t": 99018,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 0,
+      "value": "LIN",
+      "src": "A"
+    },
+    {
+      "t": 100932,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "e",
+      "keyCode": 229,
+      "value": "LIN",
+      "src": "A"
+    },
+    {
+      "t": 100949,
+      "type": "compositionupdate",
+      "data": "LINe",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "LIN",
+      "src": "A"
+    },
+    {
+      "t": 100953,
+      "type": "beforeinput",
+      "data": "LINe",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LIN",
+      "src": "A"
+    },
+    {
+      "t": 100956,
+      "type": "input",
+      "data": "LINe",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINe",
+      "src": "A"
+    },
+    {
+      "t": 100959,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "e",
+      "keyCode": 69,
+      "value": "LINe",
+      "src": "A"
+    },
+    {
+      "t": 101586,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 229,
+      "value": "LINe",
+      "src": "A"
+    },
+    {
+      "t": 101598,
+      "type": "compositionupdate",
+      "data": "LINE",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "LINe",
+      "src": "A"
+    },
+    {
+      "t": 101602,
+      "type": "beforeinput",
+      "data": "LINE",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINe",
+      "src": "A"
+    },
+    {
+      "t": 101606,
+      "type": "input",
+      "data": "LINE",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINE",
+      "src": "A"
+    },
+    {
+      "t": 101609,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "↨",
+      "keyCode": 0,
+      "value": "LINE",
+      "src": "A"
+    },
+    {
+      "t": 103975,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "す",
+      "keyCode": 229,
+      "value": "LINE",
+      "src": "A"
+    },
+    {
+      "t": 103986,
+      "type": "compositionupdate",
+      "data": "LINEす",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "LINE",
+      "src": "A"
+    },
+    {
+      "t": 103993,
+      "type": "beforeinput",
+      "data": "LINEす",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINE",
+      "src": "A"
+    },
+    {
+      "t": 103998,
+      "type": "input",
+      "data": "LINEす",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINEす",
+      "src": "A"
+    },
+    {
+      "t": 104002,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "す",
+      "keyCode": 0,
+      "value": "LINEす",
+      "src": "A"
+    },
+    {
+      "t": 105346,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "る",
+      "keyCode": 229,
+      "value": "LINEす",
+      "src": "A"
+    },
+    {
+      "t": 105359,
+      "type": "compositionupdate",
+      "data": "LINEする",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "LINEす",
+      "src": "A"
+    },
+    {
+      "t": 105364,
+      "type": "beforeinput",
+      "data": "LINEする",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINEす",
+      "src": "A"
+    },
+    {
+      "t": 105369,
+      "type": "input",
+      "data": "LINEする",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINEする",
+      "src": "A"
+    },
+    {
+      "t": 105373,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "る",
+      "keyCode": 0,
+      "value": "LINEする",
+      "src": "A"
+    },
+    {
+      "t": 106279,
+      "type": "compositionupdate",
+      "data": "LINEする",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "LINEする",
+      "src": "A"
+    },
+    {
+      "t": 106292,
+      "type": "beforeinput",
+      "data": "LINEする",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINEする",
+      "src": "A"
+    },
+    {
+      "t": 106299,
+      "type": "input",
+      "data": "LINEする",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINEする",
+      "src": "A"
+    },
+    {
+      "t": 106305,
+      "type": "beforeinput",
+      "data": null,
+      "inputType": "deleteCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINEする",
+      "src": "A"
+    },
+    {
+      "t": 106310,
+      "type": "input",
+      "data": null,
+      "inputType": "deleteCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 106314,
+      "type": "beforeinput",
+      "data": "LINEする",
+      "inputType": "insertFromComposition",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 106317,
+      "type": "input",
+      "data": "LINEする",
+      "inputType": "insertFromComposition",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "LINEする",
+      "src": "A"
+    },
+    {
+      "t": 106321,
+      "type": "compositionend",
+      "data": "LINEする",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "LINEする",
+      "src": "A"
+    },
+    {
+      "t": 108721,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": false,
+      "key": "3",
+      "keyCode": 229,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 108732,
+      "type": "compositionstart",
+      "data": "",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 108738,
+      "type": "compositionupdate",
+      "data": "3",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 108742,
+      "type": "beforeinput",
+      "data": "3",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 108747,
+      "type": "input",
+      "data": "3",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3",
+      "src": "A"
+    },
+    {
+      "t": 108752,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "3",
+      "keyCode": 51,
+      "value": "3",
+      "src": "A"
+    },
+    {
+      "t": 117519,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "し",
+      "keyCode": 229,
+      "value": "3",
+      "src": "A"
+    },
+    {
+      "t": 117537,
+      "type": "compositionupdate",
+      "data": "3し",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "3",
+      "src": "A"
+    },
+    {
+      "t": 117543,
+      "type": "beforeinput",
+      "data": "3し",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3",
+      "src": "A"
+    },
+    {
+      "t": 117547,
+      "type": "input",
+      "data": "3し",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3し",
+      "src": "A"
+    },
+    {
+      "t": 117552,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "し",
+      "keyCode": 0,
+      "value": "3し",
+      "src": "A"
+    },
+    {
+      "t": 118898,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "゛",
+      "keyCode": 229,
+      "value": "3し",
+      "src": "A"
+    },
+    {
+      "t": 118910,
+      "type": "compositionupdate",
+      "data": "3じ",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "3し",
+      "src": "A"
+    },
+    {
+      "t": 118917,
+      "type": "beforeinput",
+      "data": "3じ",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3し",
+      "src": "A"
+    },
+    {
+      "t": 118922,
+      "type": "input",
+      "data": "3じ",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3じ",
+      "src": "A"
+    },
+    {
+      "t": 118927,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "゛",
+      "keyCode": 0,
+      "value": "3じ",
+      "src": "A"
+    },
+    {
+      "t": 122297,
+      "type": "compositionupdate",
+      "data": "3時",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "3じ",
+      "src": "A"
+    },
+    {
+      "t": 122310,
+      "type": "beforeinput",
+      "data": "3時",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3じ",
+      "src": "A"
+    },
+    {
+      "t": 122317,
+      "type": "input",
+      "data": "3時",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時",
+      "src": "A"
+    },
+    {
+      "t": 122322,
+      "type": "beforeinput",
+      "data": null,
+      "inputType": "deleteCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時",
+      "src": "A"
+    },
+    {
+      "t": 122327,
+      "type": "input",
+      "data": null,
+      "inputType": "deleteCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 122331,
+      "type": "beforeinput",
+      "data": "3時",
+      "inputType": "insertFromComposition",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    },
+    {
+      "t": 122335,
+      "type": "input",
+      "data": "3時",
+      "inputType": "insertFromComposition",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時",
+      "src": "A"
+    },
+    {
+      "t": 122339,
+      "type": "compositionend",
+      "data": "3時",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "3時",
+      "src": "A"
+    },
+    {
+      "t": 126111,
+      "type": "keydown",
+      "data": null,
+      "inputType": null,
+      "isComposing": false,
+      "key": "に",
+      "keyCode": 229,
+      "value": "3時",
+      "src": "A"
+    },
+    {
+      "t": 126121,
+      "type": "compositionstart",
+      "data": "",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "3時",
+      "src": "A"
+    },
+    {
+      "t": 126126,
+      "type": "compositionupdate",
+      "data": "に",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "3時",
+      "src": "A"
+    },
+    {
+      "t": 126130,
+      "type": "beforeinput",
+      "data": "に",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時",
+      "src": "A"
+    },
+    {
+      "t": 126134,
+      "type": "input",
+      "data": "に",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時に",
+      "src": "A"
+    },
+    {
+      "t": 126139,
+      "type": "keyup",
+      "data": null,
+      "inputType": null,
+      "isComposing": true,
+      "key": "に",
+      "keyCode": 0,
+      "value": "3時に",
+      "src": "A"
+    },
+    {
+      "t": 126793,
+      "type": "compositionupdate",
+      "data": "に",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "3時に",
+      "src": "A"
+    },
+    {
+      "t": 126803,
+      "type": "beforeinput",
+      "data": "に",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時に",
+      "src": "A"
+    },
+    {
+      "t": 126806,
+      "type": "input",
+      "data": "に",
+      "inputType": "insertCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時に",
+      "src": "A"
+    },
+    {
+      "t": 126810,
+      "type": "beforeinput",
+      "data": null,
+      "inputType": "deleteCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時に",
+      "src": "A"
+    },
+    {
+      "t": 126813,
+      "type": "input",
+      "data": null,
+      "inputType": "deleteCompositionText",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時",
+      "src": "A"
+    },
+    {
+      "t": 126817,
+      "type": "beforeinput",
+      "data": "に",
+      "inputType": "insertFromComposition",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時",
+      "src": "A"
+    },
+    {
+      "t": 126820,
+      "type": "input",
+      "data": "に",
+      "inputType": "insertFromComposition",
+      "isComposing": true,
+      "key": null,
+      "keyCode": null,
+      "value": "3時に",
+      "src": "A"
+    },
+    {
+      "t": 126823,
+      "type": "compositionend",
+      "data": "に",
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "3時に",
+      "src": "A"
+    },
+    {
+      "t": 133319,
+      "type": "blur",
+      "data": null,
+      "inputType": null,
+      "isComposing": null,
+      "key": null,
+      "keyCode": null,
+      "value": "",
+      "src": "A"
+    }
+  ],
+  "snapshots": [
+    {
+      "t": 16422,
+      "value": "o",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 16803,
+      "value": "O",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 19671,
+      "value": "Ol",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 19888,
+      "value": "OL",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 20348,
+      "value": "O",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 20938,
+      "value": "Ok",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 21375,
+      "value": "OK",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 25224,
+      "value": "OKち",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 26103,
+      "value": "OK",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 26416,
+      "value": "OKて",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 27138,
+      "value": "OKで",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 28146,
+      "value": "OKです",
+      "composing": true,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 43052,
+      "value": "OKです",
+      "composing": false,
+      "src": "A",
+      "session": 7,
+      "line": 6,
+      "ignored": false
+    },
+    {
+      "t": 51998,
+      "value": "i",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 52297,
+      "value": "ip",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 52930,
+      "value": "i",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 53427,
+      "value": "ip",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 53642,
+      "value": "iP",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 58222,
+      "value": "iPi",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 58694,
+      "value": "iP",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 58970,
+      "value": "iPh",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 59695,
+      "value": "iPH",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 61486,
+      "value": "iPHo",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 61704,
+      "value": "iPHO",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 63609,
+      "value": "iPH",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 63862,
+      "value": "iP",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 65376,
+      "value": "iPh",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 66034,
+      "value": "iPho",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 70841,
+      "value": "iPhon",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 72823,
+      "value": "iPhone",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 74758,
+      "value": "iPhoneて",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 75175,
+      "value": "iPhoneで",
+      "composing": true,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 76130,
+      "value": "iPhoneで",
+      "composing": false,
+      "src": "A",
+      "session": 8,
+      "line": 7,
+      "ignored": false
+    },
+    {
+      "t": 89753,
+      "value": "l",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 91882,
+      "value": "L",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 94132,
+      "value": "Li",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 94462,
+      "value": "LI",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 96378,
+      "value": "LIo",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 98355,
+      "value": "LI",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 98776,
+      "value": "LIn",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 99013,
+      "value": "LIN",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 100956,
+      "value": "LINe",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 101606,
+      "value": "LINE",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 103998,
+      "value": "LINEす",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 105369,
+      "value": "LINEする",
+      "composing": true,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 106321,
+      "value": "LINEする",
+      "composing": false,
+      "src": "A",
+      "session": 9,
+      "line": 8,
+      "ignored": false
+    },
+    {
+      "t": 108747,
+      "value": "3",
+      "composing": true,
+      "src": "A",
+      "session": 10,
+      "line": 9,
+      "ignored": false
+    },
+    {
+      "t": 117547,
+      "value": "3し",
+      "composing": true,
+      "src": "A",
+      "session": 10,
+      "line": 9,
+      "ignored": false
+    },
+    {
+      "t": 118922,
+      "value": "3じ",
+      "composing": true,
+      "src": "A",
+      "session": 10,
+      "line": 9,
+      "ignored": false
+    },
+    {
+      "t": 122339,
+      "value": "3時",
+      "composing": false,
+      "src": "A",
+      "session": 10,
+      "line": 9,
+      "ignored": false
+    },
+    {
+      "t": 126134,
+      "value": "3時に",
+      "composing": true,
+      "src": "A",
+      "session": 10,
+      "line": 9,
+      "ignored": false
+    },
+    {
+      "t": 126823,
+      "value": "3時に",
+      "composing": false,
+      "src": "A",
+      "session": 10,
+      "line": 9,
+      "ignored": false
+    }
+  ]
+}

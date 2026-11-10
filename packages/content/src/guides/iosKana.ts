@@ -36,6 +36,10 @@ const FULLWIDTH_ASTERISK = '\u{FF0A}';
  * - 小゛゜ 키는 플릭하지 않고, 탭할 때마다 변형을 순환한다 (사용자 관찰)
  * - 숫자 모드에서 4 키 ↑만 전각 ＊를 내고, 나머지 영숫자 기호는 반각이다
  *
+ * 2026-11-10 같은 기기에서 ABC 모드의 글자 키(a〜z)와 a/A 키를 확인했다.
+ * 기록: test/fixtures/ios-kana-guide-check-2026-11-10.json
+ * - 글자는 모두 반각이다. a/A 키는 직전 글자를 그 자리에서 대문자로 바꾼다
+ *
  * 새로 추가하는 항목은 실기기로 다시 확인하기 전까지 unverified로 표시한다.
  */
 export const iosKana: KeyboardGuide = {
@@ -109,4 +113,6 @@ export const iosKana: KeyboardGuide = {
     ],
     direct: [],
   },
+  // 小゛゜ 키 자리. 직전 영문자를 대문자로 바꾼다. 보기는 ABC 키 탭·GHI 키 ↑·PQRS 키 →
+  caseKey: { label: 'a/A', row: 3, col: 0, samples: ['a', 'i', 's'] },
 };

@@ -23,11 +23,12 @@ type Labels = Record<FlickDirection, string>;
 /** 키에 없는 글자 중 한자에만 "읽기를 쳐서 변환" 안내를 붙인다 */
 const isKanji = (char: string) => /^\p{Script=Han}$/u.test(char);
 
-/** 한 글자를 치는 동작: (다른 자판이면 그 자판) + 키 도해 + 「小゛゜」 횟수 = 나오는 글자 */
+/** 한 글자를 치는 동작: (다른 자판이면 그 자판) + 키 도해 + 「小゛゜」 횟수(영문 대문자면 「a/A」) = 나오는 글자 */
 function CharSteps({ steps, labels }: { steps: readonly InputStep[]; labels: Labels }) {
   const { t } = useTranslation();
   const keyStep = steps.find((step) => step.kind === 'key');
   const modStep = steps.find((step) => step.kind === 'modifier');
+  const caseStep = steps.find((step) => step.kind === 'case');
   const layer = keyStep ? iosKana.layers[keyStep.layer] : undefined;
   const keyDef = keyStep && layer?.keys.find((key) => key.id === keyStep.keyId);
   if (!keyStep || !layer || !keyDef) return null;
@@ -37,6 +38,7 @@ function CharSteps({ steps, labels }: { steps: readonly InputStep[]; labels: Lab
     keyStep.layer === 'kana' ? null : t('find.layer', { label: layer.switchLabel }),
     t('help.key', { key: keyStep.label, dir: labels[keyStep.dir] }),
     modStep ? t('help.modifier', { label: iosKana.modifier.label, times: modStep.times }) : null,
+    caseStep ? t('help.modifier', { label: iosKana.caseKey.label, times: 1 }) : null,
   ]
     .filter(Boolean)
     .join(' · ');
@@ -58,6 +60,12 @@ function CharSteps({ steps, labels }: { steps: readonly InputStep[]; labels: Lab
               {iosKana.modifier.label}
               {modStep.times > 1 ? <small>×{modStep.times}</small> : null}
             </span>
+          </>
+        ) : null}
+        {caseStep ? (
+          <>
+            <span className="howto-plus">+</span>
+            <span className="howto-key is-mod">{iosKana.caseKey.label}</span>
           </>
         ) : null}
         <span className="howto-eq">=</span>

@@ -36,6 +36,7 @@ const DIRECTION_LABEL: Record<FlickDirection, string> = {
 
 function describeStep(step: InputStep): string {
   if (step.kind === 'key') return `[${step.label}] 키 ${DIRECTION_LABEL[step.dir]}`;
+  if (step.kind === 'case') return `[${GUIDE.caseKey.label}] 키 탭`;
   if (step.dir === 'tap') return `[${GUIDE.modifier.label}] 키 ${step.times}번 탭`;
   return `[${GUIDE.modifier.label}] 키 ${DIRECTION_LABEL[step.dir]}`;
 }

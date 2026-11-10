@@ -75,6 +75,16 @@ describe('classifyMistake', () => {
     ['う', 'ー', 'long-vowel'],
     ['ー', '-', 'long-vowel'],
     ['カ', '亀', 'conversion'],
+    // 영문자: 12키 자판의 글자 묶음으로 본다 (iPhone 실기 기록의 실수)
+    ['P', 'p', 'case'],
+    ['h', 'H', 'case'],
+    ['K', 'L', 'direction'],
+    ['h', 'i', 'direction'],
+    ['N', 'o', 'direction'],
+    ['a', 'd', 'key'],
+    ['s', 'z', 'key'],
+    ['a', 'e', 'other'],
+    ['P', 'ぷ', 'other'],
   ] as const)('目標 %s · 入力 %s → %s', (expected, actual, kind) => {
     expect(classifyMistake(expected, actual)).toBe(kind);
   });

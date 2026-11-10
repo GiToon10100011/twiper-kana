@@ -39,12 +39,12 @@ const hrefs = () => screen.queryAllByRole('link').map((link) => link.getAttribut
 const current = () => screen.queryAllByRole('link').filter((l) => l.getAttribute('aria-current'));
 
 describe('levelSymbol', () => {
-  it('행 레벨은 키 글자, 50음은 「50音」, 조합은 대표 글자, 문장은 「文」, 채팅은 「話」', () => {
+  it('행 레벨은 키 글자, 50음은 「50音」, 조합은 대표 글자, 문장은 「文」, 채팅은 「話」, 영어·숫자는 「A1」', () => {
     const symbol = (id: string) => levelSymbol(levels.find((level) => level.id === id)!);
 
     expect(['L1', 'L2', 'L9'].map(symbol)).toEqual(['あ', 'か', 'らわ']);
     expect(levels.slice(9).map(levelSymbol).join(' ')).toBe(
-      '50音 が ぱ ぁ きゃ っ カ ー ティ ヴ ？！ 〜 文 話',
+      '50音 が ぱ ぁ きゃ っ カ ー ティ ヴ ？！ 〜 文 話 A1',
     );
   });
 });

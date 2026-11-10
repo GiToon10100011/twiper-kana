@@ -71,6 +71,28 @@ export function HowToSteps({ steps }: { steps: readonly Step[] }) {
   ));
 }
 
+/** 영어·숫자 레벨 준비 화면: 대문자는 소문자를 친 뒤 「a/A」를 한 번 누른다 (보기는 실기 확인한 글자) */
+export function CaseHowTo({ label }: { label: string }) {
+  const { caseKey } = iosKana;
+  return (
+    <ol className="howto" aria-label={label}>
+      {caseKey.samples.map((lower) => (
+        <li key={lower}>
+          <span className="howto-key">{lower}</span>
+          <span className="howto-plus" aria-hidden="true">
+            +
+          </span>
+          <span className="howto-key is-mod">{caseKey.label}</span>
+          <span className="howto-eq" aria-hidden="true">
+            =
+          </span>
+          <strong className="howto-out">{lower.toUpperCase()}</strong>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 /** 조합 레벨 준비 화면: 「小゛゜」를 언제, 몇 번 누르는지 보여 준다 */
 export function ModifierHowTo({ topic, label }: { topic: ComboTopic; label: string }) {
   return (

@@ -36,6 +36,17 @@ export interface GuideModifier {
   direct: readonly { dir: FlickDirection; base: string; out: string }[];
 }
 
+/** ABC 모드에서 직전 영문자를 대문자로 바꾸는 키 (iOS의 a/A) */
+export interface GuideCaseKey {
+  label: string;
+  row: number;
+  col: number;
+  /** 실기 확인에 쓸 소문자. 이 글자를 친 뒤 키를 탭하면 대문자가 된다 */
+  samples: readonly string[];
+  /** 문헌으로 확정하지 못해 실기 확인이 필요한지 */
+  unverified?: boolean;
+}
+
 /**
  * 실제 키보드가 "어떤 동작에 어떤 문자를 내는지"를 적은 참조 데이터.
  * 입력을 처리하는 데 쓰지 않고, 튜토리얼 도해·힌트·오류 분류의 근거로만 쓴다.
@@ -45,6 +56,7 @@ export interface KeyboardGuide {
   name: string;
   layers: Record<GuideLayerId, GuideLayer>;
   modifier: GuideModifier;
+  caseKey: GuideCaseKey;
 }
 
 /** 문자 하나를 입력하기 위한 동작 한 단계 */
@@ -57,7 +69,9 @@ export type InputStep =
       dir: FlickDirection;
       out: string;
     }
-  | { kind: 'modifier'; dir: FlickDirection; times: number; out: string };
+  | { kind: 'modifier'; dir: FlickDirection; times: number; out: string }
+  /** ABC 모드에서 a/A 키를 탭해 직전 글자를 대문자로 */
+  | { kind: 'case'; out: string };
 
 /** 가이드가 주장하는 "이 동작들을 하면 이 문자가 나온다" 한 건 */
 export interface GuideClaim {

@@ -56,6 +56,7 @@ const TOPIC_SYMBOL: Record<LevelTopic, string> = {
   vu: 'ヴ',
   punct: '？！',
   symbol: '〜',
+  alnum: 'A1',
 };
 
 /** 목록 타일에 크게 보일 대표 글자: 「あ」「らわ」「50音」「が」「文」 */

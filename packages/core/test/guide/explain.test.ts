@@ -30,6 +30,7 @@ const guide: KeyboardGuide = {
     ],
     direct: [],
   },
+  caseKey: { label: 'a/A', row: 3, col: 0, samples: [] },
 };
 
 describe('explainChar', () => {
@@ -108,11 +109,18 @@ describe('lookupChar', () => {
     expect(lookupChar(withLayers, 'x')).toEqual([
       { kind: 'key', layer: 'alpha', keyId: 'wxyz', label: 'WXYZ', dir: 'left', out: 'x' },
     ]);
+    // 대문자는 소문자를 친 뒤 a/A 키
+    expect(lookupChar(withLayers, 'X')).toEqual([
+      { kind: 'key', layer: 'alpha', keyId: 'wxyz', label: 'WXYZ', dir: 'left', out: 'x' },
+      { kind: 'case', out: 'X' },
+    ]);
+    expect(lookupChar(withLayers, 'Z')).toBeNull();
   });
 
   it('어느 자판에도 없으면 null이다', () => {
     expect(lookupChar(withLayers, '亀')).toBeNull();
-    expect(lookupChar(withLayers, 'X')).toBeNull();
+    // 전각 영문자는 iPhone 자판에서 바로 칠 수 없다
+    expect(lookupChar(withLayers, '\u{FF38}')).toBeNull();
   });
 });
 

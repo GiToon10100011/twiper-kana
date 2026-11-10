@@ -251,6 +251,28 @@ describe('Drill', () => {
     ]);
   });
 
+  it('영어·숫자 레벨은 준비 화면에 ABC 자판 배치와 그 ABC 키의 도해, 대문자 만드는 순서를 보여 준다', () => {
+    renderDrill('L24');
+
+    expect(screen.getByText(/영어나 숫자가 섞인 짧은 말 10개/)).toBeTruthy();
+    expect(screen.getByText(/대문자는 소문자를 친 다음 왼쪽 아래 「a\/A」 키/)).toBeTruthy();
+    // 배치에서 강조한 키와 아래 도해의 키가 같다
+    // 그림을 볼 수 없어도 줄마다 키 이름을 읽어 준다
+    const grid = screen.getByRole('img', {
+      name: 'ABC 자판의 키 배치. 1줄: @#/&_, ABC, DEF. 2줄: GHI, JKL, MNO. 3줄: PQRS, TUV, WXYZ. 4줄: a/A, \'"(), .,?!',
+    });
+    expect([...grid.querySelectorAll('.is-active')].map((key) => key.textContent)).toEqual(['ABC']);
+    expect(within(grid).getByText('a/A').className).toBe('kb-key');
+    // 설명은 화면 언어로 읽고, 일본어 표시는 키 글자에만 붙인다
+    expect(grid.getAttribute('lang')).toBeNull();
+    expect(within(grid).getByText('PQRS').getAttribute('lang')).toBe('ja');
+    expect(keyDiagrams()).toEqual(['탭 a, 왼쪽 b, 위 c']);
+    const cases = within(screen.getByRole('list', { name: '대문자 만들기' })).getAllByRole(
+      'listitem',
+    );
+    expect(cases.map((item) => item.textContent)).toEqual(['a+a/A=A', 'i+a/A=I', 's+a/A=S']);
+  });
+
   it('다음 글자에서 한동안 진행이 없으면 그 글자를 치는 법을 입력창 아래에 보여 준다', async () => {
     vi.useFakeTimers();
     try {

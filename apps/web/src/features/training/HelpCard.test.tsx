@@ -22,6 +22,15 @@ describe('HelpCard', () => {
     expect(card.textContent).toContain('☆123 자판, 0 키 왼쪽');
   });
 
+  it('영문 대문자는 ABC 자판의 소문자 키 다음에 a/A 키를 보여 준다', () => {
+    renderCard('P');
+    const card = screen.getByRole('complementary', { name: 'P 치는 법' });
+
+    expect(card.querySelector('.is-layer')?.textContent).toBe('ABC');
+    expect(card.querySelector('.is-mod')?.textContent).toBe('a/A');
+    expect(card.textContent).toContain('ABC 자판, PQRS 키 탭, a/A 1번');
+  });
+
   it('かな 자판의 글자는 자판 표시 없이 키만 보여 준다', () => {
     renderCard('「');
     const card = screen.getByRole('complementary', { name: '「 치는 법' });

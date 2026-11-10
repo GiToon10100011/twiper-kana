@@ -2,7 +2,10 @@ import type { FlickDirection, GuideLayer, GuideModifier } from '@twiper/core';
 
 interface KeyboardGridProps {
   layer: GuideLayer;
-  modifier: GuideModifier;
+  /** 왼쪽 아래 변형 키 (かな 자판의 小゛゜, ABC 자판의 a/A) */
+  modifier: Pick<GuideModifier, 'label' | 'row' | 'col'>;
+  /** 변형 키를 흐리게 보인다 (기본). false면 다른 키처럼 보인다 */
+  muteModifier?: boolean;
   /** 각 키에 이 방향으로 플릭했을 때 나오는 글자를 보여 준다. 'label'이면 키에 적힌 이름 */
   direction: FlickDirection | 'label';
   /** 강조할 키 id */
@@ -10,6 +13,17 @@ interface KeyboardGridProps {
   /** 흐리게 보일 키 id (지금 설명과 관계없는 키) */
   muted?: ReadonlySet<string>;
   label: string;
+}
+
+/** 키 이름을 줄마다 왼쪽부터 모은다. 화면 읽기 프로그램에 배치를 줄 단위로 읽어 줄 때 쓴다 */
+export function gridRows(
+  layer: GuideLayer,
+  modifier: Pick<GuideModifier, 'label' | 'row' | 'col'>,
+): string[][] {
+  const cells = [...layer.keys, modifier].sort((a, b) => a.row - b.row || a.col - b.col);
+  const rows: string[][] = [];
+  for (const cell of cells) (rows[cell.row] ??= []).push(cell.label);
+  return rows;
 }
 
 /**
@@ -23,11 +37,14 @@ export function KeyboardGrid({
   highlight,
   muted,
   label,
+  muteModifier = true,
 }: KeyboardGridProps) {
   return (
-    <div className="kb-grid" role="img" aria-label={label} lang="ja">
+    // 설명(label)은 화면 언어로 읽히도록 두고, 일본어 표시는 키 글자에만 붙인다
+    <div className="kb-grid" role="img" aria-label={label}>
       <span
-        className="kb-key is-muted"
+        className={muteModifier ? 'kb-key is-muted' : 'kb-key'}
+        lang="ja"
         style={{ gridRow: modifier.row + 1, gridColumn: modifier.col + 1 }}
       >
         {modifier.label}
@@ -43,6 +60,7 @@ export function KeyboardGrid({
           <span
             key={key.id}
             className={classes.trim()}
+            lang="ja"
             style={{ gridRow: key.row + 1, gridColumn: key.col + 1 }}
           >
             {out ?? '\u{2013}'}

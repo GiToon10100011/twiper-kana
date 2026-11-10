@@ -21,10 +21,10 @@ export function findKeyStep(
   return null;
 }
 
-function requireKeyStep(guide: KeyboardGuide, char: string): KeyStep {
-  const step = findKeyStep(guide, char);
+function requireKeyStep(guide: KeyboardGuide, char: string, layer: GuideLayerId = 'kana'): KeyStep {
+  const step = findKeyStep(guide, char, layer);
   if (step === null) {
-    throw new Error(`가이드 ${guide.id}: かな 레이어에 '${char}'를 내는 키가 없습니다`);
+    throw new Error(`가이드 ${guide.id}: ${layer} 레이어에 '${char}'를 내는 키가 없습니다`);
   }
   return step;
 }
@@ -77,6 +77,17 @@ export function guideClaims(guide: KeyboardGuide): GuideClaim[] {
       ],
       expected: direct.out,
       unverified: true,
+    });
+  }
+
+  for (const sample of guide.caseKey.samples) {
+    const out = sample.toUpperCase();
+    claims.push({
+      id: `case.${sample}`,
+      layer: 'alpha',
+      steps: [requireKeyStep(guide, sample, 'alpha'), { kind: 'case', out }],
+      expected: out,
+      unverified: guide.caseKey.unverified ?? false,
     });
   }
 

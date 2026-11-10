@@ -85,8 +85,13 @@ describe('skillsOf', () => {
     expect(['〜', '…', '・', '♪', '☆'].map(skillsOf)).toEqual(Array(5).fill(['symbol']));
   });
 
+  it('ABC 자판의 영문자와 ☆123 자판의 숫자는 영어·숫자로 함께 센다', () => {
+    expect(['a', 'P', 'z', '3', '0'].map(skillsOf)).toEqual(Array(5).fill(['alnum']));
+  });
+
   it('가나도 아니고 레벨에서 배우는 기호도 아니면 어떤 규칙에도 넣지 않는다', () => {
-    expect(skillsOf('A')).toEqual([]);
+    // 전각 영문자는 iPhone 자판에서 바로 치지 않는다
+    expect(skillsOf('\u{FF21}')).toEqual([]);
     expect(skillsOf('人')).toEqual([]);
     expect(skillsOf('')).toEqual([]);
   });
@@ -233,7 +238,7 @@ describe('weakUnits', () => {
     expect(list.find((weak) => weak.unit === 'し')?.medianMs).toBe(3000);
   });
 
-  it('가타카나는 히라가나로 묶고, 표본이 적거나 로마자로 친 줄·변환 실수·기호는 보지 않는다', () => {
+  it('가타카나는 히라가나로 묶고, 표본이 적거나 로마자로 친 줄·변환 실수·기호·영어·숫자는 보지 않는다', () => {
     const list = weakUnits(
       [
         attempt('あカ', [9000, 500], [[1, 'き', 'direction']]),
@@ -244,6 +249,9 @@ describe('weakUnits', () => {
         attempt('あ？', [9000, 500], [[1, '！', 'key']]),
         attempt('あ？', [9000, 500], [[1, '！', 'key']]),
         attempt('あ？', [9000, 500], [[1, '！', 'key']]),
+        attempt('あP3', [9000, 500, 500], [[1, 'p', 'case']]),
+        attempt('あP3', [9000, 500, 500], [[1, 'p', 'case']]),
+        attempt('あP3', [9000, 500, 500], [[2, '4', 'key']]),
       ],
       { minSamples: 3 },
     );
