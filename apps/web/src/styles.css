@@ -2588,3 +2588,98 @@ a.tile-row:active {
 .cal-day.is-future {
   color: var(--ink-faint);
 }
+
+/* 「내 실력」 추세: 기간 탭 → 세 칸 숫자 → 날마다 그래프. 선·막대는 강조색, 축·격자는 물러나게 */
+.trend .stage-tabs {
+  margin-bottom: var(--space-3);
+}
+
+.trend-stats {
+  margin-bottom: var(--space-2);
+}
+
+.trend-stats dd {
+  font-variant-numeric: normal;
+}
+
+.trend-chart-title {
+  margin: var(--space-4) 0 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.trend-metric {
+  margin-top: var(--space-4);
+}
+
+.trend-chart {
+  margin: 0;
+}
+
+.trend-readout {
+  min-height: 1.25rem;
+  margin: var(--space-1) 0;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.trend-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+
+.trend-svg:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+.trend-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.trend-axis {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  fill: var(--ink-faint);
+}
+
+.trend-cross {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.trend-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.trend-area {
+  fill: var(--accent);
+  fill-opacity: 0.1;
+}
+
+.trend-dot {
+  fill: var(--accent);
+  stroke: var(--bg);
+  stroke-width: 2;
+}
+
+.trend-bar {
+  fill: var(--accent);
+  fill-opacity: 0.55;
+}
+
+.trend-dot.is-selected,
+.trend-bar.is-selected {
+  fill: var(--accent-strong);
+  fill-opacity: 1;
+}
