@@ -178,6 +178,7 @@ export const ko = {
       '50음 줄과 단어 줄을 번갈아 {{count}}줄 쳐요. 줄을 다 치고 確定을 누르면 다음 줄이 나와요.',
     keyGuide: '이 레벨의 키',
     alphaGrid: 'ABC 자판의 키 배치',
+    caseGuide: '대문자 만들기',
     start: '시작',
     progress: '{{current}}/{{total}}',
     extra: '틀린 글자 복습',

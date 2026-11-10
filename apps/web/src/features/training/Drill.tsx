@@ -33,7 +33,7 @@ import { BackIcon } from '../../ui/icons';
 import { ConvertHowTo } from '../tutorial/ConvertHowTo';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
 import { KeyboardGrid } from '../tutorial/KeyboardGrid';
-import { ModifierHowTo } from '../tutorial/ModifierHowTo';
+import { CaseHowTo, ModifierHowTo } from '../tutorial/ModifierHowTo';
 import { levelAccess } from './access';
 import { DrillResult } from './DrillResult';
 import { HelpCard } from './HelpCard';
@@ -60,6 +60,9 @@ const isKatakanaTopic = (topic: LevelTopic): topic is KatakanaTopic => KATAKANA_
 const SYMBOL_TOPICS: ReadonlySet<LevelTopic> = new Set<SymbolTopic>(['punct', 'symbol', 'alnum']);
 
 const isSymbolTopic = (topic: LevelTopic): topic is SymbolTopic => SYMBOL_TOPICS.has(topic);
+
+/** 영어·숫자 레벨의 ABC 자판 배치에서 강조할 키 (준비 화면 도해의 ABC 키와 같다) */
+const ALPHA_HIGHLIGHT: ReadonlySet<string> = new Set(['abc']);
 
 /**
  * 준비 화면 안내문: 짧은 문장 / 채팅 / 가타카나 단어 / 기호를 붙인 짧은 말 / 단어만 / 50음+단어 /
@@ -261,12 +264,13 @@ export function Drill({ level, practice }: { level: Level; practice?: PracticeOp
                   candidateLabel={t('drill.candidate')}
                 />
               ) : level.topic === 'alnum' ? (
-                // 영문자가 어느 키에 있는지와, 대문자를 만드는 a/A 키 자리를 한눈에 보여 준다
+                // 영문자가 어느 키에 있는지 보여 주고, 아래 도해와 같은 ABC 키를 강조한다
                 <KeyboardGrid
                   layer={iosKana.layers.alpha}
                   modifier={iosKana.caseKey}
-                  modifierActive
+                  muteModifier={false}
                   direction="label"
+                  highlight={ALPHA_HIGHLIGHT}
                   label={t('drill.alphaGrid')}
                 />
               ) : isSymbolTopic(level.topic) ? null : (
@@ -285,6 +289,7 @@ export function Drill({ level, practice }: { level: Level; practice?: PracticeOp
               })}
             </div>
           ) : null}
+          {level.topic === 'alnum' ? <CaseHowTo label={t('drill.caseGuide')} /> : null}
           <button type="button" className="btn btn-primary" onClick={start}>
             {t('drill.start')}
           </button>

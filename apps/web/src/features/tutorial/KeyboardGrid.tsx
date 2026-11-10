@@ -4,8 +4,8 @@ interface KeyboardGridProps {
   layer: GuideLayer;
   /** 왼쪽 아래 변형 키 (かな 자판의 小゛゜, ABC 자판의 a/A) */
   modifier: Pick<GuideModifier, 'label' | 'row' | 'col'>;
-  /** 변형 키를 강조한다. 기본은 흐리게 보인다 */
-  modifierActive?: boolean;
+  /** 변형 키를 흐리게 보인다 (기본). false면 다른 키처럼 보인다 */
+  muteModifier?: boolean;
   /** 각 키에 이 방향으로 플릭했을 때 나오는 글자를 보여 준다. 'label'이면 키에 적힌 이름 */
   direction: FlickDirection | 'label';
   /** 강조할 키 id */
@@ -26,12 +26,12 @@ export function KeyboardGrid({
   highlight,
   muted,
   label,
-  modifierActive = false,
+  muteModifier = true,
 }: KeyboardGridProps) {
   return (
     <div className="kb-grid" role="img" aria-label={label} lang="ja">
       <span
-        className={`kb-key ${modifierActive ? 'is-active' : 'is-muted'}`}
+        className={muteModifier ? 'kb-key is-muted' : 'kb-key'}
         style={{ gridRow: modifier.row + 1, gridColumn: modifier.col + 1 }}
       >
         {modifier.label}
