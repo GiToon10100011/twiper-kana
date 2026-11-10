@@ -3,6 +3,7 @@ import { KANA_KEY_ROWS, danOf, keyRowOf } from '../kana/rows';
 import { toHiragana } from '../kana/script';
 import { tokenizeKana } from '../kana/tokenize';
 import { variantBase } from '../kana/variants';
+import { addDays, dayKey } from '../progress/streak';
 import type { AttemptRecord } from '../record/types';
 
 /** 조합·가타카나·기호 규칙. 이름은 콘텐츠의 레벨 주제와 같다 */
@@ -267,6 +268,57 @@ export function weakUnits(
     })
     .sort((a, b) => b.missRate - a.missRate || (b.medianMs ?? 0) - (a.medianMs ?? 0))
     .slice(0, limit);
+}
+
+/** 며칠 간격 복습의 간격(일). 틀리면 첫 간격부터, 예정일 뒤에 맞히면 다음 간격으로, 마지막 간격 뒤에 맞히면 끝난다 */
+export const REVIEW_INTERVALS: readonly number[] = [1, 3, 7, 21];
+
+/** 복습할 입력 단위 하나 */
+export interface ReviewItem {
+  /** 입력 단위 (가타카나는 읽기 히라가나로 묶는다) */
+  readonly unit: string;
+  /** 지금 몇 번째 간격인지 (0부터, REVIEW_INTERVALS의 자리) */
+  readonly step: number;
+  /** 다음 복습 날 (기기 시간대 YYYY-MM-DD) */
+  readonly due: string;
+}
+
+/**
+ * 며칠 간격 복습 (계획 §10.3 Leitner): 시도 기록을 오래된 순으로 훑어 단위마다 다음 복습 날을 정한다.
+ * 플릭 실수를 하면 다음 날로, 예정일이 된 뒤에 맞히면 3일·7일·21일 뒤로 늘리고, 21일 뒤에도 맞히면 목록에서 뺀다.
+ * 예정일 전에 맞힌 것은 세지 않는다 (같은 날 몰아서 맞혀도 간격이 늘지 않는다).
+ * 따로 저장하지 않고 기록에서 다시 계산하므로 가져온 기록·다른 레벨에서 친 것도 그대로 들어간다.
+ * 약점 연습과 같이 가나 줄로 칠 수 있는 단위만 보고, 로마자 키보드로 친 줄은 보지 않는다
+ */
+export function reviewSchedule(attempts: readonly AttemptRecord[]): ReviewItem[] {
+  const items = new Map<string, ReviewItem>();
+  // usable은 최근 순이라 뒤집어 오래된 기록부터 본다
+  for (const attempt of usable(attempts).reverse()) {
+    const day = dayKey(new Date(attempt.at));
+    for (const { unit, skills, flickMiss } of occurrencesOf(attempt)) {
+      if (skills.length === 0 || skills.some((skill) => NOT_PRACTICE.has(skill))) continue;
+      const key = toHiragana(unit);
+      const item = items.get(key);
+      if (flickMiss) {
+        items.set(key, { unit: key, step: 0, due: addDays(day, REVIEW_INTERVALS[0] ?? 1) });
+      } else if (item && day >= item.due) {
+        const step = item.step + 1;
+        const interval = REVIEW_INTERVALS[step];
+        if (interval === undefined) items.delete(key);
+        else items.set(key, { unit: key, step, due: addDays(day, interval) });
+      }
+    }
+  }
+  return [...items.values()].sort((a, b) => a.due.localeCompare(b.due) || a.step - b.step);
+}
+
+/** 오늘 복습할 단위: 예정일이 오늘이거나 지난 것, 오래 밀린 것부터 limit개 */
+export function dueReviews(
+  schedule: readonly ReviewItem[],
+  today: string,
+  limit = 8,
+): ReviewItem[] {
+  return schedule.filter((item) => item.due <= today).slice(0, limit);
 }
 
 /** 표본이 minSamples 이상인 입력 단위 중 느린 순. 가타카나는 읽기(히라가나)로 묶는다 */

@@ -1183,7 +1183,8 @@ a.tile-row:active {
   border-radius: var(--radius-lg);
 }
 
-.weak-title {
+/* 시안 화면(.lab h2)에서도 같은 모양이 되도록 카드 안에서 고른다 */
+.weak-card .weak-title {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
@@ -2671,4 +2672,46 @@ a.tile-row:active {
 
 .trend-dot.is-selected {
   fill: var(--accent-strong);
+}
+
+/* 오늘 복습 시안 B: 「오늘」 띠 아래 한 줄 링크 */
+.review-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  min-height: 3rem;
+  padding: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-4);
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.review-row.is-idle {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.review-row-text {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  flex: none;
+}
+
+.review-row-text span {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.review-row-units {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 1.0625rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--ink-muted);
 }
