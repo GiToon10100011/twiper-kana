@@ -179,6 +179,7 @@ export const ja: typeof ko = {
       '五十音の行と単語の行を交互に{{count}}行打ちます。行を打ち終えて「確定」を押すと次の行に進みます。',
     keyGuide: 'このレベルのキー',
     alphaGrid: 'ABCキーボードの配置',
+    gridRow: '{{row}}段目：{{keys}}',
     caseGuide: '大文字の打ち方',
     start: 'はじめる',
     progress: '{{current}}/{{total}}',

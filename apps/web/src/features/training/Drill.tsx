@@ -32,7 +32,7 @@ import { loadSettings } from '../../lib/settings';
 import { BackIcon } from '../../ui/icons';
 import { ConvertHowTo } from '../tutorial/ConvertHowTo';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
-import { KeyboardGrid } from '../tutorial/KeyboardGrid';
+import { gridRows, KeyboardGrid } from '../tutorial/KeyboardGrid';
 import { CaseHowTo, ModifierHowTo } from '../tutorial/ModifierHowTo';
 import { levelAccess } from './access';
 import { DrillResult } from './DrillResult';
@@ -63,6 +63,9 @@ const isSymbolTopic = (topic: LevelTopic): topic is SymbolTopic => SYMBOL_TOPICS
 
 /** 영어·숫자 레벨의 ABC 자판 배치에서 강조할 키 (준비 화면 도해의 ABC 키와 같다) */
 const ALPHA_HIGHLIGHT: ReadonlySet<string> = new Set(['abc']);
+
+/** ABC 자판 배치의 줄별 키 이름 (그림을 볼 수 없는 사용자에게 읽어 준다) */
+const ALPHA_ROWS = gridRows(iosKana.layers.alpha, iosKana.caseKey);
 
 /**
  * 준비 화면 안내문: 짧은 문장 / 채팅 / 가타카나 단어 / 기호를 붙인 짧은 말 / 단어만 / 50음+단어 /
@@ -271,7 +274,12 @@ export function Drill({ level, practice }: { level: Level; practice?: PracticeOp
                   muteModifier={false}
                   direction="label"
                   highlight={ALPHA_HIGHLIGHT}
-                  label={t('drill.alphaGrid')}
+                  label={[
+                    t('drill.alphaGrid'),
+                    ...ALPHA_ROWS.map((keys, i) =>
+                      t('drill.gridRow', { row: i + 1, keys: keys.join(', ') }),
+                    ),
+                  ].join('. ')}
                 />
               ) : isSymbolTopic(level.topic) ? null : (
                 <ModifierHowTo topic={level.topic} label={t('drill.keyGuide')} />

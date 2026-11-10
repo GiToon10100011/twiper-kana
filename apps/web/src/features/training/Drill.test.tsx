@@ -257,7 +257,10 @@ describe('Drill', () => {
     expect(screen.getByText(/영어나 숫자가 섞인 짧은 말 10개/)).toBeTruthy();
     expect(screen.getByText(/대문자는 소문자를 친 다음 왼쪽 아래 「a\/A」 키/)).toBeTruthy();
     // 배치에서 강조한 키와 아래 도해의 키가 같다
-    const grid = screen.getByRole('img', { name: 'ABC 자판의 키 배치' });
+    // 그림을 볼 수 없어도 줄마다 키 이름을 읽어 준다
+    const grid = screen.getByRole('img', {
+      name: 'ABC 자판의 키 배치. 1줄: @#/&_, ABC, DEF. 2줄: GHI, JKL, MNO. 3줄: PQRS, TUV, WXYZ. 4줄: a/A, \'"(), .,?!',
+    });
     expect([...grid.querySelectorAll('.is-active')].map((key) => key.textContent)).toEqual(['ABC']);
     expect(within(grid).getByText('a/A').className).toBe('kb-key');
     expect(keyDiagrams()).toEqual(['탭 a, 왼쪽 b, 위 c']);

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  classifyMistake,
   replayInputSession,
   toHiragana,
   type InputSnapshot,
@@ -36,6 +37,29 @@ const TRACES: Record<string, RecordedTrace> = {
   // 같은 기기 Safari 탭. ABC·☆123 모드로 바꿔 친 영어·숫자 섞인 줄 4개 (2026-11-10)
   'ios-safari-18-mixed': iosSafari18Mixed,
 };
+
+// 영어·숫자 줄은 commit 판정이라 위의 오류 개수 비교에서 빠진다. 녹화한 영문자 실수를 지금도 같은 종류로 찾는지 따로 본다
+describe('trace 재생: ios-safari-18-mixed의 영문자 실수', () => {
+  it.each([
+    ['iPhoneで', 'P', 'p', 'case'],
+    ['LINEする', 'N', 'o', 'direction'],
+  ] as const)(
+    '%s — %s 자리에 친 %s를 실수로 기록하고 %s로 분류한다',
+    (target, expected, actual, kind) => {
+      const trace: RecordedTrace = iosSafari18Mixed;
+      const result = trace.results.find((r) => r.target === target && !r.skipped);
+      const snapshots = trace.snapshots.filter(
+        (snapshot) => snapshot.session === result?.session && !snapshot.ignored,
+      );
+      const state = replayInputSession(target, snapshots, 'commit');
+      const pair = expect.objectContaining({ expected, actual });
+
+      expect(result?.errors).toContainEqual(pair);
+      expect(state.errors).toContainEqual(pair);
+      expect(classifyMistake(expected, actual)).toBe(kind);
+    },
+  );
+});
 
 describe.each(Object.entries(TRACES))('trace 재생: %s', (_name, trace) => {
   const played = trace.results.filter((result) => !result.skipped);

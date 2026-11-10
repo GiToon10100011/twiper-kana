@@ -15,6 +15,17 @@ interface KeyboardGridProps {
   label: string;
 }
 
+/** 키 이름을 줄마다 왼쪽부터 모은다. 화면 읽기 프로그램에 배치를 줄 단위로 읽어 줄 때 쓴다 */
+export function gridRows(
+  layer: GuideLayer,
+  modifier: Pick<GuideModifier, 'label' | 'row' | 'col'>,
+): string[][] {
+  const cells = [...layer.keys, modifier].sort((a, b) => a.row - b.row || a.col - b.col);
+  const rows: string[][] = [];
+  for (const cell of cells) (rows[cell.row] ??= []).push(cell.label);
+  return rows;
+}
+
 /**
  * iPhone かな 키보드의 4행 × 3열 배치를 그린 설명용 도해. 입력을 받지 않는다.
  * 키 위치와 글자는 KeyboardGuide 데이터에서 가져온다.
