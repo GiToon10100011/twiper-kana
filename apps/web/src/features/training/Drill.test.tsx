@@ -263,6 +263,9 @@ describe('Drill', () => {
     });
     expect([...grid.querySelectorAll('.is-active')].map((key) => key.textContent)).toEqual(['ABC']);
     expect(within(grid).getByText('a/A').className).toBe('kb-key');
+    // 설명은 화면 언어로 읽고, 일본어 표시는 키 글자에만 붙인다
+    expect(grid.getAttribute('lang')).toBeNull();
+    expect(within(grid).getByText('PQRS').getAttribute('lang')).toBe('ja');
     expect(keyDiagrams()).toEqual(['탭 a, 왼쪽 b, 위 c']);
     const cases = within(screen.getByRole('list', { name: '대문자 만들기' })).getAllByRole(
       'listitem',

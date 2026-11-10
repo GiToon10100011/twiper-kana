@@ -40,9 +40,11 @@ export function KeyboardGrid({
   muteModifier = true,
 }: KeyboardGridProps) {
   return (
-    <div className="kb-grid" role="img" aria-label={label} lang="ja">
+    // 설명(label)은 화면 언어로 읽히도록 두고, 일본어 표시는 키 글자에만 붙인다
+    <div className="kb-grid" role="img" aria-label={label}>
       <span
         className={muteModifier ? 'kb-key is-muted' : 'kb-key'}
+        lang="ja"
         style={{ gridRow: modifier.row + 1, gridColumn: modifier.col + 1 }}
       >
         {modifier.label}
@@ -58,6 +60,7 @@ export function KeyboardGrid({
           <span
             key={key.id}
             className={classes.trim()}
+            lang="ja"
             style={{ gridRow: key.row + 1, gridColumn: key.col + 1 }}
           >
             {out ?? '\u{2013}'}
