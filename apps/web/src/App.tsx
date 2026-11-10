@@ -8,6 +8,7 @@ import { Opening } from './features/intro/Opening';
 import { CourseTilesLab } from './features/lab/CourseTilesLab';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
+import { TrendLab } from './features/lab/TrendLab';
 import { WeakPractice } from './features/weak/WeakPractice';
 import { Onboarding } from './features/onboarding/Onboarding';
 import { UpdatePrompt } from './features/pwa/UpdatePrompt';
@@ -43,6 +44,7 @@ export function App() {
           <Route path="/lab/ime" element={<ImeLab />} />
           <Route path="/lab/guide-check" element={<GuideCheck />} />
           <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
+          <Route path="/lab/trend" element={<TrendLab />} />
         </Routes>
       )}
     </BrowserRouter>

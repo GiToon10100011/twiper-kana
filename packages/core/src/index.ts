@@ -77,5 +77,13 @@ export {
   type TopicSkill,
   type WeakUnit,
 } from './stats/skills';
+export {
+  dailyTrend,
+  summarizeAttempts,
+  trendChange,
+  type TrendChange,
+  type TrendDay,
+  type TrendSummary,
+} from './stats/trend';
 export { normalizeBase, normalizeForCompare } from './text/normalize';
 export { parseRuby, rubyReading, rubySurface, type RubySpan, type RubyText } from './text/ruby';

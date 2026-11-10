@@ -58,6 +58,22 @@ describe('Stats', () => {
     expect(screen.getByRole('main').getAttribute('aria-busy')).toBe('false');
   });
 
+  it('규칙별 실력 위에 최근 7일 추세를 보인다 (오늘 친 줄이 들어간다)', async () => {
+    const repo = createMemoryRepo();
+    await repo.saveAttempt({
+      ...attempt('かきくけこ'),
+      at: new Date().toISOString(),
+      elapsedMs: 5_000,
+    });
+    renderStats(repo);
+
+    const trend = await screen.findByRole('heading', { name: '추세' });
+    const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+    expect(headings.indexOf('추세')).toBeLessThan(headings.indexOf('규칙별 실력'));
+    expect(trend.closest('section')?.textContent).toContain('그 전 7일 기록 없음');
+    expect(screen.getAllByRole('slider', { name: /최근 7일/ })).toHaveLength(2);
+  });
+
   it('규칙마다 정확도와 글자당 시간을, 표본이 적으면 측정 중으로 보여 준다', async () => {
     const repo = createMemoryRepo();
     // あ행 10줄(50글자) 중 え를 한 번 う로 틀림, 탁음은 한 줄(2글자)

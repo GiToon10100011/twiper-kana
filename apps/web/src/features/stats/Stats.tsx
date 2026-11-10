@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { levelForSkill } from '@twiper/content';
 import {
+  addDays,
   confusions,
+  dayKey,
   skillStats,
   slowUnits,
   STATS_MIN_SAMPLES,
@@ -19,9 +21,13 @@ import { BackIcon } from '../../ui/icons';
 import { levelAccess } from '../training/access';
 import { skillName } from '../training/levelTitle';
 import { WeakCard, type WeakBack } from '../weak/WeakEntry';
+import { TrendSection } from './TrendSection';
 
 /** 통계에 읽어 올 최근 시도 수. 한 판이 10줄 안팎이라 수백 판 분량이다 (약점 연습도 같은 기록을 본다) */
 export const RECENT_ATTEMPTS = 2000;
+
+/** 추세에 읽어 올 날 수: 최근 30일과 그 앞 30일 */
+const TREND_DAYS = 60;
 
 /** 이보다 정확도가 낮은 규칙은 그 레벨로 돌아가길 권한다 (레벨 통과 기준과 같은 90%) */
 const BACK_ACCURACY = 0.9;
@@ -107,16 +113,26 @@ function weakestBack(
 export function Stats({ repo }: { repo?: TrainingRepo }) {
   const { t } = useTranslation();
   const [attempts, setAttempts] = useState<AttemptRecord[] | null>(null);
+  const [recent, setRecent] = useState<AttemptRecord[]>([]);
+  // 화면을 연 날을 오늘로 본다 (추세의 날짜 범위)
+  const [today] = useState(() => dayKey(new Date()));
 
   useEffect(() => {
     let alive = true;
-    void (repo ?? trainingRepo()).recentAttempts(RECENT_ATTEMPTS).then((list) => {
-      if (alive) setAttempts(list);
-    });
+    const source = repo ?? trainingRepo();
+    // 추세는 기기 시간대의 자정부터 센 최근 60일
+    const since = new Date(`${addDays(today, -(TREND_DAYS - 1))}T00:00:00`).toISOString();
+    void Promise.all([source.recentAttempts(RECENT_ATTEMPTS), source.attemptsSince(since)]).then(
+      ([list, days]) => {
+        if (!alive) return;
+        setAttempts(list);
+        setRecent(days);
+      },
+    );
     return () => {
       alive = false;
     };
-  }, [repo]);
+  }, [repo, today]);
 
   const skillLabel = (skill: SkillId) => skillName(skill, t);
 
@@ -139,9 +155,11 @@ export function Stats({ repo }: { repo?: TrainingRepo }) {
       {/* 기록이 없어도 약점 연습 카드를 보여 처음 쓰는 사람도 이런 연습이 있는 줄 알게 한다 */}
       {attempts === null ? null : <WeakCard units={weak} back={back} enough={enough} />}
       {attempts === null ? null : stats.length === 0 ? (
-        <p className="screen-body">{t('stats.empty')}</p>
+        <p className="screen-note">{t('stats.empty')}</p>
       ) : (
         <>
+          <TrendSection attempts={recent} today={today} />
+          <h2 className="section-label">{t('stats.bySkill')}</h2>
           <p className="screen-body">{t('stats.lead')}</p>
           {STAGES.map((stage) => {
             const rows = stats.filter((stat) => stageOf(stat.skill) === stage);
