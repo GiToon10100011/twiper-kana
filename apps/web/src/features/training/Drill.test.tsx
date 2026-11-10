@@ -251,6 +251,17 @@ describe('Drill', () => {
     ]);
   });
 
+  it('영어·숫자 레벨은 준비 화면에 ABC 자판 배치(a/A 키 강조)와 ABC 키 도해를 보여 준다', () => {
+    renderDrill('L24');
+
+    expect(screen.getByText(/영어나 숫자가 섞인 짧은 말 10개/)).toBeTruthy();
+    expect(screen.getByText(/대문자는 소문자를 친 다음 왼쪽 아래 「a\/A」 키/)).toBeTruthy();
+    const grid = screen.getByRole('img', { name: 'ABC 자판의 키 배치' });
+    expect(grid.querySelector('.is-active')?.textContent).toBe('a/A');
+    expect(grid.textContent).toContain('PQRS');
+    expect(keyDiagrams()).toEqual(['탭 a, 왼쪽 b, 위 c']);
+  });
+
   it('다음 글자에서 한동안 진행이 없으면 그 글자를 치는 법을 입력창 아래에 보여 준다', async () => {
     vi.useFakeTimers();
     try {

@@ -17,7 +17,8 @@ export type TopicSkill =
   | 'foreign'
   | 'vu'
   | 'punct'
-  | 'symbol';
+  | 'symbol'
+  | 'alnum';
 
 /** 통계를 내는 규칙. 기본 가나는 키(행)마다 'row:あ'처럼 나눈다 */
 export type SkillId = `row:${string}` | TopicSkill;
@@ -38,6 +39,7 @@ export const SKILL_ORDER: readonly SkillId[] = [
   'vu',
   'punct',
   'symbol',
+  'alnum',
 ];
 
 /** 이보다 표본이 적으면 화면에 「측정 중」으로 보인다 */
@@ -50,6 +52,8 @@ const SMALL_YA = new Set(Array.from('ゃゅょ'));
 const PUNCT = new Set(Array.from('、。？！「」'));
 /** ☆123 자판으로 바꿔서 치는 기호 */
 const SYMBOL = new Set(Array.from('〜…・♪☆'));
+/** ABC 자판의 영문자와 ☆123 자판의 숫자 (반각) */
+const ALNUM = /^[A-Za-z0-9]$/u;
 /** 플릭이 아니라 변환·초과 입력 문제인 실수 */
 const NOT_FLICK: ReadonlySet<MistakeKind> = new Set(['script', 'conversion', 'extra']);
 
@@ -59,7 +63,7 @@ const NOT_FLICK: ReadonlySet<MistakeKind> = new Set(['script', 'conversion', 'ex
  * い단 + ゃゅょ가 아닌 묶음(ティ ファ シェ)은 외래음이다.
  * ゔ(ヴ)는 탁음과 달리 「小゛゜」를 두 번 눌러야 해서(う→ぅ→ゔ) 따로 센다.
  * 가타카나는 가타카나에 더해 같은 읽기의 규칙에도 센다. 플릭은 히라가나와 똑같기 때문이다.
- * 기호는 かな 자판의 문장부호와 ☆123 자판의 기호로 나눈다.
+ * 기호는 かな 자판의 문장부호와 ☆123 자판의 기호로 나눈다. 영문자·숫자는 함께 센다.
  */
 export function skillsOf(unit: string): SkillId[] {
   const chars = Array.from(unit);
@@ -68,6 +72,7 @@ export function skillsOf(unit: string): SkillId[] {
   if (unit === 'ー') return ['longVowel'];
   if (PUNCT.has(unit)) return ['punct'];
   if (SYMBOL.has(unit)) return ['symbol'];
+  if (ALNUM.test(unit)) return ['alnum'];
 
   const skills: SkillId[] = [];
   if (chars.some((char) => toHiragana(char) !== char)) skills.push('katakana');
@@ -222,8 +227,8 @@ export interface WeakUnit {
   readonly medianMs: number | null;
 }
 
-/** かな 자판에서 바로 치지 않는 기호(☆123)와 문장부호는 약점 연습(가나 줄)에 내지 않는다 */
-const NOT_PRACTICE: ReadonlySet<SkillId> = new Set<SkillId>(['punct', 'symbol']);
+/** かな 자판에서 바로 치지 않는 기호(☆123)·영문자·숫자와 문장부호는 약점 연습(가나 줄)에 내지 않는다 */
+const NOT_PRACTICE: ReadonlySet<SkillId> = new Set<SkillId>(['punct', 'symbol', 'alnum']);
 
 /**
  * 약점 단위: 최근 기록에서 자주 틀리거나 느린 입력 단위. 약점 연습의 출제 단위다 (계획 §12 Weakness Analyzer).

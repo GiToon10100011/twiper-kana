@@ -7,6 +7,7 @@ import {
 } from '../../src/index';
 import desktopEdgeCdp from '../fixtures/traces/desktop-edge-cdp.json';
 import iosSafari18Kana from '../fixtures/traces/ios-safari-18-kana.json';
+import iosSafari18Mixed from '../fixtures/traces/ios-safari-18-mixed.json';
 import iosStandalone18Kana from '../fixtures/traces/ios-standalone-18-kana.json';
 
 /** /lab/ime가 내보내는 trace 중 재생에 필요한 부분 */
@@ -32,6 +33,8 @@ const TRACES: Record<string, RecordedTrace> = {
   'ios-safari-18-kana': iosSafari18Kana,
   // 같은 기기, 홈 화면에 추가한 앱(standalone)으로 같은 순서를 반복 (2026-10-17)
   'ios-standalone-18-kana': iosStandalone18Kana,
+  // 같은 기기 Safari 탭. ABC·☆123 모드로 바꿔 친 영어·숫자 섞인 줄 4개 (2026-11-10)
+  'ios-safari-18-mixed': iosSafari18Mixed,
 };
 
 describe.each(Object.entries(TRACES))('trace 재생: %s', (_name, trace) => {

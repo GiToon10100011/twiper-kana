@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { explainChar, findKeyStep, guideClaims, lookupChar, parseRuby } from '@twiper/core';
 import { iosKana, levels } from '../src/index';
 import deviceCheck from './fixtures/ios-kana-guide-check-2026-10-17.json';
+import alphaCheck from './fixtures/ios-kana-guide-check-2026-11-10.json';
 
 const BASIC_KANA =
   'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん';
@@ -114,5 +115,29 @@ describe('iosKana 가이드 — 2026-10-17 실기기 기록과 대조', () => {
       { kind: 'modifier', dir: 'tap', times: 2, out: 'ぱ' },
     ]);
     expect(explainChar(iosKana, 'ッ')?.map((step) => step.out)).toEqual(['つ', 'っ']);
+  });
+});
+
+describe('iosKana 가이드 — 2026-11-10 ABC 모드 실기기 기록과 대조', () => {
+  const byId = new Map(guideClaims(iosKana).map((claim) => [claim.id, claim]));
+
+  it.each(alphaCheck.results.map((result) => [result.id, result] as const))(
+    '%s — 가이드의 예상이 기기에서 나온 문자와 같다',
+    (_id, result) => {
+      expect(result.status).toBe('typed');
+      expect(byId.get(result.id)?.expected).toBe(result.actual);
+    },
+  );
+
+  it('글자 키 26개와 a/A 키 보기 3개를 모두 확인해, 확인이 필요한 항목이 남지 않았다', () => {
+    const checked = new Set(alphaCheck.results.map((result) => result.id));
+    const letters = [...byId.values()].filter(
+      (claim) => /^[a-z]$/.test(claim.expected) || claim.id.startsWith('case.'),
+    );
+    const unverified = [...byId.values()].filter((claim) => claim.unverified);
+
+    expect(letters).toHaveLength(29);
+    expect(letters.filter((claim) => !checked.has(claim.id)).map((claim) => claim.id)).toEqual([]);
+    expect(unverified.map((claim) => claim.id)).toEqual([]);
   });
 });

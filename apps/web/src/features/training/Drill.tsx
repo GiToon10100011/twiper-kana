@@ -32,6 +32,7 @@ import { loadSettings } from '../../lib/settings';
 import { BackIcon } from '../../ui/icons';
 import { ConvertHowTo } from '../tutorial/ConvertHowTo';
 import { FlickDiagram } from '../tutorial/FlickDiagram';
+import { KeyboardGrid } from '../tutorial/KeyboardGrid';
 import { ModifierHowTo } from '../tutorial/ModifierHowTo';
 import { levelAccess } from './access';
 import { DrillResult } from './DrillResult';
@@ -41,9 +42,9 @@ import { TrainingInput } from './TrainingInput';
 
 const newSeed = () => Math.floor(Math.random() * 2 ** 31);
 
-/** 탭하면 char가 나오는 키. かな 자판에 없으면 ☆123 자판에서 찾는다 (0 키 등) */
+/** 탭하면 char가 나오는 키. かな 자판에 없으면 ☆123·ABC 자판에서 찾는다 (0 키, ABC 키 등) */
 const keyOf = (char: string) =>
-  [iosKana.layers.kana, iosKana.layers.number]
+  [iosKana.layers.kana, iosKana.layers.number, iosKana.layers.alpha]
     .flatMap((layer) => layer.keys)
     .find((key) => key.outputs.tap === char);
 
@@ -56,7 +57,7 @@ const KATAKANA_TOPICS: ReadonlySet<LevelTopic> = new Set<KatakanaTopic>([
 
 const isKatakanaTopic = (topic: LevelTopic): topic is KatakanaTopic => KATAKANA_TOPICS.has(topic);
 
-const SYMBOL_TOPICS: ReadonlySet<LevelTopic> = new Set<SymbolTopic>(['punct', 'symbol']);
+const SYMBOL_TOPICS: ReadonlySet<LevelTopic> = new Set<SymbolTopic>(['punct', 'symbol', 'alnum']);
 
 const isSymbolTopic = (topic: LevelTopic): topic is SymbolTopic => SYMBOL_TOPICS.has(topic);
 
@@ -74,6 +75,7 @@ function introKey(
   | 'drill.introChatReading'
   | 'drill.introKatakana'
   | 'drill.introPhrase'
+  | 'drill.introAlnum'
   | 'drill.introWords'
   | 'drill.introAll'
   | 'drill.introCombo'
@@ -82,7 +84,8 @@ function introKey(
     return readingOk ? 'drill.introSentenceReading' : 'drill.introSentence';
   if (level.kind === 'chat') return readingOk ? 'drill.introChatReading' : 'drill.introChat';
   if (level.kind === 'word') return 'drill.introKatakana';
-  if (level.kind === 'phrase') return 'drill.introPhrase';
+  if (level.kind === 'phrase')
+    return level.topic === 'alnum' ? 'drill.introAlnum' : 'drill.introPhrase';
   const hasWords = (level.drill.words?.length ?? 0) > 0;
   if (hasWords && level.drill.focus.length === 0) return 'drill.introWords';
   if (hasWords) return level.kind === 'all' ? 'drill.introAll' : 'drill.introCombo';
@@ -256,6 +259,15 @@ export function Drill({ level, practice }: { level: Level; practice?: PracticeOp
                   topic={level.topic}
                   label={t('drill.keyGuide')}
                   candidateLabel={t('drill.candidate')}
+                />
+              ) : level.topic === 'alnum' ? (
+                // 영문자가 어느 키에 있는지와, 대문자를 만드는 a/A 키 자리를 한눈에 보여 준다
+                <KeyboardGrid
+                  layer={iosKana.layers.alpha}
+                  modifier={iosKana.caseKey}
+                  modifierActive
+                  direction="label"
+                  label={t('drill.alphaGrid')}
                 />
               ) : isSymbolTopic(level.topic) ? null : (
                 <ModifierHowTo topic={level.topic} label={t('drill.keyGuide')} />

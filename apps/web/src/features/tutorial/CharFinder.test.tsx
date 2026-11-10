@@ -43,13 +43,23 @@ describe('CharFinder (글자 찾기)', () => {
   });
 
   it('키에 없는 글자가 한자가 아니면 한자 안내 대신 아직 보여 주지 못한다고 알린다', () => {
+    // 전각 Ｘ는 iPhone 자판에서 바로 치지 않는다
     render(<CharFinder />);
-    fireEvent.change(input(), { target: { value: 'Xa' } });
-    const result = screen.getByRole('region', { name: 'Xa 치는 법' });
+    fireEvent.change(input(), { target: { value: '\u{FF38}a' } });
+    const result = screen.getByRole('region', { name: '\u{FF38}a 치는 법' });
 
     expect(result.textContent).toMatch(/아직 치는 법을 보여 주지 못해요/);
     expect(result.textContent).not.toMatch(/한자는/);
     expect(result.textContent).toMatch(/ABC 자판 · ABC 키 탭/);
+  });
+
+  it('영문 대문자는 ABC 자판에서 소문자를 친 뒤 a/A 키를 누르라고 알린다', () => {
+    render(<CharFinder />);
+    fireEvent.change(input(), { target: { value: 'P' } });
+    const result = screen.getByRole('region', { name: 'P 치는 법' });
+
+    expect(result.textContent).toMatch(/ABC 자판 · PQRS 키 탭 · a\/A 1번/);
+    expect(result.textContent).not.toMatch(/아직 치는 법을 보여 주지 못해요/);
   });
 
   it('☆123 자판의 기호와 키에 없는 한자도 알려 준다', () => {

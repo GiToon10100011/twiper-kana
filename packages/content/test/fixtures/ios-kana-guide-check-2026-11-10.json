@@ -1,0 +1,387 @@
+{
+  "schema": "twiper.guide-check/1",
+  "label": "guide-ios-kana-ios-browser",
+  "recordedAt": "2026-11-09T23:55:44.834Z",
+  "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Mobile/15E148 Safari/604.1",
+  "standalone": false,
+  "guideId": "ios-kana",
+  "results": [
+    {
+      "id": "alpha.abc.tap",
+      "expected": "a",
+      "actual": "a",
+      "expectedCodePoints": [
+        "U+0061"
+      ],
+      "actualCodePoints": [
+        "U+0061"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.abc.left",
+      "expected": "b",
+      "actual": "b",
+      "expectedCodePoints": [
+        "U+0062"
+      ],
+      "actualCodePoints": [
+        "U+0062"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.abc.up",
+      "expected": "c",
+      "actual": "c",
+      "expectedCodePoints": [
+        "U+0063"
+      ],
+      "actualCodePoints": [
+        "U+0063"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.def.tap",
+      "expected": "d",
+      "actual": "d",
+      "expectedCodePoints": [
+        "U+0064"
+      ],
+      "actualCodePoints": [
+        "U+0064"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.def.left",
+      "expected": "e",
+      "actual": "e",
+      "expectedCodePoints": [
+        "U+0065"
+      ],
+      "actualCodePoints": [
+        "U+0065"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.def.up",
+      "expected": "f",
+      "actual": "f",
+      "expectedCodePoints": [
+        "U+0066"
+      ],
+      "actualCodePoints": [
+        "U+0066"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.ghi.tap",
+      "expected": "g",
+      "actual": "g",
+      "expectedCodePoints": [
+        "U+0067"
+      ],
+      "actualCodePoints": [
+        "U+0067"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.ghi.left",
+      "expected": "h",
+      "actual": "h",
+      "expectedCodePoints": [
+        "U+0068"
+      ],
+      "actualCodePoints": [
+        "U+0068"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.ghi.up",
+      "expected": "i",
+      "actual": "i",
+      "expectedCodePoints": [
+        "U+0069"
+      ],
+      "actualCodePoints": [
+        "U+0069"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.jkl.tap",
+      "expected": "j",
+      "actual": "j",
+      "expectedCodePoints": [
+        "U+006A"
+      ],
+      "actualCodePoints": [
+        "U+006A"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.jkl.left",
+      "expected": "k",
+      "actual": "k",
+      "expectedCodePoints": [
+        "U+006B"
+      ],
+      "actualCodePoints": [
+        "U+006B"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.jkl.up",
+      "expected": "l",
+      "actual": "l",
+      "expectedCodePoints": [
+        "U+006C"
+      ],
+      "actualCodePoints": [
+        "U+006C"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.mno.tap",
+      "expected": "m",
+      "actual": "m",
+      "expectedCodePoints": [
+        "U+006D"
+      ],
+      "actualCodePoints": [
+        "U+006D"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.mno.left",
+      "expected": "n",
+      "actual": "n",
+      "expectedCodePoints": [
+        "U+006E"
+      ],
+      "actualCodePoints": [
+        "U+006E"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.mno.up",
+      "expected": "o",
+      "actual": "o",
+      "expectedCodePoints": [
+        "U+006F"
+      ],
+      "actualCodePoints": [
+        "U+006F"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.pqrs.tap",
+      "expected": "p",
+      "actual": "p",
+      "expectedCodePoints": [
+        "U+0070"
+      ],
+      "actualCodePoints": [
+        "U+0070"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.pqrs.left",
+      "expected": "q",
+      "actual": "q",
+      "expectedCodePoints": [
+        "U+0071"
+      ],
+      "actualCodePoints": [
+        "U+0071"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.pqrs.up",
+      "expected": "r",
+      "actual": "r",
+      "expectedCodePoints": [
+        "U+0072"
+      ],
+      "actualCodePoints": [
+        "U+0072"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.pqrs.right",
+      "expected": "s",
+      "actual": "s",
+      "expectedCodePoints": [
+        "U+0073"
+      ],
+      "actualCodePoints": [
+        "U+0073"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.tuv.tap",
+      "expected": "t",
+      "actual": "t",
+      "expectedCodePoints": [
+        "U+0074"
+      ],
+      "actualCodePoints": [
+        "U+0074"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.tuv.left",
+      "expected": "u",
+      "actual": "u",
+      "expectedCodePoints": [
+        "U+0075"
+      ],
+      "actualCodePoints": [
+        "U+0075"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.tuv.up",
+      "expected": "v",
+      "actual": "v",
+      "expectedCodePoints": [
+        "U+0076"
+      ],
+      "actualCodePoints": [
+        "U+0076"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.wxyz.tap",
+      "expected": "w",
+      "actual": "w",
+      "expectedCodePoints": [
+        "U+0077"
+      ],
+      "actualCodePoints": [
+        "U+0077"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.wxyz.left",
+      "expected": "x",
+      "actual": "x",
+      "expectedCodePoints": [
+        "U+0078"
+      ],
+      "actualCodePoints": [
+        "U+0078"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.wxyz.up",
+      "expected": "y",
+      "actual": "y",
+      "expectedCodePoints": [
+        "U+0079"
+      ],
+      "actualCodePoints": [
+        "U+0079"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "alpha.wxyz.right",
+      "expected": "z",
+      "actual": "z",
+      "expectedCodePoints": [
+        "U+007A"
+      ],
+      "actualCodePoints": [
+        "U+007A"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "case.a",
+      "expected": "A",
+      "actual": "A",
+      "expectedCodePoints": [
+        "U+0041"
+      ],
+      "actualCodePoints": [
+        "U+0041"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "case.i",
+      "expected": "I",
+      "actual": "I",
+      "expectedCodePoints": [
+        "U+0049"
+      ],
+      "actualCodePoints": [
+        "U+0049"
+      ],
+      "match": true,
+      "status": "typed"
+    },
+    {
+      "id": "case.s",
+      "expected": "S",
+      "actual": "S",
+      "expectedCodePoints": [
+        "U+0053"
+      ],
+      "actualCodePoints": [
+        "U+0053"
+      ],
+      "match": true,
+      "status": "typed"
+    }
+  ]
+}
