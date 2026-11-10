@@ -4,14 +4,9 @@ import { Link } from 'react-router';
 import { addDays, dayKey, recentDays, type AttemptRecord } from '@twiper/core';
 import { trainingRepo } from '../../lib/db';
 import { BackIcon } from '../../ui/icons';
-import { TrendSection, type TrendLayout } from '../stats/TrendSection';
+import { TrendSection } from '../stats/TrendSection';
 
 type Sample = 'steady' | 'sparse' | 'real';
-
-const LAYOUTS: readonly (readonly [TrendLayout, string])[] = [
-  ['line', 'A. 꺾은선 두 개'],
-  ['bar', 'B. 막대 + 전환'],
-];
 
 const SAMPLES: readonly (readonly [Sample, string])[] = [
   ['steady', '예시: 꾸준히'],
@@ -69,10 +64,9 @@ function sampleAttempts(today: string, sample: Exclude<Sample, 'real'>): Attempt
   });
 }
 
-/** 「내 실력」에 넣을 추세 시안을 예시 기록이나 이 기기의 기록으로 미리 본다 */
+/** 「내 실력」의 추세를 예시 기록(긴 기간)이나 이 기기의 기록으로 미리 본다 */
 export function TrendLab() {
   const { t } = useTranslation();
-  const [layout, setLayout] = useState<TrendLayout>('line');
   const [sample, setSample] = useState<Sample>('steady');
   const [real, setReal] = useState<AttemptRecord[] | null>(null);
   const today = dayKey(new Date());
@@ -117,15 +111,14 @@ export function TrendLab() {
         </Link>
         <span>추세 시안</span>
       </header>
-      {choice('시안', LAYOUTS, layout, setLayout)}
       {choice('기록', SAMPLES, sample, setSample)}
       {sample === 'real' && real !== null && real.length === 0 ? (
-        <p className="lab-instruction">
+        <p className="lab-note">
           이 주소(미리보기)에는 기록이 없어요. 설정 › 기록 백업에서 정식 앱에서 내보낸 파일을
           가져오면 내 기록으로 볼 수 있어요.
         </p>
       ) : null}
-      <TrendSection key={`${layout}-${sample}`} attempts={attempts} today={today} layout={layout} />
+      <TrendSection key={sample} attempts={attempts} today={today} />
     </main>
   );
 }

@@ -394,6 +394,7 @@ export const ja: typeof ko = {
   },
   stats: {
     title: '実力',
+    bySkill: 'ルールごとの実力',
     lead: '最近の記録から、ルールごとの初回正答率と1文字あたりの時間を表示します。各ルール直近60回までを見ます。',
     empty:
       'まだ記録がありません。レベルをひとつ終えると、ここにルールごとの正答率と速さが表示されます。',
@@ -408,7 +409,6 @@ export const ja: typeof ko = {
       title: '推移',
       period: '期間',
       days: '{{days}}日間',
-      metric: '表示する値',
       empty: '最近{{days}}日間に打った行がありません。',
       vsPrev: 'その前の{{days}}日間より{{value}}',
       noPrev: 'その前の{{days}}日間は記録なし',

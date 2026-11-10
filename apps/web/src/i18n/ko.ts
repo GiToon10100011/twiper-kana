@@ -391,6 +391,7 @@ export const ko = {
   },
   stats: {
     title: '내 실력',
+    bySkill: '규칙별 실력',
     lead: '최근 기록으로 규칙마다 첫 시도 정확도와 한 글자당 시간을 보여 줘요. 규칙마다 최근 60번까지 봐요.',
     empty: '아직 기록이 없어요. 레벨을 하나 끝내면 여기에 규칙별 정확도와 속도가 보여요.',
     measuring: '측정 중 {{samples}}/{{needed}}',
@@ -404,7 +405,6 @@ export const ko = {
       title: '추세',
       period: '기간',
       days: '{{days}}일',
-      metric: '볼 값',
       empty: '최근 {{days}}일에 친 줄이 없어요.',
       vsPrev: '그 전 {{days}}일보다 {{value}}',
       noPrev: '그 전 {{days}}일 기록 없음',

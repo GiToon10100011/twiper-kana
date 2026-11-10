@@ -13,9 +13,6 @@ import { TrendChart } from './TrendChart';
 export const TREND_PERIODS = [7, 30] as const;
 export type TrendPeriod = (typeof TREND_PERIODS)[number];
 
-/** line: 정확도·속도 꺾은선 두 개 / bar: 막대 하나를 정확도·속도로 바꿔 본다 */
-export type TrendLayout = 'line' | 'bar';
-
 type Metric = 'accuracy' | 'kpm';
 
 const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `\u{2212}${-n}` : '\u{00B1}0');
@@ -29,12 +26,8 @@ const shortDate = (day: string) => {
   return `${Number(month)}/${Number(date)}`;
 };
 
-/**
- * 정확도 축의 범위. 꺾은선은 변화가 보이도록 가장 낮은 값 바로 아래부터 그리고,
- * 막대는 길이로 읽으므로 늘 0%부터 그린다
- */
-function accuracyDomain(days: readonly TrendDay[], layout: TrendLayout): [number, number] {
-  if (layout === 'bar') return [0, 1];
+/** 정확도 축의 범위: 변화가 보이도록 가장 낮은 날 바로 아래부터 100%까지 (꺾은선이라 0부터가 아니어도 된다) */
+function accuracyDomain(days: readonly TrendDay[]): [number, number] {
   const values = days.flatMap((day) => (day.accuracy === null ? [] : [day.accuracy]));
   if (values.length === 0) return [0.5, 1];
   const low = Math.floor(Math.min(...values) * 10) / 10 - 0.1;
@@ -49,21 +42,19 @@ function speedDomain(days: readonly TrendDay[]): [number, number] {
 }
 
 /**
- * 「내 실력」의 추세: 최근 7일·30일의 첫 시도 정확도와 속도, 그 앞 같은 기간과의 차이, 날마다의 그래프.
- * 점수보다 이전 대비 변화를 먼저 보인다 (계획 §12). attempts는 최근 60일치면 충분하다
+ * 「내 실력」의 추세: 최근 7일·30일의 첫 시도 정확도와 속도, 그 앞 같은 기간과의 차이, 날마다의 꺾은선.
+ * 점수보다 이전 대비 변화를 먼저 보인다 (계획 §12). 정확도와 속도는 단위가 달라 그래프를 따로 그린다.
+ * attempts는 최근 60일치면 충분하다 (30일 + 그 앞 30일)
  */
 export function TrendSection({
   attempts,
   today,
-  layout,
 }: {
   attempts: readonly AttemptRecord[];
   today: string;
-  layout: TrendLayout;
 }) {
   const { t } = useTranslation();
   const [period, setPeriod] = useState<TrendPeriod>(7);
-  const [metric, setMetric] = useState<Metric>('accuracy');
 
   const days = dailyTrend(attempts, today, period);
   const { current, previous } = trendChange(attempts, today, period);
@@ -90,14 +81,13 @@ export function TrendSection({
       : t('stats.trend.readout', { date: date(day.day), value, count: day.lines });
 
   // 기간이 바뀌면 고른 날도 처음(마지막으로 연습한 날)으로 돌린다
-  const chart = (which: Metric, kind: TrendLayout) => (
+  const chart = (which: Metric) => (
     <TrendChart
       key={period}
       days={days}
       value={(day) => (which === 'accuracy' ? day.accuracy : day.kpm)}
       format={which === 'accuracy' ? percent : whole}
-      domain={which === 'accuracy' ? accuracyDomain(days, kind) : speedDomain(days)}
-      kind={kind}
+      domain={which === 'accuracy' ? accuracyDomain(days) : speedDomain(days)}
       label={t(which === 'accuracy' ? 'stats.trend.accuracyChart' : 'stats.trend.speedChart', {
         days: period,
       })}
@@ -126,7 +116,7 @@ export function TrendSection({
       </div>
 
       {current.lines === 0 ? (
-        <p className="screen-body">{t('stats.trend.empty', { days: period })}</p>
+        <p className="trend-readout">{t('stats.trend.empty', { days: period })}</p>
       ) : (
         <>
           <dl className="stats trend-stats">
@@ -151,35 +141,12 @@ export function TrendSection({
             </div>
           </dl>
 
-          {layout === 'line' ? (
-            (['accuracy', 'kpm'] as const).map((which) => (
-              <div key={which}>
-                <h3 className="trend-chart-title">{metricName(which)}</h3>
-                {chart(which, 'line')}
-              </div>
-            ))
-          ) : (
-            <>
-              <div
-                className="stage-tabs is-small trend-metric"
-                role="group"
-                aria-label={t('stats.trend.metric')}
-              >
-                {(['accuracy', 'kpm'] as const).map((which) => (
-                  <button
-                    key={which}
-                    type="button"
-                    className="stage-tab"
-                    aria-pressed={which === metric}
-                    onClick={() => setMetric(which)}
-                  >
-                    {metricName(which)}
-                  </button>
-                ))}
-              </div>
-              {chart(metric, 'bar')}
-            </>
-          )}
+          {(['accuracy', 'kpm'] as const).map((which) => (
+            <div key={which}>
+              <h3 className="trend-chart-title">{metricName(which)}</h3>
+              {chart(which)}
+            </div>
+          ))}
         </>
       )}
     </section>

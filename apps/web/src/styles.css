@@ -1174,6 +1174,14 @@ a.tile-row:active {
   width: 4.5rem;
 }
 
+/* 시안 화면의 짧은 안내 (선택 줄 아래, 미리보는 화면 위) */
+.lab-note {
+  margin: var(--space-4) 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
 /* 약점 연습 카드 (내 실력 맨 위) */
 .weak-card {
   padding: var(--space-4);
@@ -2608,10 +2616,6 @@ a.tile-row:active {
   font-weight: 600;
 }
 
-.trend-metric {
-  margin-top: var(--space-4);
-}
-
 .trend-chart {
   margin: 0;
 }
@@ -2673,13 +2677,6 @@ a.tile-row:active {
   stroke-width: 2;
 }
 
-.trend-bar {
-  fill: var(--accent);
-  fill-opacity: 0.55;
-}
-
-.trend-dot.is-selected,
-.trend-bar.is-selected {
+.trend-dot.is-selected {
   fill: var(--accent-strong);
-  fill-opacity: 1;
 }

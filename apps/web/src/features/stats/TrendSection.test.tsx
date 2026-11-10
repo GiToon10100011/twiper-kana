@@ -53,7 +53,7 @@ const tiles = () =>
 
 describe('TrendSection', () => {
   it('최근 7일의 정확도·속도·연습한 날을 그 전 7일과의 차이와 함께 먼저 보인다', () => {
-    render(<TrendSection attempts={ATTEMPTS} today={TODAY} layout="line" />);
+    render(<TrendSection attempts={ATTEMPTS} today={TODAY} />);
 
     expect(tiles()).toEqual([
       '첫 시도 정확도100%그 전 7일보다 +20%p',
@@ -62,8 +62,8 @@ describe('TrendSection', () => {
     ]);
   });
 
-  it('꺾은선 시안은 정확도와 속도 그래프를 따로 그리고, 처음에는 마지막으로 연습한 날을 읽어 준다', () => {
-    render(<TrendSection attempts={ATTEMPTS} today={TODAY} layout="line" />);
+  it('정확도와 속도는 꺾은선을 따로 그리고, 처음에는 마지막으로 연습한 날을 읽어 준다', () => {
+    render(<TrendSection attempts={ATTEMPTS} today={TODAY} />);
 
     const charts = screen.getAllByRole('img');
     expect(charts.map((chart) => chart.getAttribute('aria-label'))).toEqual([
@@ -77,7 +77,7 @@ describe('TrendSection', () => {
   });
 
   it('화살표 키로 날을 옮기면 그날 값을 읽어 주고, 연습하지 않은 날은 그렇다고 알린다', () => {
-    render(<TrendSection attempts={ATTEMPTS} today={TODAY} layout="line" />);
+    render(<TrendSection attempts={ATTEMPTS} today={TODAY} />);
     const [accuracy] = screen.getAllByRole('img');
     if (!accuracy) throw new Error('그래프 없음');
 
@@ -88,7 +88,7 @@ describe('TrendSection', () => {
   });
 
   it('그래프 값은 숨긴 표로도 읽을 수 있다', () => {
-    render(<TrendSection attempts={ATTEMPTS} today={TODAY} layout="line" />);
+    render(<TrendSection attempts={ATTEMPTS} today={TODAY} />);
     const table = screen.getByRole('table', { name: '최근 7일, 날마다 첫 시도 정확도' });
 
     expect(
@@ -98,22 +98,19 @@ describe('TrendSection', () => {
     ).toEqual(['11/4–', '11/5–', '11/6–', '11/7–', '11/8100%', '11/9–', '11/10100%']);
   });
 
-  it('막대 시안은 그래프 하나를 정확도·속도로 바꿔 보고, 30일로 바꾸면 그 전 30일과 비교한다', () => {
-    render(<TrendSection attempts={ATTEMPTS} today={TODAY} layout="bar" />);
-
-    expect(screen.getAllByRole('img')).toHaveLength(1);
-    fireEvent.click(screen.getByRole('button', { name: '속도 (가나/분)' }));
-    expect(screen.getByRole('img').getAttribute('aria-label')).toBe(
-      '최근 7일, 날마다 속도 (가나/분)',
-    );
-    expect(screen.getByRole('img').querySelectorAll('.trend-bar')).toHaveLength(2);
+  it('30일로 바꾸면 최근 30일을 그 전 30일과 비교하고, 비교할 기록이 없으면 그렇다고 알린다', () => {
+    render(<TrendSection attempts={ATTEMPTS} today={TODAY} />);
 
     fireEvent.click(screen.getByRole('button', { name: '30일' }));
     expect(tiles()[0]).toBe('첫 시도 정확도90%그 전 30일 기록 없음');
+    expect(screen.getAllByRole('img').map((chart) => chart.getAttribute('aria-label'))).toEqual([
+      '최근 30일, 날마다 첫 시도 정확도',
+      '최근 30일, 날마다 속도 (가나/분)',
+    ]);
   });
 
   it('기간 안에 친 줄이 없으면 그래프 대신 알린다', () => {
-    render(<TrendSection attempts={[line('2026-10-01', 5_000)]} today={TODAY} layout="line" />);
+    render(<TrendSection attempts={[line('2026-10-01', 5_000)]} today={TODAY} />);
 
     expect(screen.getByText('최근 7일에 친 줄이 없어요.')).toBeTruthy();
     expect(screen.queryByRole('img')).toBeNull();
