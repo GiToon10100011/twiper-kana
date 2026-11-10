@@ -2715,3 +2715,89 @@ a.tile-row:active {
   text-overflow: ellipsis;
   color: var(--ink-muted);
 }
+
+/* 오늘 복습 시안 C: 강조한 두 줄 카드. 위 줄은 제목·글자 수·시작, 아래 줄은 한 줄에 들어가는 만큼의 글자 칩 */
+.review-card {
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-4);
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--accent-soft);
+  border: 1px solid rgb(194 24 122 / 0.16);
+  border-radius: var(--radius-md);
+}
+
+.review-card:active {
+  background: rgb(194 24 122 / 0.14);
+}
+
+.review-card.is-idle {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+  background: var(--surface);
+  border-color: var(--line);
+}
+
+.review-card-head {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.review-card-head strong {
+  font-weight: 600;
+}
+
+.review-card-head > span:not(.review-card-go) {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.review-card-go {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+  padding: 4px 6px 4px 12px;
+  margin-left: auto;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.review-card-go svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+.review-chips {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--space-2);
+  overflow: hidden;
+}
+
+.review-chips span {
+  flex: none;
+  min-width: 2.25rem;
+  padding: 2px var(--space-2);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.review-chips .is-more {
+  min-width: 0;
+  padding: 0 var(--space-1);
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+  align-self: center;
+  background: none;
+  border: 0;
+}

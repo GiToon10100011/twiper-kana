@@ -14,6 +14,7 @@ type Sample = 'due' | 'later' | 'real';
 const LAYOUTS: readonly (readonly [ReviewLayout, string])[] = [
   ['card', 'A. 카드'],
   ['row', 'B. 한 줄'],
+  ['compact', 'C. 두 줄 강조'],
 ];
 
 const SAMPLES: readonly (readonly [Sample, string])[] = [
@@ -28,6 +29,7 @@ const item = (unit: string, step: number, due: string) => ({ unit, step, due });
 function samplePlan(today: string, sample: Exclude<Sample, 'real'>): ReviewPlan {
   if (sample === 'later')
     return { due: [], dueCount: 0, next: { day: addDays(today, 2), count: 3 } };
+  // 한 판에 8개까지 담고, 오늘 복습할 것은 모두 9개 (C는 6개를 보이고 +3)
   const due = [
     item('ぎ', 0, addDays(today, -2)),
     item('しゃ', 0, today),
@@ -35,8 +37,10 @@ function samplePlan(today: string, sample: Exclude<Sample, 'real'>): ReviewPlan 
     item('ぴ', 1, today),
     item('る', 2, today),
     item('ぢ', 3, today),
+    item('ほ', 0, today),
+    item('ぴゅ', 1, today),
   ];
-  return { due, dueCount: due.length, next: null };
+  return { due, dueCount: 9, next: null };
 }
 
 /** 예시 「오늘」 띠: 최근 7일 중 5일 연습, 오늘은 아직 */
@@ -48,7 +52,7 @@ function sampleToday(today: string): TodayData {
 /** 홈에 넣을 오늘 복습 시안을 예시나 이 기기의 기록으로 미리 본다 (시작을 누르면 실제 /review로 간다) */
 export function ReviewLab() {
   const { t } = useTranslation();
-  const [layout, setLayout] = useState<ReviewLayout>('card');
+  const [layout, setLayout] = useState<ReviewLayout>('compact');
   const [sample, setSample] = useState<Sample>('due');
   const [real, setReal] = useState<ReviewPlan | null>(null);
   const today = dayKey(new Date());

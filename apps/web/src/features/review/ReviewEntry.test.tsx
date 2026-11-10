@@ -57,6 +57,32 @@ describe('ReviewEntry', () => {
     expect(screen.getByText('다음 복습 11월 12일 · 3글자')).toBeTruthy();
   });
 
+  it('두 줄 강조: 카드 전체가 복습 링크이고, 글자 칩은 6개까지 보이고 나머지는 +n으로 줄인다', () => {
+    const units = ['ぎ', 'しゃ', 'っ', 'ぴ', 'る', 'ぢ', 'ほ', 'ぴゅ'];
+    renderEntry(
+      {
+        due: units.map((unit) => ({ unit, step: 0, due: '2026-11-10' })),
+        dueCount: 9,
+        next: null,
+      },
+      'compact',
+    );
+    const card = screen.getByRole('link');
+
+    expect(card.getAttribute('href')).toBe('/review');
+    expect(card.getAttribute('aria-label')).toBe(
+      `오늘 복습, 9글자, ${units.join(', ')}, 복습 시작`,
+    );
+    expect(
+      [...card.querySelectorAll('.review-chips > span')].map((chip) => chip.textContent),
+    ).toEqual(['ぎ', 'しゃ', 'っ', 'ぴ', 'る', 'ぢ', '+3']);
+    cleanup();
+
+    renderEntry(LATER, 'compact');
+    expect(screen.queryByRole('link')).toBeNull();
+    expect(screen.getByText('오늘 복습할 글자는 없어요. 다음 복습 11월 12일 · 3글자')).toBeTruthy();
+  });
+
   it('틀린 적이 없어 복습할 것이 없으면 아무것도 보이지 않는다', () => {
     renderEntry(NONE, 'card');
     expect(document.body.textContent).toBe('');
