@@ -2672,3 +2672,90 @@ a.tile-row:active {
 .trend-dot.is-selected {
   fill: var(--accent-strong);
 }
+
+/* 홈의 오늘 복습: 흰 두 줄 카드. 윗줄은 제목·글자 수, 아랫줄은 글자 칩과 그 끝의 복습 시작(강조색 알약) */
+.review-card {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-4);
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.review-card:active {
+  background: var(--line);
+}
+
+.review-card.is-idle {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.review-card-head {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.review-card-head strong {
+  font-weight: 600;
+}
+
+.review-card-head span {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.review-card-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.review-card-go {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+  align-items: center;
+  padding: 4px 6px 4px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.review-card-go svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+/* 한 줄 높이만 보이고, 넘친 칩은 다음 줄로 내려가 가려진다 (칩이 중간에서 잘리지 않는다) */
+.review-chips {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  height: 2.25rem;
+  overflow: hidden;
+}
+
+.review-chips span {
+  flex: none;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 var(--space-2);
+  font-size: 1.125rem;
+  line-height: calc(2.25rem - 2px);
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}

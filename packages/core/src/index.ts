@@ -66,12 +66,16 @@ export { createMemoryRepo } from './record/memoryRepo';
 export { ulid } from './record/ulid';
 export {
   confusions,
+  dueReviews,
+  REVIEW_INTERVALS,
+  reviewSchedule,
   SKILL_ORDER,
   skillsOf,
   skillStats,
   slowUnits,
   STATS_MIN_SAMPLES,
   weakUnits,
+  type ReviewItem,
   type SkillId,
   type SkillStat,
   type TopicSkill,

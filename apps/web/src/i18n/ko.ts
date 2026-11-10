@@ -15,6 +15,23 @@ export const ko = {
     courseTilesHint: '진행 상태별 코스 목록',
     trendLab: '추세 시안',
     trendLabHint: '내 실력에 넣을 날마다 정확도·속도',
+    reviewLab: '복습 시안',
+    reviewLabHint: '홈에 넣을 며칠 간격 복습',
+  },
+  review: {
+    title: '오늘 복습',
+    lead: '며칠 전에 틀린 글자 {{count}}개를 다시 쳐요. 맞히면 다음 복습이 3일·7일·21일 뒤로 늘어나요.',
+    count: '{{count}}글자',
+    start: '복습 시작',
+    none: '오늘 복습할 글자는 없어요.',
+    next: '다음 복습 {{date}} · {{count}}글자',
+    intro:
+      '며칠 전에 틀린 글자({{units}})로 {{count}}줄을 쳐요. 줄을 다 치고 確定을 누르면 다음 줄이 나와요.',
+    toHome: '홈으로',
+    pass: '잘 기억하고 있어요. 맞힌 글자는 다음 복습이 며칠 뒤로 늘어나요.',
+    practice: '이번에 틀린 글자는 내일 다시 복습해요.',
+    failed: '복습할 글자를 읽지 못했어요. 다시 읽어 보거나, 왼쪽 위 화살표로 홈에 돌아가세요.',
+    retry: '다시 읽기',
   },
   weak: {
     title: '약점 연습',

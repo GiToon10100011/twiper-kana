@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { examSource } from '@twiper/content';
@@ -70,6 +70,37 @@ describe('Home', () => {
 
     expect(strip.getAttribute('href')).toBe('/calendar');
     expect(strip.getAttribute('aria-label')).toMatch(/^1일 연속, 오늘 /);
+  });
+
+  it('「오늘」 띠 아래에 오늘 복습할 글자를 보이고, 누르면 복습으로 간다', async () => {
+    const repo = createMemoryRepo();
+    const now = new Date();
+    const twoDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2, 12);
+    // 이틀 전에 き 자리에 さ를 쳤으므로 어제가 복습 예정일이었다
+    await repo.saveAttempt({
+      ...attemptAt(twoDaysAgo),
+      target: 'かき',
+      input: 'かき',
+      result: 'corrected',
+      unitMs: [null, null],
+      mistakes: [{ index: 1, expected: 'き', actual: 'さ', cause: 'continued', kind: 'key' }],
+      corrections: 1,
+    });
+    await renderHome(repo);
+
+    const review = await screen.findByRole('link', { name: /^오늘 복습, 1글자, き/ });
+    expect(review.getAttribute('href')).toBe('/review');
+  });
+
+  it('틀린 적이 없으면 홈에 복습을 보이지 않는다', async () => {
+    const repo = createMemoryRepo();
+    await repo.saveAttempt(attemptAt(new Date()));
+    await renderHome(repo);
+    // 복습은 「오늘」 띠와 따로 읽으므로 그 읽기가 끝날 때까지 기다린다
+    await act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+
+    expect(screen.queryByRole('link', { name: /오늘 복습/ })).toBeNull();
+    expect(screen.queryByText(/다음 복습/)).toBeNull();
   });
 
   it('다른 앱에 갔다가 돌아오면 「오늘」 기록을 다시 읽는다', async () => {

@@ -17,6 +17,23 @@ export const ja: typeof ko = {
     courseTilesHint: '進み具合ごとの表示',
     trendLab: '推移の試作',
     trendLabHint: '自分の実力に入れる毎日の正解率・速さ',
+    reviewLab: '復習の試作',
+    reviewLabHint: 'ホームに入れる間隔をあけた復習',
+  },
+  review: {
+    title: '今日の復習',
+    lead: '数日前に間違えた文字{{count}}個をもう一度打ちます。正解すると次の復習は3日・7日・21日後に延びます。',
+    count: '{{count}}文字',
+    start: '復習を始める',
+    none: '今日復習する文字はありません。',
+    next: '次の復習 {{date}}・{{count}}文字',
+    intro:
+      '数日前に間違えた文字（{{units}}）で{{count}}行打ちます。行を打ち終えて「確定」を押すと次の行に進みます。',
+    toHome: 'ホームへ',
+    pass: 'よく覚えています。正解した文字は次の復習が数日後に延びます。',
+    practice: '今回間違えた文字は明日もう一度復習します。',
+    failed: '復習する文字を読み込めませんでした。読み直すか、左上の矢印でホームに戻ってください。',
+    retry: '読み直す',
   },
   weak: {
     title: '苦手練習',
