@@ -65,7 +65,7 @@ describe('TrendSection', () => {
   it('정확도와 속도는 꺾은선을 따로 그리고, 처음에는 마지막으로 연습한 날을 읽어 준다', () => {
     render(<TrendSection attempts={ATTEMPTS} today={TODAY} />);
 
-    const charts = screen.getAllByRole('img');
+    const charts = screen.getAllByRole('slider');
     expect(charts.map((chart) => chart.getAttribute('aria-label'))).toEqual([
       '최근 7일, 날마다 첫 시도 정확도',
       '최근 7일, 날마다 속도 (가나/분)',
@@ -76,15 +76,23 @@ describe('TrendSection', () => {
     expect(charts[0]?.querySelectorAll('.trend-dot')).toHaveLength(2);
   });
 
-  it('화살표 키로 날을 옮기면 그날 값을 읽어 주고, 연습하지 않은 날은 그렇다고 알린다', () => {
+  it('화살표·Home·End 키로 날을 옮기면 그날 값을 읽어 주고, 연습하지 않은 날은 그렇다고 알린다', () => {
     render(<TrendSection attempts={ATTEMPTS} today={TODAY} />);
-    const [accuracy] = screen.getAllByRole('img');
+    const [accuracy] = screen.getAllByRole('slider');
     if (!accuracy) throw new Error('그래프 없음');
 
+    // 화면 읽기 프로그램에는 날을 고르는 슬라이더로, 고른 날의 값을 슬라이더 값으로 알린다
+    expect(accuracy.getAttribute('aria-valuenow')).toBe('6');
+    expect(accuracy.getAttribute('aria-valuetext')).toBe('11월 10일 · 100% · 1줄');
     fireEvent.keyDown(accuracy, { key: 'ArrowLeft' });
     expect(screen.getByText('11월 9일 · 연습 안 함')).toBeTruthy();
     fireEvent.keyDown(accuracy, { key: 'ArrowLeft' });
     expect(screen.getByText('11월 8일 · 100% · 1줄')).toBeTruthy();
+    expect(accuracy.getAttribute('aria-valuetext')).toBe('11월 8일 · 100% · 1줄');
+    fireEvent.keyDown(accuracy, { key: 'Home' });
+    expect(accuracy.getAttribute('aria-valuetext')).toBe('11월 4일 · 연습 안 함');
+    fireEvent.keyDown(accuracy, { key: 'End' });
+    expect(accuracy.getAttribute('aria-valuenow')).toBe('6');
   });
 
   it('그래프 값은 숨긴 표로도 읽을 수 있다', () => {
@@ -103,7 +111,7 @@ describe('TrendSection', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '30일' }));
     expect(tiles()[0]).toBe('첫 시도 정확도90%그 전 30일 기록 없음');
-    expect(screen.getAllByRole('img').map((chart) => chart.getAttribute('aria-label'))).toEqual([
+    expect(screen.getAllByRole('slider').map((chart) => chart.getAttribute('aria-label'))).toEqual([
       '최근 30일, 날마다 첫 시도 정확도',
       '최근 30일, 날마다 속도 (가나/분)',
     ]);
@@ -113,6 +121,6 @@ describe('TrendSection', () => {
     render(<TrendSection attempts={[line('2026-10-01', 5_000)]} today={TODAY} />);
 
     expect(screen.getByText('최근 7일에 친 줄이 없어요.')).toBeTruthy();
-    expect(screen.queryByRole('img')).toBeNull();
+    expect(screen.queryByRole('slider')).toBeNull();
   });
 });

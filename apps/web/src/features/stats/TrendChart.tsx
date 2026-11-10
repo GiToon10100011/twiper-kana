@@ -23,7 +23,8 @@ const PAD = { left: 34, right: 10, top: 10, bottom: 22 };
 
 /**
  * 날마다 값 하나를 꺾은선으로 그리는 작은 그래프. 연습하지 않은 날은 점이 없다.
- * 누르거나(포인터) 화살표 키로 날을 고르면 위 읽기 줄에 그날 값을 보인다. 같은 값은 숨긴 표에도 있다
+ * 누르거나(포인터) 화살표·Home·End 키로 날을 고르면 위 읽기 줄에 그날 값을 보인다.
+ * 화면 읽기 프로그램에는 날을 고르는 슬라이더로 알리고, 모든 날의 값은 숨긴 표에도 있다
  */
 export function TrendChart({
   days,
@@ -67,27 +68,39 @@ export function TrendChart({
     setPicked(clamp(Math.floor((x - PAD.left) / step)));
   };
   const onKey = (event: KeyboardEvent<SVGSVGElement>) => {
-    const move = event.key === 'ArrowLeft' ? -1 : event.key === 'ArrowRight' ? 1 : 0;
-    if (move === 0) return;
+    const current = selected ?? days.length - 1;
+    const next: Record<string, number> = {
+      ArrowLeft: current - 1,
+      ArrowRight: current + 1,
+      Home: 0,
+      End: days.length - 1,
+    };
+    const target = next[event.key];
+    if (target === undefined) return;
     event.preventDefault();
-    setPicked(clamp((selected ?? days.length - 1) + move));
+    setPicked(clamp(target));
   };
 
   const day = selected === null ? undefined : days[selected];
   const dayValue = day ? value(day) : null;
+  const dayText = day ? readout(day, dayValue === null ? null : format(dayValue)) : undefined;
   // 날짜 눈금: 처음·가운데·끝
   const dateTicks = [...new Set([0, Math.floor((days.length - 1) / 2), days.length - 1])];
 
   return (
     <figure className="trend-chart">
-      <p className="trend-readout" aria-live="polite">
-        {day ? readout(day, dayValue === null ? null : format(dayValue)) : '\u{00A0}'}
-      </p>
+      {/* 슬라이더 값(aria-valuetext)이 같은 내용을 읽어 주므로 따로 알리지 않는다 */}
+      <p className="trend-readout">{dayText ?? '\u{00A0}'}</p>
       <svg
         className="trend-svg"
         viewBox={`0 0 ${W} ${H}`}
-        role="img"
+        role="slider"
         aria-label={label}
+        aria-orientation="horizontal"
+        aria-valuemin={0}
+        aria-valuemax={days.length - 1}
+        aria-valuenow={selected ?? undefined}
+        aria-valuetext={dayText}
         tabIndex={0}
         onPointerDown={pickAt}
         onPointerMove={(event) => {

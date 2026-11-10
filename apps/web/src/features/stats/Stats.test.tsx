@@ -71,7 +71,7 @@ describe('Stats', () => {
     const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
     expect(headings.indexOf('추세')).toBeLessThan(headings.indexOf('규칙별 실력'));
     expect(trend.closest('section')?.textContent).toContain('그 전 7일 기록 없음');
-    expect(screen.getAllByRole('img', { name: /최근 7일/ })).toHaveLength(2);
+    expect(screen.getAllByRole('slider', { name: /최근 7일/ })).toHaveLength(2);
   });
 
   it('규칙마다 정확도와 글자당 시간을, 표본이 적으면 측정 중으로 보여 준다', async () => {
