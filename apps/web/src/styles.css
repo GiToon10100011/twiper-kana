@@ -2673,11 +2673,10 @@ a.tile-row:active {
   fill: var(--accent-strong);
 }
 
-/* 홈의 오늘 복습: 두 줄 카드 (윗줄 제목·글자 수, 아랫줄 글자 칩). 복습 시작은 강조색 알약 */
+/* 홈의 오늘 복습: 흰 두 줄 카드. 윗줄은 제목·글자 수, 아랫줄은 글자 칩과 그 끝의 복습 시작(강조색 알약) */
 .review-card {
-  display: flex;
-  gap: var(--space-3);
-  align-items: center;
+  display: grid;
+  gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
   margin: 0 0 var(--space-4);
   color: var(--ink);
@@ -2697,24 +2696,17 @@ a.tile-row:active {
   color: var(--ink-muted);
 }
 
-.review-card-body {
-  display: grid;
-  flex: 1;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
 .review-card-head {
   display: flex;
   gap: var(--space-2);
-  align-items: center;
+  align-items: baseline;
 }
 
 .review-card-head strong {
   font-weight: 600;
 }
 
-.review-card-head > span:not(.review-card-go) {
+.review-card-head span {
   font-size: 0.8125rem;
   color: var(--ink-muted);
 }
@@ -2736,10 +2728,6 @@ a.tile-row:active {
   color: #fff;
   background: var(--accent);
   border-radius: 999px;
-}
-
-.review-card-head .review-card-go {
-  margin-left: auto;
 }
 
 .review-card-go svg {

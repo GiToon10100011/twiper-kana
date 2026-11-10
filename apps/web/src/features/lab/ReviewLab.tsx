@@ -7,15 +7,9 @@ import { loadReviewPlan, type ReviewPlan } from '../../lib/review';
 import type { TodayData } from '../../lib/today';
 import { BackIcon } from '../../ui/icons';
 import { Today } from '../home/Today';
-import { ReviewEntry, type ReviewAction } from '../review/ReviewEntry';
+import { ReviewEntry } from '../review/ReviewEntry';
 
 type Sample = 'due' | 'later' | 'real';
-
-const ACTIONS: readonly (readonly [ReviewAction, string])[] = [
-  ['head', '1. 윗줄 오른쪽'],
-  ['center', '2. 오른쪽 가운데'],
-  ['chips', '3. 아랫줄 오른쪽'],
-];
 
 const SAMPLES: readonly (readonly [Sample, string])[] = [
   ['due', '예시: 복습 있음'],
@@ -52,7 +46,6 @@ function sampleToday(today: string): TodayData {
 /** 홈의 오늘 복습을 예시나 이 기기의 기록으로 미리 본다 (시작을 누르면 실제 /review로 간다) */
 export function ReviewLab() {
   const { t } = useTranslation();
-  const [action, setAction] = useState<ReviewAction>('head');
   const [sample, setSample] = useState<Sample>('due');
   const [real, setReal] = useState<ReviewPlan | null>(null);
   const today = dayKey(new Date());
@@ -96,7 +89,6 @@ export function ReviewLab() {
         </Link>
         <span>복습 시안</span>
       </header>
-      {choice('버튼', ACTIONS, action, setAction)}
       {choice('기록', SAMPLES, sample, setSample)}
       {sample === 'real' && real !== null && real.dueCount === 0 && !real.next ? (
         <p className="screen-note">
@@ -109,7 +101,7 @@ export function ReviewLab() {
       <div className="today-slot">
         <Today data={sampleToday(today)} />
       </div>
-      {plan ? <ReviewEntry plan={plan} action={action} /> : null}
+      {plan ? <ReviewEntry plan={plan} /> : null}
     </main>
   );
 }
