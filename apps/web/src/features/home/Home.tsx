@@ -15,6 +15,8 @@ import { Pills } from '../../ui/Pills';
 import { EXAM_MINUTES, newExamSeed, type ExamMinutes } from '../exam/ExamRun';
 import { levelAccess, type LevelAccess } from '../training/access';
 import { levelName, levelSymbol } from '../training/levelTitle';
+import { ReviewEntry } from '../review/ReviewEntry';
+import { useReviewPlan } from '../review/useReviewPlan';
 import { Today } from './Today';
 import { useToday } from './useToday';
 
@@ -163,8 +165,14 @@ function TodaySlot({ repo }: { repo?: TrainingRepo }) {
   return <div className="today-slot">{data ? <Today data={data} /> : null}</div>;
 }
 
+/** 오늘 복습 (「오늘」 띠 아래). 복습할 단위가 없으면 아무것도 두지 않는다 */
+function ReviewSlot({ repo }: { repo?: TrainingRepo }) {
+  const plan = useReviewPlan(repo);
+  return plan ? <ReviewEntry plan={plan} /> : null;
+}
+
 /**
- * 홈: 소개 아래 「오늘」 띠, 그 아래 종합 테스트, 아직 칠 줄 모르는 사람을 위한 단계별 익히기.
+ * 홈: 소개 아래 「오늘」 띠와 오늘 복습, 그 아래 종합 테스트, 아직 칠 줄 모르는 사람을 위한 단계별 익히기.
  * repo는 테스트에서 기록 저장소를 바꿔 끼울 때 쓴다
  */
 export function Home({ repo }: { repo?: TrainingRepo }) {
@@ -184,6 +192,7 @@ export function Home({ repo }: { repo?: TrainingRepo }) {
       </h1>
       <p className="lead">{t('home.lead')}</p>
       <TodaySlot repo={repo} />
+      <ReviewSlot repo={repo} />
 
       <h2 className="section-label">{t('tests.title')}</h2>
       <ExamPanel records={loadExamRecords()} />

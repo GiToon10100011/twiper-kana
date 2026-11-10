@@ -1183,8 +1183,7 @@ a.tile-row:active {
   border-radius: var(--radius-lg);
 }
 
-/* 시안 화면(.lab h2)에서도 같은 모양이 되도록 카드 안에서 고른다 */
-.weak-card .weak-title {
+.weak-title {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
@@ -2674,12 +2673,11 @@ a.tile-row:active {
   fill: var(--accent-strong);
 }
 
-/* 오늘 복습 시안 B: 「오늘」 띠 아래 한 줄 링크 */
-.review-row {
+/* 홈의 오늘 복습: 두 줄 카드 (윗줄 제목·글자 수, 아랫줄 글자 칩). 복습 시작은 강조색 알약 */
+.review-card {
   display: flex;
   gap: var(--space-3);
   align-items: center;
-  min-height: 3rem;
   padding: var(--space-3) var(--space-4);
   margin: 0 0 var(--space-4);
   color: var(--ink);
@@ -2689,54 +2687,21 @@ a.tile-row:active {
   border-radius: var(--radius-md);
 }
 
-.review-row.is-idle {
-  font-size: 0.8125rem;
-  color: var(--ink-muted);
-}
-
-.review-row-text {
-  display: flex;
-  gap: var(--space-2);
-  align-items: baseline;
-  flex: none;
-}
-
-.review-row-text span {
-  font-size: 0.8125rem;
-  color: var(--ink-muted);
-}
-
-.review-row-units {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  font-size: 1.0625rem;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: var(--ink-muted);
-}
-
-/* 오늘 복습 시안 C: 강조한 두 줄 카드. 위 줄은 제목·글자 수·시작, 아래 줄은 한 줄에 들어가는 만큼의 글자 칩 */
-.review-card {
-  display: block;
-  padding: var(--space-3) var(--space-4);
-  margin: 0 0 var(--space-4);
-  color: var(--ink);
-  text-decoration: none;
-  background: var(--accent-soft);
-  border: 1px solid rgb(194 24 122 / 0.16);
-  border-radius: var(--radius-md);
-}
-
 .review-card:active {
-  background: rgb(194 24 122 / 0.14);
+  background: var(--line);
 }
 
 .review-card.is-idle {
+  display: block;
   font-size: 0.8125rem;
   color: var(--ink-muted);
-  background: var(--surface);
-  border-color: var(--line);
+}
+
+.review-card-body {
+  display: grid;
+  flex: 1;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .review-card-head {
@@ -2754,17 +2719,27 @@ a.tile-row:active {
   color: var(--ink-muted);
 }
 
+.review-card-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
 .review-card-go {
   display: inline-flex;
+  flex: none;
   gap: 2px;
   align-items: center;
   padding: 4px 6px 4px 12px;
-  margin-left: auto;
   font-size: 0.8125rem;
   font-weight: 600;
   color: #fff;
   background: var(--accent);
   border-radius: 999px;
+}
+
+.review-card-head .review-card-go {
+  margin-left: auto;
 }
 
 .review-card-go svg {
@@ -2773,31 +2748,26 @@ a.tile-row:active {
   stroke: currentColor;
 }
 
+/* 한 줄 높이만 보이고, 넘친 칩은 다음 줄로 내려가 가려진다 (칩이 중간에서 잘리지 않는다) */
 .review-chips {
   display: flex;
+  flex: 1;
+  flex-wrap: wrap;
   gap: 6px;
-  margin-top: var(--space-2);
+  min-width: 0;
+  height: 2.25rem;
   overflow: hidden;
 }
 
 .review-chips span {
   flex: none;
   min-width: 2.25rem;
-  padding: 2px var(--space-2);
+  height: 2.25rem;
+  padding: 0 var(--space-2);
   font-size: 1.125rem;
-  line-height: 1.5;
+  line-height: calc(2.25rem - 2px);
   text-align: center;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
-}
-
-.review-chips .is-more {
-  min-width: 0;
-  padding: 0 var(--space-1);
-  font-size: 0.8125rem;
-  color: var(--ink-muted);
-  align-self: center;
-  background: none;
-  border: 0;
 }

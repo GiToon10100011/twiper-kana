@@ -7,14 +7,14 @@ import { loadReviewPlan, type ReviewPlan } from '../../lib/review';
 import type { TodayData } from '../../lib/today';
 import { BackIcon } from '../../ui/icons';
 import { Today } from '../home/Today';
-import { ReviewEntry, type ReviewLayout } from '../review/ReviewEntry';
+import { ReviewEntry, type ReviewAction } from '../review/ReviewEntry';
 
 type Sample = 'due' | 'later' | 'real';
 
-const LAYOUTS: readonly (readonly [ReviewLayout, string])[] = [
-  ['card', 'A. 카드'],
-  ['row', 'B. 한 줄'],
-  ['compact', 'C. 두 줄 강조'],
+const ACTIONS: readonly (readonly [ReviewAction, string])[] = [
+  ['head', '1. 윗줄 오른쪽'],
+  ['center', '2. 오른쪽 가운데'],
+  ['chips', '3. 아랫줄 오른쪽'],
 ];
 
 const SAMPLES: readonly (readonly [Sample, string])[] = [
@@ -29,7 +29,7 @@ const item = (unit: string, step: number, due: string) => ({ unit, step, due });
 function samplePlan(today: string, sample: Exclude<Sample, 'real'>): ReviewPlan {
   if (sample === 'later')
     return { due: [], dueCount: 0, next: { day: addDays(today, 2), count: 3 } };
-  // 한 판에 8개까지 담고, 오늘 복습할 것은 모두 9개 (C는 6개를 보이고 +3)
+  // 한 판에 8개까지 담고, 오늘 복습할 것은 모두 9개 (칩은 한 줄에 들어가는 만큼 보인다)
   const due = [
     item('ぎ', 0, addDays(today, -2)),
     item('しゃ', 0, today),
@@ -49,10 +49,10 @@ function sampleToday(today: string): TodayData {
   return { today, days, streak: streakOf(days, today), todayMs: 0, todayChars: 0 };
 }
 
-/** 홈에 넣을 오늘 복습 시안을 예시나 이 기기의 기록으로 미리 본다 (시작을 누르면 실제 /review로 간다) */
+/** 홈의 오늘 복습을 예시나 이 기기의 기록으로 미리 본다 (시작을 누르면 실제 /review로 간다) */
 export function ReviewLab() {
   const { t } = useTranslation();
-  const [layout, setLayout] = useState<ReviewLayout>('compact');
+  const [action, setAction] = useState<ReviewAction>('head');
   const [sample, setSample] = useState<Sample>('due');
   const [real, setReal] = useState<ReviewPlan | null>(null);
   const today = dayKey(new Date());
@@ -96,7 +96,7 @@ export function ReviewLab() {
         </Link>
         <span>복습 시안</span>
       </header>
-      {choice('시안', LAYOUTS, layout, setLayout)}
+      {choice('버튼', ACTIONS, action, setAction)}
       {choice('기록', SAMPLES, sample, setSample)}
       {sample === 'real' && real !== null && real.dueCount === 0 && !real.next ? (
         <p className="screen-note">
@@ -109,7 +109,7 @@ export function ReviewLab() {
       <div className="today-slot">
         <Today data={sampleToday(today)} />
       </div>
-      {plan ? <ReviewEntry plan={plan} layout={layout} /> : null}
+      {plan ? <ReviewEntry plan={plan} action={action} /> : null}
     </main>
   );
 }
