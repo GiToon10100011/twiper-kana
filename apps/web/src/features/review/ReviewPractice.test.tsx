@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createMemoryRepo, type AttemptRecord, type TrainingRepo } from '@twiper/core';
@@ -60,6 +60,28 @@ describe('ReviewPractice', () => {
     await flush();
 
     expect(screen.getByRole('heading', { name: '오늘 복습' })).toBeTruthy();
+    expect(screen.getByText(/며칠 전에 틀린 글자\(き\)로 8줄을 쳐요/)).toBeTruthy();
+  });
+
+  it('기록을 읽지 못하면 복습할 것이 없다고 보지 않고 알린 뒤, 다시 읽을 수 있다', async () => {
+    const stored = createMemoryRepo();
+    await stored.saveAttempt(line(2, 'かき', [1]));
+    let fail = true;
+    const repo: TrainingRepo = {
+      ...stored,
+      attemptsSince: (at) =>
+        fail ? Promise.reject(new Error('blocked')) : stored.attemptsSince(at),
+    };
+    renderReview(repo);
+    await flush();
+
+    expect(screen.getByRole('alert').textContent).toContain('복습할 글자를 읽지 못했어요');
+    expect(screen.queryByText('홈')).toBeNull();
+    expect(screen.getByRole('link', { name: '홈으로' }).getAttribute('href')).toBe('/');
+
+    fail = false;
+    fireEvent.click(screen.getByRole('button', { name: '다시 읽기' }));
+    await flush();
     expect(screen.getByText(/며칠 전에 틀린 글자\(き\)로 8줄을 쳐요/)).toBeTruthy();
   });
 

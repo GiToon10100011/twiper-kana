@@ -52,7 +52,16 @@ export function ReviewLab() {
 
   useEffect(() => {
     if (sample !== 'real' || real !== null) return;
-    void loadReviewPlan(trainingRepo()).then(setReal);
+    let alive = true;
+    loadReviewPlan(trainingRepo()).then(
+      (loaded) => {
+        if (alive) setReal(loaded);
+      },
+      () => undefined,
+    );
+    return () => {
+      alive = false;
+    };
   }, [sample, real]);
 
   const plan = sample === 'real' ? real : samplePlan(today, sample);
