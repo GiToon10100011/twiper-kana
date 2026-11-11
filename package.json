@@ -12,6 +12,7 @@
     "build": "pnpm --filter @twiper/web build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
+    "e2e": "pnpm --filter @twiper/web e2e",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

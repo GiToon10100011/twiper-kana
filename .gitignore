@@ -7,3 +7,5 @@ coverage/
 .DS_Store
 .claude/settings.local.json
 .vercel
+test-results/
+playwright-report/
