@@ -1,0 +1,551 @@
+import type { ko } from './ko';
+
+/**
+ * 영어 화면 문구. 한국어(ko)와 같은 모양이어야 한다.
+ * 영어는 하나와 여럿의 꼴이 달라서 숫자가 1일 때 쓰는 `_one` 키를 더 둔다 (i18next가 count로 고른다).
+ * 그 키가 한국어에는 없으므로 변수로 한 번 받은 뒤 ko 모양인지 확인한다 (빠진 키는 컴파일이 깨진다).
+ * 키보드에 적힌 글자(確定·空白·次候補·改行·小゛゜)와 iOS 메뉴명은 실제 화면에 보이는 그대로 쓴다
+ */
+const english = {
+  home: {
+    lead: 'Learn Japanese flick input on your real keyboard',
+    tutorial: 'Tutorial',
+    tutorialHint: 'Keyboard setup · Flick · 確定',
+    tutorialFirst: 'Start here if you are new',
+    settings: 'Settings',
+    stats: 'My skills',
+    devTools: 'Developer tools',
+    imeLab: 'IME spike',
+    imeLabHint: 'Check the input flow',
+    guideCheck: 'Keyboard guide check',
+    guideCheckHint: 'Compare key layouts',
+    courseTiles: 'Course list preview',
+    courseTilesHint: 'Course list by progress',
+    trendLab: 'Trend preview',
+    trendLabHint: 'Daily accuracy and speed in My skills',
+    reviewLab: 'Review preview',
+    reviewLabHint: 'Spaced review on the home screen',
+  },
+  review: {
+    title: "Today's review",
+    lead: 'Retype {{count}} kana you missed a few days ago. Get them right and the next review moves to 3, 7, then 21 days later.',
+    count: '{{count}} kana',
+    start: 'Start review',
+    none: 'Nothing to review today.',
+    next: 'Next review {{date}} · {{count}} kana',
+    intro:
+      'Type {{count}} lines with the kana you missed a few days ago ({{units}}). Finish a line and press 確定 to get the next one.',
+    toHome: 'Home',
+    pass: 'You remember them well. Kana you got right come back a few more days later.',
+    practice: 'Kana you missed this time come back for review tomorrow.',
+    failed: "Couldn't load your review. Try again, or go home with the arrow at the top left.",
+    retry: 'Try again',
+  },
+  weak: {
+    title: 'Weak spots',
+    lead: 'Kana you often miss or type slowly lately. You type 8 lines with them.',
+    start: 'Practice weak spots',
+    missRate: '{{percent}}% missed',
+    slow: '{{sec}} s',
+    empty: "Not enough records yet. Keep practicing and we'll find the kana you often miss.",
+    back: 'Your weakest rule is {{name}} ({{accuracy}}%).',
+    backLevel: 'Redo {{level}}',
+    none: 'No kana you often miss or type slowly right now. Check your skills with a test.',
+    intro:
+      'Type {{count}} lines with kana you often miss or type slowly ({{units}}). Finish a line and press 確定 to get the next one.',
+    toStats: 'My skills',
+    pass: 'Your first-try accuracy is over 90%. Check your remaining weak spots in My skills.',
+    practice:
+      'You still miss these often. Try once more, or go back to the level for your weakest rule in My skills.',
+  },
+  onboarding: {
+    step: '{{current}}/{{total}}',
+    skip: 'Skip',
+    setup: {
+      title: 'First, set up your keyboard',
+      body: "twiper doesn't use a fake on-screen keyboard. You practice with your iPhone's own Japanese keyboard.",
+      add: 'Go to Settings › General › Keyboard › Keyboards › Add New Keyboard… › Japanese and add Kana (not Romaji).',
+      switch:
+        'When typing, tap the globe key to switch to the 12-key keyboard with the あ, か and さ keys.',
+      done: "I'm ready",
+    },
+    flick: {
+      title: 'A flick is a press and slide',
+      body: 'Tap a key for its center character, or press and slide up, down, left or right for the character in that direction.',
+      rule: 'The あ key alone types five characters: あいうえお. Every key (か, さ, た…) follows the same rule.',
+      tap: 'Tap',
+      left: 'Left',
+      up: 'Up',
+      right: 'Right',
+      down: 'Down',
+      tryIt: 'Try it',
+    },
+    try: {
+      title: 'Type あいうえお with the あ key',
+      hint: 'Tap → left → up → right → down.',
+    },
+    layout: {
+      title: 'The 12 keys follow the gojūon order',
+      body: 'The center character of each key is the first of its row. They run from あ at the top left through か, さ, た, な…',
+      modifier:
+        'The 「小゛゜」 key at the bottom left adds dakuten or handakuten, or makes a character small. You learn it in the combinations stage.',
+      next: 'Next',
+    },
+    vowels: {
+      title: 'Directions are vowels',
+      body: 'Slide any key the same way and you get the same vowel. Left is always the い column.',
+      legend: {
+        tap: 'Tap = あ column (a)',
+        left: 'Left = い column (i)',
+        up: 'Up = う column (u)',
+        right: 'Right = え column (e)',
+        down: 'Down = お column (o)',
+      },
+      exception:
+        'The や and わ keys have fewer characters, so their empty directions hold brackets, を, ん and ー.',
+      tryIt: 'Try it',
+    },
+    check: {
+      title: 'Left only: きしちにひ',
+      hint: 'The key changes, but every direction is left (the い column).',
+    },
+    matched: 'Correct. Press the 「確定」 key at the bottom right of the keyboard to move on.',
+    commitRule: 'After typing a whole line, press 確定 to get the next one.',
+    done: {
+      title: "You're ready",
+      body: "You've tried flicking and 確定. Next, learn where each row's key is.",
+      start: 'Start the first level',
+      steps: 'Go to Step-by-step lessons',
+    },
+  },
+  training: {
+    tapInput: 'Tap here to open the keyboard',
+    romaji:
+      'It looks like you are typing with a romaji keyboard. Tap the globe key to switch to the 12-key keyboard with the あ, か and さ keys.',
+    toggle: "You're tapping the same key several times. Try pressing and sliding instead.",
+  },
+  course: {
+    title: 'Course',
+    level: 'Lv.{{number}}',
+    row: '{{keys}} row',
+    all: 'Random gojūon',
+    allHint: 'Gojūon + words',
+    sentence: 'Short sentences',
+    chat: 'Chat',
+    stages: 'Stages',
+    stage: {
+      all: 'All',
+      basic: 'Basics',
+      combo: 'Combinations',
+      katakana: 'Katakana',
+      symbol: 'Symbols',
+      sentence: 'Sentences',
+    },
+    topic: {
+      dakuten: 'Dakuten が',
+      handakuten: 'Handakuten ぱ',
+      small: 'Small kana ぁ',
+      yoon: 'Yōon きゃ',
+      sokuon: 'Sokuon っ',
+      katakana: 'Katakana カ',
+      longVowel: 'Long vowel ー',
+      foreign: 'Foreign sounds ティ',
+      vu: 'V sound ヴ',
+      punct: 'Punctuation ？！',
+      symbol: '☆123 symbols 〜',
+      alnum: 'Letters & numbers A1',
+    },
+    locked: 'Locked',
+    best: 'Best {{accuracy}}%',
+    current: 'Continue',
+  },
+  drill: {
+    exit: 'Exit',
+    intro:
+      '{{count}} lines of {{length}} characters. Finish a line and press 確定 to get the next one.',
+    introCombo:
+      'Type {{count}} lines, alternating character lines and word lines. Finish a line and press 確定 to get the next one.',
+    introWords: 'Type {{count}} words one at a time. Press 確定 after each word to get the next.',
+    introKatakana:
+      'Type {{count}} katakana words. Convert each one to katakana and press 確定 to get the next word.',
+    introPhrase:
+      'Type {{count}} short phrases with symbols. Type the symbols too, then press 確定 to get the next phrase.',
+    introAlnum:
+      'Type {{count}} short phrases mixed with letters or numbers. Type to the end, then press 確定 to get the next phrase.',
+    introSentence:
+      'Type {{count}} short sentences with kanji and katakana. Type each kanji by the small reading above it, then pick that kanji from the candidates. Pick katakana from the candidates too.',
+    introChat:
+      'Type {{count}} chat replies. Type the sentence in your bubble, pick kanji and katakana from the candidates, then press 確定.',
+    introSentenceReading:
+      'Type {{count}} short sentences with kanji and katakana. You can type kanji by the small reading above them only (Settings). Pick katakana from the candidates.',
+    introChatReading:
+      'Type {{count}} chat replies. Type the sentence in your bubble, pick katakana from the candidates, then press 確定. You can type kanji by their reading only (Settings).',
+    howTo: {
+      dakuten: 'Type a character, then press 「小゛゜」 once to add dakuten (゛).',
+      handakuten:
+        'Type a character from the は row, then press 「小゛゜」 twice. Once gives ば, twice gives ぱ.',
+      small:
+        'Type a character, then press 「小゛゜」 once to make it small. For つ, once gives っ and twice gives づ.',
+      yoon: 'After a character from the い column, type や, ゆ or よ and make it small with 「小゛゜」. For voiced ones like ぎょ, also press it once on the first character.',
+      sokuon: 'Type つ, press 「小゛゜」 once to make it っ, then type the next character.',
+      katakana:
+        'Type the reading in hiragana, then tap the katakana in the candidate bar above the keyboard. Tapping a candidate commits it right away.',
+      longVowel:
+        'For the long vowel ー, slide the わ key right. Hiragana spells long vowels with a vowel (おかあさん), but katakana uses ー.',
+      foreign:
+        'Sounds with a small ァィゥェォ, like ティ and ファ. After the first character, type the vowel with the あ key, press 「小゛゜」 once to make it small, then pick the katakana from the candidates.',
+      vu: 'For ヴ, type う and press 「小゛゜」 twice to get ゔ. Once gives a small ぅ. For ヴァ and ヴォ, add a small vowel, then pick the katakana from the candidates.',
+      punct:
+        '、。？！ are all on the 「、。?!」 key: tap for 、, left for 。, up for ？, right for ！. For 「」, slide the や key left or right.',
+      symbol:
+        'Type 〜…・♪☆ by switching keyboards with the 「☆123」 key in the left column. If Flick Only is off, press the ABC key and then the ☆123 key. 〜 is the 0 key left, … is the 0 key up, ・ is the 4 key right, ♪ is the 1 key up and ☆ is the 1 key left. When you are done, go back with the 「あいう」 key.',
+      alnum:
+        'Type letters by switching keyboards with the 「ABC」 key in the left column. Like a phone keypad, tap the ABC key for a, left for b, up for c. For a capital, type the lowercase letter and press the 「a/A」 key at the bottom left once. Type numbers on the 「☆123」 keyboard. When you are done, go back with the 「あいう」 key.',
+    },
+    candidate: 'Candidates',
+    introAll:
+      'Type {{count}} lines, alternating gojūon lines and word lines. Finish a line and press 確定 to get the next one.',
+    keyGuide: 'Keys for this level',
+    alphaGrid: 'ABC keyboard layout',
+    gridRow: 'Row {{row}}: {{keys}}',
+    caseGuide: 'Making capitals',
+    start: 'Start',
+    progress: '{{current}}/{{total}}',
+    extra: 'Review of missed kana',
+    matched: 'Correct. Press 確定 to go to the next line.',
+    convert: 'The reading is right. Tap {{word}} in the candidates and press 確定.',
+    fix: 'It was committed as something other than {{word}}. Delete it, type it again and pick from the candidates.',
+    convertMarked:
+      'The reading is right. Pick the underlined parts from the candidates, then press 確定.',
+    fixMarked:
+      'The parts in red differ from the target. Delete and retype, and pick the underlined parts from the candidates.',
+    noHelp:
+      'This level checks your skills, so no typing help appears when you get stuck. Try to recall it yourself.',
+    retryNote: 'Missed kana come back a few lines later.',
+    noRetryNote:
+      "Missed sentences don't come back. Missed kana stay in the results and in My skills.",
+  },
+  keys: {
+    title: 'Other keys on the keyboard',
+    lead: 'Besides the character keys there are several others. Tap a key to see what it does.',
+    mode: '“Flick Only”',
+    off: 'Off',
+    on: 'On',
+    modeNote:
+      'The left column changes with “Flick Only” in Settings › General › Keyboard. With it on, tapping the same key twice quickly does not change the character, which is better for flick practice.',
+    diagram: 'Japanese Kana keyboard',
+    explain: 'Key description',
+    kana: '{{label}} key',
+    kanaDesc: "Tap for {{tap}}. Press and slide for the key's other characters.",
+    items: {
+      next: {
+        name: '→ (next character)',
+        desc: 'Use it to type the same key twice in a row. Tapping あ and then tapping again right away turns it into い, but pressing → in between gives ああ. It disappears when “Flick Only” is on because you no longer need it.',
+      },
+      undo: {
+        name: '↺ (reverse)',
+        desc: 'If you tap the same key to cycle あ→い→う and go too far, it steps back one character. Pressing it at う gives い. It disappears when “Flick Only” is on.',
+      },
+      number: {
+        name: '☆123 (numbers and symbols)',
+        desc: 'Switches to the numbers and symbols keyboard. With “Flick Only” on, it appears in this column.',
+      },
+      abc: { name: 'ABC (letters)', desc: 'Switches to the alphabet keyboard.' },
+      kana: {
+        name: 'あいう (kana)',
+        desc: 'Goes back from the numbers or letters keyboard to the kana keyboard. With “Flick Only” on, it appears in this column.',
+      },
+      emoji: { name: 'Emoji', desc: 'Opens the emoji keyboard.' },
+      modifier: {
+        name: '^^ / 小゛゜',
+        desc: 'Before you type anything it shows ^^ and offers kaomoji candidates. After you type a character it turns into 小゛゜, and each press changes the character to voiced (が), half-voiced (ぱ) or small (っ).',
+      },
+      delete: { name: 'Delete', desc: 'Deletes the character before the cursor.' },
+      space: {
+        name: '空白 / 次候補',
+        desc: 'Inserts a space. While typing (when the text is underlined) it becomes 次候補, and each press moves to the next conversion candidate.',
+      },
+      return: {
+        name: '確定 / 改行',
+        desc: 'While typing it becomes 確定 and commits the text as it is. When nothing is being typed it starts a new line. In search boxes it becomes the search key.',
+      },
+      globe: {
+        name: 'Globe',
+        desc: 'Switches to another keyboard. Press and hold to pick from the keyboard list.',
+      },
+      mic: { name: 'Microphone', desc: 'Type by speaking (dictation).' },
+    },
+    next: 'Next',
+    manual: 'Keyboard guide',
+    manualHint: 'What each key does',
+  },
+  find: {
+    title: 'Find a character',
+    lead: "Paste a character you don't know how to type, or tap one in the tables below.",
+    input: 'Character to find',
+    placeholder: 'Paste here (e.g. きゃ, コーヒー)',
+    tables: 'Character tables',
+    table: {
+      all: 'All',
+      basic: 'Basic',
+      voiced: 'Dakuten · handakuten',
+      small: 'Small kana',
+      yoon: 'Yōon',
+      foreign: 'Foreign sounds',
+      symbol: 'Symbols',
+    },
+    layer: '{{label}} keyboard',
+    notOnKeys: "It's not on the keys.",
+    convert: 'Type katakana in hiragana, then pick from the candidates: {{pairs}}',
+    kanji: 'Type kanji by their reading in hiragana, then pick from the candidates.',
+    unknown: "For other characters that aren't on the keys, we can't show how to type them yet.",
+    layerNote:
+      'Switch to the ☆123 or ABC keyboard with the keys in the left column. If “Flick Only” is off, press the ABC key and then the ☆123 key.',
+    more: 'Showing only the first {{count}}.',
+    hint: 'How do I type this?',
+  },
+  today: {
+    today: 'Today',
+    fresh: 'Type your first line to start',
+    streak: '{{count}}-day streak',
+    restart: 'Start again',
+    done: 'Today {{time}} · {{chars}} kana',
+    keep: 'Practice today for day {{count}}',
+    best: 'Best: {{count}}-day streak',
+    minutes: '{{count}} min',
+    underMinute: 'Under 1 min',
+    open: 'See practice days',
+  },
+  calendar: {
+    title: 'Practice days',
+    lead: 'Days you typed at least one line are marked.',
+    empty: 'No practice days yet. Type even one line and it shows up here.',
+    current: 'Current streak',
+    best: 'Best streak',
+    total: 'Practice days',
+    days: '{{count}} days',
+    days_one: '{{count}} day',
+    month: '{{count}} days practiced',
+    month_one: '{{count}} day practiced',
+    practiced: 'Practiced',
+    prev: 'Previous month',
+    next: 'Next month',
+  },
+  exam: {
+    title: '{{name}} test',
+    timer: 'Time left',
+    ready: 'The timer starts when you type the first character. No help appears.',
+    next: 'Next line',
+    done: '{{name}} test done',
+    lines: 'Lines done',
+    linesValue: '{{count}} lines',
+    linesValue_one: '{{count}} line',
+    newBest: 'New best!',
+    best: 'Best so far: {{kpm}} kana/min',
+    confirmReading:
+      'The reading is right, but you committed the underlined kanji without converting it. You can fix it, or press the bottom-right key once more to move on. This kanji counts half.',
+    rules: {
+      open: 'Test notes',
+      title: 'Test notes',
+      close: 'Got it',
+      keyboard: {
+        rule: 'Type with the 12-key kana keyboard',
+        detail:
+          'Lines typed with a romaji keyboard are flagged in the results and left out of My skills.',
+      },
+      commit: {
+        rule: 'Press 確定 to move to the next line',
+        detail: "Even after you finish typing a line, it doesn't move on until you press 確定.",
+      },
+      convert: {
+        rule: 'Pick kanji and katakana from the candidates',
+        detail:
+          "Type the small reading above the kanji, then pick it from the candidates. If you commit a kanji as its reading, you can press once more to move on, but it counts half. Katakana committed as hiragana doesn't move on.",
+      },
+      convertReading: {
+        rule: 'Pick katakana from the candidates',
+        detail:
+          "With your settings, kanji typed by the small reading above them move on, but count half. Katakana committed as hiragana doesn't move on.",
+      },
+      fix: {
+        rule: 'Delete and fix a wrong character to move on',
+        detail: 'A character you got wrong at first lowers your accuracy even after you fix it.',
+      },
+      time: {
+        rule: 'The timer starts at your first character',
+        detail:
+          "When time runs out, the current line counts only up to what you typed correctly. Opening this window doesn't stop the timer.",
+      },
+      help: {
+        rule: 'No help appears',
+        detail:
+          'If you get stuck, try to recall it yourself. You can look up how to type things in Step-by-step lessons.',
+      },
+      speed: {
+        rule: 'Speed is kana typed correctly per minute',
+        detail:
+          'Kanji count by their reading, and the time includes pressing 確定. Kanji you did not convert from the candidates count half for speed and accuracy.',
+      },
+    },
+  },
+  tests: {
+    title: 'Tests',
+    note: 'A skill check after you learn every level. Lines keep coming, with no help.',
+    kana: 'Kana',
+    kanaHint: 'All kana',
+    word: 'Words',
+    wordHint: 'Hiragana and katakana words',
+    short: 'Short text',
+    shortHint: 'One or two sentences',
+    long: 'Long text',
+    longHint: 'Several sentences in a row',
+    best: 'Best {{kpm}} kana/min · {{accuracy}}%',
+    none: 'No record',
+    modes: 'Test type',
+    durationLabel: 'Time',
+    duration: '{{min}} min',
+    noHelp: 'No help',
+    endless: 'Endless lines',
+    preview: 'First line preview',
+    bestSpeed: 'Best speed',
+    accuracy: 'Accuracy',
+    plays: 'Attempts',
+    playsValue: '{{count}} times',
+    playsValue_one: '{{count}} time',
+    kpmUnit: 'kana/min',
+    start: 'Start {{min}}-min test',
+    pending: "Preview: the {{min}}-min “{{name}}” test isn't built yet, so it doesn't open.",
+  },
+  steps: {
+    title: 'Step-by-step lessons',
+    section: 'New here?',
+    hint: 'Tutorial · Lv.1–{{last}}',
+    lead: 'If flicking is new to you, start with the tutorial, then learn from Lv.1 in order.',
+    start: 'Start with the tutorial',
+    continue: 'Continue Lv.{{number}} {{name}}',
+    done: 'All {{count}} levels done',
+  },
+  stats: {
+    title: 'My skills',
+    bySkill: 'Skills by rule',
+    lead: 'Based on your recent records: first-try accuracy and time per character for each rule, from up to the last 60 tries per rule.',
+    empty:
+      'No records yet. Finish one level and your accuracy and speed for each rule show up here.',
+    measuring: 'Measuring {{samples}}/{{needed}}',
+    measuringShort: 'Measuring',
+    perChar: '{{sec}} s per character',
+    confusions: 'Often mixed up',
+    confusionLabel: '{{actual}} for {{expected}}, {{count}} times',
+    confusionLabel_one: '{{actual}} for {{expected}}, once',
+    times: '{{count}} times',
+    times_one: 'once',
+    slow: 'Slow characters',
+    trend: {
+      title: 'Trend',
+      period: 'Period',
+      days: '{{days}} days',
+      empty: 'No lines in the last {{days}} days.',
+      vsPrev: '{{value}} vs the {{days}} days before',
+      noPrev: 'No record for the {{days}} days before',
+      pointUnit: ' pts',
+      practiced: 'Days practiced',
+      dayCount: '{{count}} days',
+      dayCount_one: '{{count}} day',
+      lines: '{{count}} lines',
+      lines_one: '{{count}} line',
+      speedTitle: 'Speed (kana/min)',
+      accuracyChart: 'Last {{days}} days, first-try accuracy by day',
+      speedChart: 'Last {{days}} days, speed by day (kana/min)',
+      date: '{{month}}/{{day}}',
+      readout: '{{date}} · {{value}} · {{count}} lines',
+      readout_one: '{{date}} · {{value}} · {{count}} line',
+      noPractice: '{{date}} · no practice',
+    },
+  },
+  help: {
+    title: 'How to type {{char}}',
+    key: '{{key}} key, {{dir}}',
+    modifier: '{{label}} ×{{times}}',
+    reading:
+      'Reading: {{reading}}. After typing the whole word, pick the katakana from the candidates.',
+  },
+  result: {
+    title: '{{level}} done',
+    accuracy: 'First-try accuracy',
+    speed: 'kana/min',
+    time: 'Time',
+    minutes: '{{min}} min {{sec}} s',
+    seconds: '{{sec}} s',
+    vsLast: '{{value}} vs last time',
+    points: '{{value}} pts',
+    missed: 'Missed characters',
+    kinds: 'Mistake types',
+    kind: {
+      dakuten: 'Dakuten',
+      handakuten: 'Handakuten',
+      small: 'Small kana',
+      direction: 'Direction',
+      key: 'Wrong key',
+      'long-vowel': 'Long vowel',
+      script: 'Not converted',
+      conversion: 'Wrong conversion',
+      case: 'Upper/lower case',
+      extra: 'Extra characters',
+      other: 'Other',
+    },
+    noMissed: 'No mistakes at all.',
+    pass: 'Your first-try accuracy is over 90%. On to the next level.',
+    practice: 'We recommend moving on once your first-try accuracy is over 90%.',
+    romaji:
+      'Some lines were typed with a romaji keyboard. To learn flicking, type with the 12-key kana keyboard.',
+    toggle:
+      'Some lines were typed by tapping the same key repeatedly. Try pressing and sliding instead.',
+    again: 'Try again',
+    next: 'Next: {{level}}',
+    home: 'Home',
+    steps: 'Step-by-step lessons',
+  },
+  pwa: {
+    update: 'A new version is available.',
+    reload: 'Update',
+    close: 'Close',
+  },
+  settings: {
+    title: 'Settings',
+    language: 'Language',
+    languageHint:
+      'By default the app follows your device language. You can choose Korean, Japanese or English.',
+    languageAuto: 'Device',
+    unlockAll: 'Open all lessons',
+    unlockAllHint: 'Start any level without finishing the ones before it.',
+    requireKanji: 'Kanji must be converted',
+    requireKanjiHint:
+      'When on, you must pick kanji from the candidates to move on. When off, typing the reading (kana) shown above the kanji is enough. Katakana must be converted either way.',
+    helpIdle: 'Wait before help',
+    helpIdleHint:
+      'If you pause on the next character this long while practicing, we show how to type it. If you miss the same character twice, it shows right away. The default is 3 minutes.',
+    idleSeconds: '{{count}} s',
+    idleMinutes: '{{count}} min',
+    idleOff: 'Off',
+    home: 'Home',
+    backup: 'Backup',
+    export: 'Export',
+    exportHint:
+      'Saves your progress, best records and practice records in one file. When the share sheet opens, choose “Save to Files”.',
+    exportButton: 'Save to file',
+    import: 'Import',
+    importHint:
+      'Pick an exported file to merge it into your current records. Nothing you have now is deleted. Use it to move your records to a new iPhone or to the home screen app.',
+    importButton: 'Choose file',
+    importedLines: 'Added {{count}} practice lines. Progress and best records were merged as well.',
+    importedLines_one:
+      'Added {{count}} practice line. Progress and best records were merged as well.',
+    importedProgress: 'Merged progress and best records.',
+    importedNothing: 'These records are already all here.',
+    importInvalid: "This isn't a record file exported from twiper.",
+    importNotSaved:
+      "Records were merged but couldn't be saved on this device. They may disappear when you reopen the app.",
+  },
+};
+
+export const en: typeof ko = english;

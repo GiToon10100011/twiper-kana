@@ -490,6 +490,9 @@ export const ja: typeof ko = {
   },
   settings: {
     title: '設定',
+    language: '言語',
+    languageHint: '標準では端末の言語に合わせます。韓国語・日本語・英語から選べます。',
+    languageAuto: '端末の言語',
     unlockAll: 'すべてのレッスンを開く',
     unlockAllHint: '前のレベルを終えなくても、すべてのレベルをすぐに始められます。',
     requireKanji: '漢字は変換して正解',

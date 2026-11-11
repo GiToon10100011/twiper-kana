@@ -1,14 +1,16 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
-import '../../i18n';
+import i18n from '../../i18n';
 import { loadSettings } from '../../lib/settings';
 import { Settings } from './Settings';
 
-afterEach(() => {
+afterEach(async () => {
   cleanup();
   localStorage.clear();
+  // 다른 테스트는 한국어 화면을 기준으로 쓴다
+  await i18n.changeLanguage('ko');
 });
 
 describe('Settings', () => {
@@ -23,6 +25,36 @@ describe('Settings', () => {
     expect(home.getAttribute('href')).toBe('/');
     expect(home.textContent).toBe('');
     expect(home.querySelector('svg')).not.toBeNull();
+  });
+
+  it('언어는 처음에 기기 언어를 따르고, 고르면 저장하고 그 자리에서 화면 언어를 바꾼다', async () => {
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>,
+    );
+    const languages = screen.getByRole('group', { name: '언어' });
+    expect(
+      [...languages.querySelectorAll('button')].map((b) => [
+        b.textContent,
+        b.getAttribute('aria-pressed'),
+      ]),
+    ).toEqual([
+      ['기기 언어', 'true'],
+      ['한국어', 'false'],
+      ['日本語', 'false'],
+      ['English', 'false'],
+    ]);
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'English' }));
+      await Promise.resolve();
+    });
+
+    expect(loadSettings().language).toBe('en');
+    expect(screen.getByRole('heading', { name: 'Settings' })).toBeTruthy();
+    expect(document.documentElement.lang).toBe('en');
+    expect(screen.getByRole('button', { name: 'Device' })).toBeTruthy();
   });
 
   it('「모든 레슨 열기」를 켜면 저장된다', () => {
