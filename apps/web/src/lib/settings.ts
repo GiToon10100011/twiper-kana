@@ -1,4 +1,5 @@
 import { HELP_POLICY } from '@twiper/core';
+import { LOCALES, type LanguageChoice } from '../i18n/locale';
 
 const SETTINGS_KEY = 'twiper.settings.v1';
 
@@ -15,13 +16,19 @@ export interface Settings {
    * 가타카나는 이 설정과 관계없이 바꿔야 맞다 (2026-10-26 사용자 제안)
    */
   readonly requireKanji: boolean;
+  /** 화면 언어. auto는 기기 언어를 따른다 */
+  readonly language: LanguageChoice;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   unlockAll: false,
   helpIdleMs: HELP_POLICY.idleMs,
   requireKanji: true,
+  language: 'auto',
 };
+
+const isLanguageChoice = (value: unknown): value is LanguageChoice =>
+  value === 'auto' || LOCALES.some((locale) => locale === value);
 
 export function loadSettings(): Settings {
   try {
@@ -29,7 +36,7 @@ export function loadSettings(): Settings {
     if (!raw) return DEFAULT_SETTINGS;
     const parsed: unknown = JSON.parse(raw);
     if (typeof parsed !== 'object' || parsed === null) return DEFAULT_SETTINGS;
-    const { unlockAll, helpIdleMs, requireKanji } = parsed as Record<string, unknown>;
+    const { unlockAll, helpIdleMs, requireKanji, language } = parsed as Record<string, unknown>;
     return {
       unlockAll: unlockAll === true,
       helpIdleMs:
@@ -38,6 +45,7 @@ export function loadSettings(): Settings {
           : DEFAULT_SETTINGS.helpIdleMs,
       // 예전에 저장한 설정에는 없으므로 껐을 때만 끈다
       requireKanji: requireKanji !== false,
+      language: isLanguageChoice(language) ? language : DEFAULT_SETTINGS.language,
     };
   } catch {
     return DEFAULT_SETTINGS;

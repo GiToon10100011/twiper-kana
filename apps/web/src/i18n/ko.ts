@@ -484,6 +484,9 @@ export const ko = {
   },
   settings: {
     title: '설정',
+    language: '언어',
+    languageHint: '기본은 기기 언어를 따라요. 한국어·일본어·영어 중에서 고를 수 있어요.',
+    languageAuto: '기기 언어',
     unlockAll: '모든 레슨 열기',
     unlockAllHint: '앞 레벨을 끝내지 않아도 모든 레벨을 바로 시작할 수 있어요.',
     requireKanji: '한자는 바꿔야 정답',

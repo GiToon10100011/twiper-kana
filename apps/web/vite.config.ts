@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -54,4 +55,8 @@ export default defineConfig({
     }),
     ...(traceSinkEnabled ? [traceSink({ dir: TRACE_DIR })] : []),
   ],
+  test: {
+    // 화면 문구를 한국어로 확인하므로 기기 언어를 한국어로 둔다
+    setupFiles: ['./src/testSetup.ts'],
+  },
 });
