@@ -7,15 +7,18 @@ import type { Page } from '@playwright/test';
  */
 export async function typeKana(page: Page, text: string): Promise<void> {
   const cdp = await page.context().newCDPSession(page);
-  const chars = Array.from(text);
-  for (let i = 1; i <= chars.length; i += 1) {
-    const composing = chars.slice(0, i).join('');
-    await cdp.send('Input.imeSetComposition', {
-      text: composing,
-      selectionStart: composing.length,
-      selectionEnd: composing.length,
-    });
+  try {
+    const chars = Array.from(text);
+    for (let i = 1; i <= chars.length; i += 1) {
+      const composing = chars.slice(0, i).join('');
+      await cdp.send('Input.imeSetComposition', {
+        text: composing,
+        selectionStart: composing.length,
+        selectionEnd: composing.length,
+      });
+    }
+    await cdp.send('Input.insertText', { text });
+  } finally {
+    await cdp.detach();
   }
-  await cdp.send('Input.insertText', { text });
-  await cdp.detach();
 }

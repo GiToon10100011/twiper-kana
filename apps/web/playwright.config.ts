@@ -23,7 +23,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: `pnpm build && pnpm preview --port ${PORT} --strictPort`,
+    // CI는 앞 단계에서 이미 빌드했으므로 띄우기만 한다
+    command: process.env.CI
+      ? `pnpm preview --port ${PORT} --strictPort`
+      : `pnpm build && pnpm preview --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

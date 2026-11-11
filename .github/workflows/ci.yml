@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -20,7 +23,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
-      # 화면 흐름 테스트: 배포와 같은 빌드를 iPhone 크기 Chromium으로 연다 (apps/web/playwright.config.ts)
+      # 화면 흐름 테스트: 바로 위에서 만든 빌드를 iPhone 크기 Chromium으로 연다 (apps/web/playwright.config.ts)
       - run: pnpm --filter @twiper/web exec playwright install --with-deps chromium
       - run: pnpm e2e
       - uses: actions/upload-artifact@v4
