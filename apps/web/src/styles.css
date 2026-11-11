@@ -2674,16 +2674,24 @@ a.tile-row:active {
 }
 
 /* 홈의 오늘 복습: 흰 두 줄 카드. 윗줄은 제목·글자 수, 아랫줄은 글자 칩과 그 끝의 복습 시작(강조색 알약) */
+/*
+ * 「오늘」 띠(안쪽 여백 8px) 바로 아래에 붙어 보이지 않도록 위에 12px을 두고,
+ * 띠와 한 묶음으로 보이도록 다음 구역(종합 테스트)과의 간격은 기본 3rem보다 줄인다 (사용자 피드백 2026-11-11)
+ */
 .review-card {
   display: grid;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
-  margin: 0 0 var(--space-4);
+  margin: var(--space-3) 0 0;
   color: var(--ink);
   text-decoration: none;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
+}
+
+.review-card + .section-label {
+  margin-top: 2rem;
 }
 
 .review-card:active {
