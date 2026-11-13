@@ -2,10 +2,8 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+import { isQuietPath } from './quietPath';
 import { Toast } from './Toast';
-
-/** 훈련·튜토리얼 중에는 알림을 띄우지 않는다. 새로고침으로 입력 흐름이 끊기지 않게 (계획 §14) */
-const isQuietPath = (path: string) => path.startsWith('/train') || path === '/tutorial';
 
 /**
  * 서비스 워커를 등록하고, 새 버전이 있으면 알린다.
