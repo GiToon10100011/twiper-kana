@@ -9,11 +9,14 @@ import {
   type ExamMode,
   type TrainingRepo,
 } from '@twiper/core';
-import { loadExamRecords, type ExamRecords } from '../../lib/examRecords';
+import { bestIn, loadExamRecords, type ExamRecords } from '../../lib/examRecords';
+import { loadSettings } from '../../lib/settings';
+import { speedIn } from '../../lib/speed';
 import { ChartIcon, ForwardIcon, GearIcon, PlayIcon, TimerIcon } from '../../ui/icons';
 import { Pills } from '../../ui/Pills';
 import { EXAM_MINUTES, newExamSeed, type ExamMinutes } from '../exam/ExamRun';
 import { levelAccess, type LevelAccess } from '../training/access';
+import { speedText } from '../training/DrillResult';
 import { levelName, levelSymbol } from '../training/levelTitle';
 import { ReviewEntry } from '../review/ReviewEntry';
 import { useReviewPlan } from '../review/useReviewPlan';
@@ -62,12 +65,13 @@ function LinePreview({ line, label }: { line: ExamLine; label: string }) {
  */
 function ExamPanel({ records }: { records: ExamRecords }) {
   const { t } = useTranslation();
+  const unit = loadSettings().speedUnit;
   const [mode, setMode] = useState<ExamMode>('kana');
   const [minutes, setMinutes] = useState<ExamMinutes>(1);
   const [seed] = useState(newExamSeed);
   const line = useMemo(() => createExam(examSource(mode), seed).line, [mode, seed]);
   const record = records[mode];
-  const best = record?.best ?? null;
+  const best = bestIn(unit, record);
 
   return (
     <>
@@ -96,8 +100,8 @@ function ExamPanel({ records }: { records: ExamRecords }) {
           <div>
             <dt>{t('tests.bestSpeed')}</dt>
             <dd>
-              {best ? Math.round(best.kpm) : '–'}
-              <small>{t('tests.kpmUnit')}</small>
+              {best ? speedText(speedIn(unit, best)) : '–'}
+              <small>{t(`speed.${unit}`)}</small>
             </dd>
           </div>
           <div>

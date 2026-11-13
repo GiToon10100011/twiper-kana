@@ -82,6 +82,11 @@ export interface DrillSummary {
   readonly accuracy: number;
   /** 가나/분. 잴 수 있는 줄이 없으면 null */
   readonly kpm: number | null;
+  /**
+   * 참고용 WPM: 같은 시간에 친 글자를 헤본식 로마자로 바꿔 5글자를 한 단어로 센다 (계획 §12).
+   * 잴 수 없으면 null. 이 값이 생기기 전에 저장한 판에는 없다
+   */
+  readonly wpm?: number | null;
   /** 잴 수 있는 줄의 elapsedMs 합 */
   readonly totalMs: number;
   /** 틀린 단위와 횟수. 많은 순, 같으면 먼저 틀린 순 */

@@ -49,6 +49,7 @@ export { classifyMistake, type MistakeKind } from './kana/classify';
 export { KANA_KEY_ROWS, danOf, keyRowOf, sameKeyRow, type Dan } from './kana/rows';
 export { isKana, toHiragana, toKatakana } from './kana/script';
 export { tokenizeKana } from './kana/tokenize';
+export { toRomaji, wordsPerMinute } from './kana/romaji';
 export { sameVariantFamily, variantBase } from './kana/variants';
 export { addDays, dayKey, recentDays, streakOf, type Streak } from './progress/streak';
 export { frontierLevel, unlockedLevels } from './progress/unlock';

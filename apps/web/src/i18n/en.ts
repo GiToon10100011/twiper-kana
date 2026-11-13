@@ -341,7 +341,7 @@ const english = {
     linesValue: '{{count}} lines',
     linesValue_one: '{{count}} line',
     newBest: 'New best!',
-    best: 'Best so far: {{kpm}} kana/min',
+    best: 'Best so far: {{speed}} {{unit}}',
     confirmReading:
       'The reading is right, but you committed the underlined kanji without converting it. You can fix it, or press the bottom-right key once more to move on. This kanji counts half.',
     rules: {
@@ -412,7 +412,6 @@ const english = {
     plays: 'Attempts',
     playsValue: '{{count}} times',
     playsValue_one: '{{count}} time',
-    kpmUnit: 'kana/min',
     start: 'Start {{min}}-min test',
     pending: "Preview: the {{min}}-min “{{name}}” test isn't built yet, so it doesn't open.",
   },
@@ -453,9 +452,9 @@ const english = {
       dayCount_one: '{{count}} day',
       lines: '{{count}} lines',
       lines_one: '{{count}} line',
-      speedTitle: 'Speed (kana/min)',
+      speedTitle: 'Speed ({{unit}})',
       accuracyChart: 'Last {{days}} days, first-try accuracy by day',
-      speedChart: 'Last {{days}} days, speed by day (kana/min)',
+      speedChart: 'Last {{days}} days, speed by day ({{unit}})',
       date: '{{month}}/{{day}}',
       readout: '{{date}} · {{value}} · {{count}} lines',
       readout_one: '{{date}} · {{value}} · {{count}} line',
@@ -472,7 +471,6 @@ const english = {
   result: {
     title: '{{level}} done',
     accuracy: 'First-try accuracy',
-    speed: 'kana/min',
     time: 'Time',
     minutes: '{{min}} min {{sec}} s',
     seconds: '{{sec}} s',
@@ -505,6 +503,15 @@ const english = {
     home: 'Home',
     steps: 'Step-by-step lessons',
   },
+  speed: {
+    kpm: 'kana/min',
+    cpm: 'CPM',
+    wpm: 'WPM',
+    note: {
+      cpm: 'CPM counts the kana you typed in Hepburn romaji, as letters per minute.',
+      wpm: 'WPM counts the kana you typed in Hepburn romaji, as words of 5 letters per minute.',
+    },
+  },
   pwa: {
     update: 'A new version is available.',
     reload: 'Update',
@@ -521,6 +528,9 @@ const english = {
     requireKanji: 'Kanji must be converted',
     requireKanjiHint:
       'When on, you must pick kanji from the candidates to move on. When off, typing the reading (kana) shown above the kanji is enough. Katakana must be converted either way.',
+    speedUnit: 'Speed unit',
+    speedUnitHint:
+      'The unit for speed in results, tests and trends. CPM and WPM count the kana you typed in Hepburn romaji: CPM as letters per minute, WPM as words of 5 letters.',
     helpIdle: 'Wait before help',
     helpIdleHint:
       'If you pause on the next character this long while practicing, we show how to type it. If you miss the same character twice, it shows right away. The default is 3 minutes.',

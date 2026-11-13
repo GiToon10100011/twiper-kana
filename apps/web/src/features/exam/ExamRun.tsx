@@ -16,10 +16,12 @@ import {
   type LineResult,
 } from '@twiper/core';
 import { newId, trainingRepo } from '../../lib/db';
-import { recordExam, type ExamBest } from '../../lib/examRecords';
+import { bestIn, recordExam, type ExamBest } from '../../lib/examRecords';
 import { hasSeenExamRules, markExamRulesSeen } from '../../lib/flags';
 import { loadSettings } from '../../lib/settings';
+import { speedIn } from '../../lib/speed';
 import { BackIcon, InfoIcon } from '../../ui/icons';
+import { SpeedNote, speedText } from '../training/DrillResult';
 import { Furigana } from '../training/Furigana';
 import { TrainingInput } from '../training/TrainingInput';
 import { ExamRules } from './ExamRules';
@@ -63,7 +65,9 @@ export function ExamRoute() {
 
 interface Outcome {
   summary: ExamSummary;
+  /** 설정한 속도 단위로 최고 기록을 바꿨는지 */
   isBest: boolean;
+  /** 이 판 전의, 설정한 속도 단위로 본 최고 기록 */
   previous: ExamBest | null;
 }
 
@@ -163,9 +167,15 @@ export function ExamRun({
     const partial =
       session && session.completedAt === null ? partialLineResult(session, shownAt.current) : null;
     const summary = summarizeExam(results.current, partial, durationMs);
-    const { isBest, previous } = recordExam(mode, summary, minutes);
+    const { faster, previous } = recordExam(mode, summary, minutes);
+    // 최고 기록은 설정한 속도 단위로 본다 (CPM·WPM이면 로마자 속도가 가장 빨랐던 판)
+    const unit = loadSettings().speedUnit;
     inputRef.current?.blur();
-    setOutcome({ summary, isBest, previous });
+    setOutcome({
+      summary,
+      isBest: unit === 'kpm' ? faster.kana : faster.romaji,
+      previous: bestIn(unit, previous),
+    });
     const record = sessionRef.current;
     if (record) {
       void trainingRepo().saveSession({
@@ -293,6 +303,9 @@ function ExamResult({
 }) {
   const { t } = useTranslation();
   const { summary, isBest, previous } = outcome;
+  const unit = loadSettings().speedUnit;
+  // 로마자 속도를 남기기 전의 기록뿐이라 CPM·WPM 최고 기록이 없으면 알리지 않는다
+  const previousSpeed = previous ? speedIn(unit, previous) : null;
   return (
     <section>
       <h1 className="screen-title">
@@ -300,13 +313,15 @@ function ExamResult({
       </h1>
       {isBest ? (
         <p className="exam-best is-new">{t('exam.newBest')}</p>
-      ) : previous ? (
-        <p className="exam-best">{t('exam.best', { kpm: Math.round(previous.kpm) })}</p>
+      ) : previousSpeed !== null ? (
+        <p className="exam-best">
+          {t('exam.best', { speed: Math.round(previousSpeed), unit: t(`speed.${unit}`) })}
+        </p>
       ) : null}
       <dl className="stats">
         <div>
-          <dt>{t('result.speed')}</dt>
-          <dd>{Math.round(summary.kpm)}</dd>
+          <dt>{t(`speed.${unit}`)}</dt>
+          <dd>{speedText(speedIn(unit, summary))}</dd>
         </div>
         <div>
           <dt>{t('result.accuracy')}</dt>
@@ -317,6 +332,7 @@ function ExamResult({
           <dd>{t('exam.linesValue', { count: summary.lines })}</dd>
         </div>
       </dl>
+      <SpeedNote unit={unit} />
 
       <h2 className="section-label">{t('result.missed')}</h2>
       {summary.missed.length > 0 ? (

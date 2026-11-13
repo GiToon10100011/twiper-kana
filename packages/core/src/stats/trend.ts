@@ -1,3 +1,4 @@
+import { toRomaji } from '../kana/romaji';
 import { addDays, dayKey, recentDays } from '../progress/streak';
 import type { AttemptRecord } from '../record/types';
 
@@ -11,6 +12,8 @@ export interface TrendSummary {
   readonly accuracy: number | null;
   /** 가나/분. 시간을 잰 줄이 없으면 null */
   readonly kpm: number | null;
+  /** 같은 줄·같은 시간의 WPM (헤본식 로마자 5글자 = 1단어). CPM은 이 값의 5배 */
+  readonly wpm: number | null;
 }
 
 /** 하루치 실력 */
@@ -35,6 +38,7 @@ export function summarizeAttempts(attempts: readonly AttemptRecord[]): TrendSumm
   let units = 0;
   let firstTry = 0;
   let timedUnits = 0;
+  let timedRomaji = 0;
   let ms = 0;
   for (const attempt of lines) {
     const length = Array.from(attempt.target).length;
@@ -43,6 +47,7 @@ export function summarizeAttempts(attempts: readonly AttemptRecord[]): TrendSumm
     firstTry += length - missed.size;
     if (attempt.elapsedMs !== null && attempt.elapsedMs > 0) {
       timedUnits += length;
+      timedRomaji += toRomaji(attempt.target).length;
       ms += attempt.elapsedMs;
     }
   }
@@ -51,6 +56,7 @@ export function summarizeAttempts(attempts: readonly AttemptRecord[]): TrendSumm
     units,
     accuracy: units > 0 ? firstTry / units : null,
     kpm: ms > 0 ? timedUnits / (ms / 60_000) : null,
+    wpm: ms > 0 ? timedRomaji / 5 / (ms / 60_000) : null,
   };
 }
 

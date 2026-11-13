@@ -43,24 +43,38 @@ describe('settings', () => {
       helpIdleMs: 180_000,
       requireKanji: true,
       language: 'auto',
+      speedUnit: 'kpm',
     });
   });
 
-  it('모두 열기·도움말 기다리는 시간·한자 바꾸기·언어를 저장하고 읽는다', () => {
-    saveSettings({ unlockAll: true, helpIdleMs: 0, requireKanji: false, language: 'en' });
+  it('모두 열기·도움말 기다리는 시간·한자 바꾸기·언어·속도 단위를 저장하고 읽는다', () => {
+    saveSettings({
+      unlockAll: true,
+      helpIdleMs: 0,
+      requireKanji: false,
+      language: 'en',
+      speedUnit: 'cpm',
+    });
 
     expect(loadSettings()).toEqual({
       unlockAll: true,
       helpIdleMs: 0,
       requireKanji: false,
       language: 'en',
+      speedUnit: 'cpm',
     });
   });
 
   it('true가 아닌 값은 꺼진 것으로, 고를 수 없는 시간은 기본값으로 본다', () => {
     localStorage.setItem(
       'twiper.settings.v1',
-      JSON.stringify({ unlockAll: 'yes', helpIdleMs: 5000, requireKanji: 'no', language: 'fr' }),
+      JSON.stringify({
+        unlockAll: 'yes',
+        helpIdleMs: 5000,
+        requireKanji: 'no',
+        language: 'fr',
+        speedUnit: 'fast',
+      }),
     );
 
     // 한자 바꾸기는 false일 때만 끈다. 고를 수 없는 언어는 기기를 따른다
@@ -69,6 +83,7 @@ describe('settings', () => {
       helpIdleMs: 180_000,
       requireKanji: true,
       language: 'auto',
+      speedUnit: 'kpm',
     });
   });
 
@@ -80,6 +95,7 @@ describe('settings', () => {
       helpIdleMs: 180_000,
       requireKanji: true,
       language: 'auto',
+      speedUnit: 'kpm',
     });
   });
 });

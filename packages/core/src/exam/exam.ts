@@ -3,6 +3,7 @@ import { lineResultOf, summarizeDrill } from '../drill/result';
 import type { DrillSummary, LineResult } from '../drill/types';
 import type { InputSessionState, JudgeMode } from '../input/types';
 import { classifyMistake, type MistakeKind } from '../kana/classify';
+import { wordsPerMinute } from '../kana/romaji';
 import { toHiragana } from '../kana/script';
 import { parseRuby } from '../text/ruby';
 
@@ -209,6 +210,11 @@ export function summarizeExam(
     firstTryUnits,
     accuracy: units > 0 ? (firstTryUnits - readingOnlyFirstTry / 2) / units : 0,
     kpm: durationMs > 0 ? (units - readingOnly / 2) / (durationMs / 60_000) : 0,
+    // 맞게 친 데까지(치던 줄은 맞춘 글자까지)를 시험 시간으로 잰다. 참고 값이라 절반 셈은 하지 않는다
+    wpm: wordsPerMinute(
+      all.map((r) => Array.from(r.target).slice(0, r.units).join('')),
+      durationMs,
+    ),
     durationMs,
   };
 }
