@@ -16,7 +16,7 @@ import {
   type LineResult,
 } from '@twiper/core';
 import { newId, trainingRepo } from '../../lib/db';
-import { bestIn, recordExam, type ExamBest } from '../../lib/examRecords';
+import { bestIn, examLevelId, recordExam, type ExamBest } from '../../lib/examRecords';
 import { hasSeenExamRules, markExamRulesSeen } from '../../lib/flags';
 import { loadSettings } from '../../lib/settings';
 import { speedIn } from '../../lib/speed';
@@ -35,7 +35,6 @@ const isMode = (value: string): value is ExamMode =>
   (EXAM_MODES as readonly string[]).includes(value);
 
 /** 시도 기록에 남길 레벨 id. 통계(내 실력)가 레벨 기록과 함께 센다 */
-const examLevelId = (mode: ExamMode) => `test-${mode}`;
 
 /** 남은 시간 「0:42」 */
 const clock = (ms: number) => {

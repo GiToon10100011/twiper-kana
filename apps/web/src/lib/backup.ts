@@ -3,6 +3,7 @@ import {
   isAttemptRecord,
   isSessionRecord,
   type AttemptRecord,
+  type LegacyPlays,
   type SessionRecord,
   type TrainingRepo,
 } from '@twiper/core';
@@ -12,6 +13,13 @@ import {
   parseExamRecords,
   type ExamRecords,
 } from './examRecords';
+import {
+  ensureLegacyPlays,
+  legacyOfOldBackup,
+  mergeLegacy,
+  parseLegacyPlays,
+  recountPlays,
+} from './plays';
 import { loadProgress, mergeProgress, parseProgress, type Progress } from './progress';
 
 const FORMAT = 'twiper-backup';
@@ -31,9 +39,12 @@ export interface Backup {
   readonly exams: ExamRecords;
   readonly attempts: readonly AttemptRecord[];
   readonly sessions: readonly SessionRecord[];
+  /** 기기별 옛 횟수 (lib/plays). 2026-11-13 이전 파일에는 없다 */
+  readonly legacyPlays?: LegacyPlays;
 }
 
 export async function createBackup(repo: TrainingRepo, now = new Date()): Promise<Backup> {
+  const legacyPlays = await ensureLegacyPlays(repo);
   const { attempts, sessions } = await repo.dumpRecords();
   return {
     format: FORMAT,
@@ -43,6 +54,7 @@ export async function createBackup(repo: TrainingRepo, now = new Date()): Promis
     exams: loadExamRecords(),
     attempts,
     sessions,
+    legacyPlays,
   };
 }
 
@@ -68,6 +80,7 @@ export function parseBackup(text: string): Backup | null {
     exams: parseExamRecords(file.exams),
     attempts: Array.isArray(file.attempts) ? file.attempts.filter(isAttemptRecord) : [],
     sessions: Array.isArray(file.sessions) ? file.sessions.filter(isSessionRecord) : [],
+    ...(file.legacyPlays === undefined ? {} : { legacyPlays: parseLegacyPlays(file.legacyPlays) }),
   };
 }
 
@@ -80,15 +93,31 @@ export interface RestoreResult {
   readonly persisted: boolean;
 }
 
-/** 백업을 지금 기록에 합친다. 지금 기록은 지우지 않고, 같은 파일을 두 번 합쳐도 늘지 않는다 */
+/**
+ * 백업을 지금 기록에 합친다. 지금 기록은 지우지 않고, 같은 파일을 두 번 합쳐도 늘지 않는다.
+ * 플레이·응시 횟수는 합친 뒤 끝난 세션 수와 옛 횟수로 다시 세므로, 다른 기기의 백업을 가져오면 더해진다
+ */
 export async function restoreBackup(backup: Backup, repo: TrainingRepo): Promise<RestoreResult> {
+  // 이 기기의 옛 횟수는 세션이 늘기 전에 만든다
+  const current = await ensureLegacyPlays(repo);
+  const legacy = mergeLegacy(
+    current,
+    backup.legacyPlays ?? legacyOfOldBackup(backup.progress, backup.exams, backup.sessions),
+  );
   const levels = mergeProgress(backup.progress);
   const exams = mergeExamRecords(backup.exams);
   const added = await repo.mergeRecords(backup);
+  const recount = await recountPlays(repo, legacy.legacy);
   return {
     attempts: added.attempts,
-    changed: levels.changed + exams.changed + added.sessions > 0,
-    persisted: levels.persisted && exams.persisted && added.persisted,
+    changed:
+      legacy.changed || levels.changed + exams.changed + added.sessions + recount.changed > 0,
+    persisted:
+      legacy.persisted &&
+      levels.persisted &&
+      exams.persisted &&
+      added.persisted &&
+      recount.persisted,
   };
 }
 

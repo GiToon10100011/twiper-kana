@@ -1,7 +1,9 @@
-import { HELP_POLICY } from '@twiper/core';
+import { HELP_POLICY, nextStampAt, type Stamp, type Stamps } from '@twiper/core';
+import { deviceId } from './device';
 import { LOCALES, type LanguageChoice } from '../i18n/locale';
 
 const SETTINGS_KEY = 'twiper.settings.v1';
+const STAMPS_KEY = 'twiper.settings.stamps.v1';
 
 /** 도움말을 기다리는 시간으로 고를 수 있는 값 (ms). 0은 기다려도 띄우지 않는다 */
 export const HELP_IDLE_CHOICES: readonly number[] = [30_000, 60_000, 180_000, 300_000, 0];
@@ -69,10 +71,59 @@ export function loadSettings(): Settings {
   }
 }
 
-export function saveSettings(settings: Settings): void {
+/** 바꾼 항목에는 바꾼 때를 찍는다 (동기화 설계 §4.4). now는 테스트용 */
+export function saveSettings(settings: Settings, now = Date.now()): void {
+  const before = loadSettings();
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   } catch {
     // 저장하지 못하면 이번 실행에서만 바뀐 값이 적용된다.
+    return;
+  }
+  stampChanges(before, settings, now);
+}
+
+export type SettingKey = keyof Settings;
+
+const SETTING_KEYS = Object.keys(DEFAULT_SETTINGS) as SettingKey[];
+
+const isStamp = (value: unknown): value is Stamp =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as Record<string, unknown>).at === 'number' &&
+  typeof (value as Record<string, unknown>).deviceId === 'string';
+
+/**
+ * 설정 항목마다 마지막에 바꾼 때와 기기. 기기끼리 설정을 맞출 때 나중에 바꾼 쪽이 이긴다 (동기화 설계 §4.4).
+ * 동기화가 생기기 전에 바꾼 항목에는 없다
+ */
+export function loadSettingStamps(): Stamps<SettingKey> {
+  try {
+    const raw = localStorage.getItem(STAMPS_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : {};
+    if (typeof parsed !== 'object' || parsed === null) return {};
+    return Object.fromEntries(
+      SETTING_KEYS.flatMap((key) => {
+        const stamp = (parsed as Record<string, unknown>)[key];
+        return isStamp(stamp) ? [[key, stamp]] : [];
+      }),
+    );
+  } catch {
+    return {};
+  }
+}
+
+function stampChanges(before: Settings, after: Settings, now: number): void {
+  const changed = SETTING_KEYS.filter((key) => before[key] !== after[key]);
+  if (changed.length === 0) return;
+  const stamps = loadSettingStamps();
+  const stamp: Stamp = { at: nextStampAt(now, stamps), deviceId: deviceId() };
+  try {
+    localStorage.setItem(
+      STAMPS_KEY,
+      JSON.stringify({ ...stamps, ...Object.fromEntries(changed.map((key) => [key, stamp])) }),
+    );
+  } catch {
+    // 찍지 못한 항목은 다른 기기와 맞출 때 가장 약한 값으로 친다.
   }
 }
