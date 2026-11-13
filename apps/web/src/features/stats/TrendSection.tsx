@@ -7,6 +7,8 @@ import {
   type TrendDay,
   type TrendSummary,
 } from '@twiper/core';
+import { loadSettings, type SpeedUnit } from '../../lib/settings';
+import { speedIn } from '../../lib/speed';
 import { TrendChart } from './TrendChart';
 
 /** 볼 기간 (오늘로 끝나는 날 수) */
@@ -35,8 +37,8 @@ function accuracyDomain(days: readonly TrendDay[]): [number, number] {
 }
 
 /** 속도 축: 0부터 가장 빠른 날을 넘는 깔끔한 값까지 */
-function speedDomain(days: readonly TrendDay[]): [number, number] {
-  const top = Math.max(0, ...days.map((day) => day.kpm ?? 0));
+function speedDomain(days: readonly TrendDay[], unit: SpeedUnit): [number, number] {
+  const top = Math.max(0, ...days.map((day) => speedIn(unit, day) ?? 0));
   const step = top <= 20 ? 5 : top <= 60 ? 10 : 20;
   return [0, Math.max(step * 2, Math.ceil((top * 1.1) / step) * step)];
 }
@@ -58,6 +60,8 @@ export function TrendSection({
 
   const days = dailyTrend(attempts, today, period);
   const { current, previous } = trendChange(attempts, today, period);
+  const unit = loadSettings().speedUnit;
+  const currentSpeed = speedIn(unit, current);
   const practiced = days.filter((day) => day.lines > 0).length;
 
   // 지난 기간과의 차이. 두 기간 모두 값이 있어야 비교한다
@@ -85,18 +89,21 @@ export function TrendSection({
     <TrendChart
       key={period}
       days={days}
-      value={(day) => (which === 'accuracy' ? day.accuracy : day.kpm)}
+      value={(day) => (which === 'accuracy' ? day.accuracy : speedIn(unit, day))}
       format={which === 'accuracy' ? percent : whole}
-      domain={which === 'accuracy' ? accuracyDomain(days) : speedDomain(days)}
+      domain={which === 'accuracy' ? accuracyDomain(days) : speedDomain(days, unit)}
       label={t(which === 'accuracy' ? 'stats.trend.accuracyChart' : 'stats.trend.speedChart', {
         days: period,
+        unit: t(`speed.${unit}`),
       })}
       readout={readout}
       dateLabel={shortDate}
     />
   );
   const metricName = (which: Metric) =>
-    which === 'accuracy' ? t('result.accuracy') : t('stats.trend.speedTitle');
+    which === 'accuracy'
+      ? t('result.accuracy')
+      : t('stats.trend.speedTitle', { unit: t(`speed.${unit}`) });
 
   return (
     <section className="trend">
@@ -128,9 +135,9 @@ export function TrendSection({
               </small>
             </div>
             <div>
-              <dt>{t('result.speed')}</dt>
-              <dd>{current.kpm === null ? '–' : whole(current.kpm)}</dd>
-              <small className="stat-delta">{delta((s) => s.kpm, 1)}</small>
+              <dt>{t(`speed.${unit}`)}</dt>
+              <dd>{currentSpeed === null ? '–' : whole(currentSpeed)}</dd>
+              <small className="stat-delta">{delta((s) => speedIn(unit, s), 1)}</small>
             </div>
             <div>
               <dt>{t('stats.trend.practiced')}</dt>

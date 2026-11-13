@@ -19,7 +19,9 @@ import { newId, trainingRepo } from '../../lib/db';
 import { recordExam, type ExamBest } from '../../lib/examRecords';
 import { hasSeenExamRules, markExamRulesSeen } from '../../lib/flags';
 import { loadSettings } from '../../lib/settings';
+import { speedIn } from '../../lib/speed';
 import { BackIcon, InfoIcon } from '../../ui/icons';
+import { SpeedNote, speedText } from '../training/DrillResult';
 import { Furigana } from '../training/Furigana';
 import { TrainingInput } from '../training/TrainingInput';
 import { ExamRules } from './ExamRules';
@@ -293,6 +295,9 @@ function ExamResult({
 }) {
   const { t } = useTranslation();
   const { summary, isBest, previous } = outcome;
+  const unit = loadSettings().speedUnit;
+  // 예전 최고 기록은 가나/분만 있어 CPM·WPM으로 바꿀 수 없으면 알리지 않는다
+  const previousSpeed = previous ? speedIn(unit, previous) : null;
   return (
     <section>
       <h1 className="screen-title">
@@ -300,13 +305,15 @@ function ExamResult({
       </h1>
       {isBest ? (
         <p className="exam-best is-new">{t('exam.newBest')}</p>
-      ) : previous ? (
-        <p className="exam-best">{t('exam.best', { kpm: Math.round(previous.kpm) })}</p>
+      ) : previousSpeed !== null ? (
+        <p className="exam-best">
+          {t('exam.best', { speed: Math.round(previousSpeed), unit: t(`speed.${unit}`) })}
+        </p>
       ) : null}
       <dl className="stats">
         <div>
-          <dt>{t('result.speed')}</dt>
-          <dd>{Math.round(summary.kpm)}</dd>
+          <dt>{t(`speed.${unit}`)}</dt>
+          <dd>{speedText(speedIn(unit, summary))}</dd>
         </div>
         <div>
           <dt>{t('result.accuracy')}</dt>
@@ -317,9 +324,7 @@ function ExamResult({
           <dd>{t('exam.linesValue', { count: summary.lines })}</dd>
         </div>
       </dl>
-      {summary.wpm == null ? null : (
-        <p className="screen-note">{t('result.wpm', { wpm: Math.round(summary.wpm) })}</p>
-      )}
+      <SpeedNote unit={unit} />
 
       <h2 className="section-label">{t('result.missed')}</h2>
       {summary.missed.length > 0 ? (

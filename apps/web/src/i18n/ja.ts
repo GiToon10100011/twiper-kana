@@ -326,7 +326,7 @@ export const ja: typeof ko = {
     lines: '終えた行',
     linesValue: '{{count}}行',
     newBest: '自己ベストです！',
-    best: 'これまでの最高 {{kpm}}字/分',
+    best: 'これまでの最高 {{speed}} {{unit}}',
     confirmReading:
       '読みは正解ですが、下線の漢字を候補で変換せずに確定しました。直してもいいし、右下のキーをもう一度押すと進みます。この漢字は点数に半分だけ入ります。',
     rules: {
@@ -396,7 +396,6 @@ export const ja: typeof ko = {
     accuracy: '正答率',
     plays: '受験',
     playsValue: '{{count}}回',
-    kpmUnit: '字/分',
     start: '{{min}}分テストを始める',
     pending: '試作：「{{name}}」{{min}}分テストはまだ作っていないため開けません。',
   },
@@ -433,9 +432,9 @@ export const ja: typeof ko = {
       practiced: '練習した日',
       dayCount: '{{count}}日',
       lines: '{{count}}行',
-      speedTitle: '速さ（かな/分）',
+      speedTitle: '速さ（{{unit}}）',
       accuracyChart: '最近{{days}}日間、毎日の一発正解率',
-      speedChart: '最近{{days}}日間、毎日の速さ（かな/分）',
+      speedChart: '最近{{days}}日間、毎日の速さ（{{unit}}）',
       date: '{{month}}月{{day}}日',
       readout: '{{date}}・{{value}}・{{count}}行',
       noPractice: '{{date}}・練習なし',
@@ -450,12 +449,10 @@ export const ja: typeof ko = {
   result: {
     title: '{{level}} 完了',
     accuracy: '一発正解率',
-    speed: 'かな/分',
     time: '時間',
     minutes: '{{min}}分{{sec}}秒',
     seconds: '{{sec}}秒',
     vsLast: '前回より {{value}}',
-    wpm: '英文タイピングに換算すると約{{wpm}} WPMです。打ったかなをヘボン式ローマ字にして、5文字を1語として数えた参考値です。',
     points: '{{value}}pt',
     missed: '間違えた文字',
     kinds: '間違いの種類',
@@ -484,6 +481,15 @@ export const ja: typeof ko = {
     home: 'ホームへ',
     steps: 'ステップ一覧へ',
   },
+  speed: {
+    kpm: 'かな/分',
+    cpm: 'CPM',
+    wpm: 'WPM',
+    note: {
+      cpm: 'CPMは、打ったかなをヘボン式ローマ字にして1分間に打った文字数として数えた速さです。',
+      wpm: 'WPMは、打ったかなをヘボン式ローマ字にして5文字を1語として数えた速さです。',
+    },
+  },
   pwa: {
     update: '新しいバージョンがあります。',
     reload: '更新',
@@ -499,6 +505,9 @@ export const ja: typeof ko = {
     requireKanji: '漢字は変換して正解',
     requireKanjiHint:
       'オンにすると、漢字は候補で選んで変換しないと進みません。オフにすると、上の読み（かな）のとおりに打つだけで進みます。カタカナはどちらでも変換が必要です。',
+    speedUnit: '速さの単位',
+    speedUnitHint:
+      '結果・総合テスト・推移に表示する速さの単位です。CPMとWPMは打ったかなをヘボン式ローマ字にして、CPMは1分間に打った文字数、WPMは5文字を1語として数えます。',
     helpIdle: 'ヒントを出すまでの時間',
     helpIdleHint:
       '練習中、次の文字でこの時間止まっていると打ち方を表示します。同じ文字を2回まちがえたときは時間に関係なく表示します。初期設定は3分です。',

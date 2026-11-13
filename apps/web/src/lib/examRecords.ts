@@ -5,6 +5,8 @@ const EXAM_KEY = 'twiper.exams.v1';
 /** 종목별 최고 기록. 속도(가나/분)가 가장 빨랐던 판 */
 export interface ExamBest {
   readonly kpm: number;
+  /** 같은 판의 WPM (헤본식 로마자 5글자 = 1단어). CPM·WPM으로 보일 때 쓴다. 이 값을 남기기 전의 기록에는 없다 */
+  readonly wpm?: number;
   /** 그 판의 첫 시도 정확도 (0–1) */
   readonly accuracy: number;
   /** 그 판의 시간 (분) */
@@ -26,6 +28,7 @@ const isBest = (value: unknown): value is ExamBest => {
   const best = value as Record<string, unknown>;
   return (
     typeof best.kpm === 'number' &&
+    (best.wpm === undefined || typeof best.wpm === 'number') &&
     typeof best.accuracy === 'number' &&
     typeof best.minutes === 'number' &&
     typeof best.at === 'string'
@@ -69,7 +72,7 @@ function saveExamRecords(records: ExamRecords): boolean {
 /** 시간을 끝까지 채운 판을 기록한다. 더 빨랐으면 최고 기록을 바꾼다 */
 export function recordExam(
   mode: ExamMode,
-  summary: Pick<ExamSummary, 'kpm' | 'accuracy'>,
+  summary: Pick<ExamSummary, 'kpm' | 'accuracy' | 'wpm'>,
   minutes: number,
   now = new Date(),
 ): { records: ExamRecords; isBest: boolean; previous: ExamBest | null } {
@@ -78,7 +81,13 @@ export function recordExam(
   const previous = prev?.best ?? null;
   const faster = summary.kpm > 0 && (previous === null || summary.kpm > previous.kpm);
   const best: ExamBest | null = faster
-    ? { kpm: summary.kpm, accuracy: summary.accuracy, minutes, at: now.toISOString() }
+    ? {
+        kpm: summary.kpm,
+        ...(summary.wpm == null ? {} : { wpm: summary.wpm }),
+        accuracy: summary.accuracy,
+        minutes,
+        at: now.toISOString(),
+      }
     : previous;
   const updated: ExamRecords = { ...records, [mode]: { plays: (prev?.plays ?? 0) + 1, best } };
   saveExamRecords(updated);

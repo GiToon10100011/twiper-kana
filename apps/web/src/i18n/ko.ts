@@ -325,7 +325,7 @@ export const ko = {
     lines: '끝낸 줄',
     linesValue: '{{count}}줄',
     newBest: '최고 기록이에요!',
-    best: '지금까지 최고 {{kpm}}가나/분',
+    best: '지금까지 최고 {{speed}} {{unit}}',
     confirmReading:
       '읽기는 맞지만 밑줄 친 한자를 후보에서 바꾸지 않고 確定했어요. 고쳐도 되고, 오른쪽 아래 키를 한 번 더 누르면 넘어가요. 이 한자는 점수에 절반만 들어가요.',
     rules: {
@@ -393,7 +393,6 @@ export const ko = {
     accuracy: '정확도',
     plays: '응시',
     playsValue: '{{count}}회',
-    kpmUnit: '가나/분',
     start: '{{min}}분 테스트 시작',
     pending: '시안: 「{{name}}」 {{min}}분 테스트는 아직 만들기 전이라 열리지 않아요.',
   },
@@ -429,9 +428,9 @@ export const ko = {
       practiced: '연습한 날',
       dayCount: '{{count}}일',
       lines: '{{count}}줄',
-      speedTitle: '속도 (가나/분)',
+      speedTitle: '속도 ({{unit}})',
       accuracyChart: '최근 {{days}}일, 날마다 첫 시도 정확도',
-      speedChart: '최근 {{days}}일, 날마다 속도 (가나/분)',
+      speedChart: '최근 {{days}}일, 날마다 속도 ({{unit}})',
       date: '{{month}}월 {{day}}일',
       readout: '{{date}} · {{value}} · {{count}}줄',
       noPractice: '{{date}} · 연습 안 함',
@@ -446,12 +445,10 @@ export const ko = {
   result: {
     title: '{{level}} 끝',
     accuracy: '첫 시도 정확도',
-    speed: '가나/분',
     time: '시간',
     minutes: '{{min}}분 {{sec}}초',
     seconds: '{{sec}}초',
     vsLast: '지난번보다 {{value}}',
-    wpm: '영문 타자로 치면 약 {{wpm}} WPM이에요. 친 가나를 헤본식 로마자로 바꿔 5글자를 한 단어로 센 참고 값이에요.',
     points: '{{value}}%p',
     missed: '틀린 글자',
     kinds: '틀린 종류',
@@ -478,6 +475,15 @@ export const ko = {
     home: '홈으로',
     steps: '단계별 익히기로',
   },
+  speed: {
+    kpm: '가나/분',
+    cpm: 'CPM',
+    wpm: 'WPM',
+    note: {
+      cpm: 'CPM은 친 가나를 헤본식 로마자로 바꿔 1분에 친 글자 수로 센 속도예요.',
+      wpm: 'WPM은 친 가나를 헤본식 로마자로 바꿔 5글자를 한 단어로 센 속도예요.',
+    },
+  },
   pwa: {
     update: '새 버전이 있어요.',
     reload: '업데이트',
@@ -493,6 +499,9 @@ export const ko = {
     requireKanji: '한자는 바꿔야 정답',
     requireKanjiHint:
       '켜 두면 한자를 후보에서 골라 바꿔야 넘어가요. 끄면 한자 위의 읽기(가나)대로만 쳐도 돼요. 가타카나는 어느 쪽이든 바꿔야 해요.',
+    speedUnit: '속도 단위',
+    speedUnitHint:
+      '결과·종합 테스트·추세에 보일 속도 단위예요. CPM과 WPM은 친 가나를 헤본식 로마자로 바꿔, CPM은 1분에 친 글자 수로, WPM은 5글자를 한 단어로 세요.',
     helpIdle: '도움말 기다리는 시간',
     helpIdleHint:
       '연습 중 다음 글자에서 이만큼 멈춰 있으면 치는 법을 보여 줘요. 같은 글자를 두 번 틀리면 시간과 관계없이 보여 줘요. 기본은 3분이에요.',

@@ -52,7 +52,14 @@ describe('summarizeAttempts', () => {
       line('2026-11-09', 'さしすせそ', 5_000),
     ]);
 
-    expect(summary).toEqual({ lines: 2, units: 10, accuracy: 9 / 10, kpm: 10 / 0.25 });
+    // kakikukeko + sashisuseso = 로마자 21글자
+    expect(summary).toEqual({
+      lines: 2,
+      units: 10,
+      accuracy: 9 / 10,
+      kpm: 10 / 0.25,
+      wpm: 21 / 5 / 0.25,
+    });
   });
 
   it('로마자 키보드로 친 줄과 더 친 글자는 세지 않고, 시간을 못 잰 줄은 속도에서만 뺀다', () => {
@@ -69,11 +76,24 @@ describe('summarizeAttempts', () => {
       line('2026-11-09', 'さし', 1_000, [], ['romaji-suspected']),
     ]);
 
-    expect(summary).toEqual({ lines: 2, units: 4, accuracy: 3 / 4, kpm: 2 / (2_000 / 60_000) });
+    expect(summary).toEqual({
+      lines: 2,
+      units: 4,
+      accuracy: 3 / 4,
+      kpm: 2 / (2_000 / 60_000),
+      // 시간을 잰 줄 あい = ai
+      wpm: 2 / 5 / (2_000 / 60_000),
+    });
   });
 
   it('줄이 없으면 정확도와 속도는 null', () => {
-    expect(summarizeAttempts([])).toEqual({ lines: 0, units: 0, accuracy: null, kpm: null });
+    expect(summarizeAttempts([])).toEqual({
+      lines: 0,
+      units: 0,
+      accuracy: null,
+      kpm: null,
+      wpm: null,
+    });
   });
 });
 
@@ -128,7 +148,7 @@ describe('trendChange', () => {
       7,
     );
 
-    expect(change.current).toEqual({ lines: 2, units: 10, accuracy: 1, kpm: 60 });
-    expect(change.previous).toEqual({ lines: 2, units: 10, accuracy: 9 / 10, kpm: 30 });
+    expect(change.current).toMatchObject({ lines: 2, units: 10, accuracy: 1, kpm: 60 });
+    expect(change.previous).toMatchObject({ lines: 2, units: 10, accuracy: 9 / 10, kpm: 30 });
   });
 });

@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { DrillSummary, MistakeKind } from '@twiper/core';
 import type { Level } from '@twiper/content';
+import { loadSettings, type SpeedUnit } from '../../lib/settings';
+import { speedIn } from '../../lib/speed';
 import type { PracticeOptions } from './Drill';
 import { levelTitle } from './levelTitle';
 
@@ -22,6 +24,18 @@ interface DrillResultProps {
 /** +4, −3, ±0 */
 const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `\u{2212}${-n}` : '\u{00B1}0');
 
+/**
+ * 속도를 CPM·WPM으로 보일 때 그 계산법 한 줄 (계획 §12 「계산법을 화면에 명시」). 가나/분이면 보이지 않는다.
+ * 연습 결과·종합 테스트 결과
+ */
+export function SpeedNote({ unit }: { unit: SpeedUnit }) {
+  const { t } = useTranslation();
+  return unit === 'kpm' ? null : <p className="screen-note">{t(`speed.note.${unit}`)}</p>;
+}
+
+/** 설정한 단위의 속도 칸 값 (잴 수 없거나 그 단위로 바꿀 수 없으면 –) */
+export const speedText = (speed: number | null) => (speed === null ? '–' : Math.round(speed));
+
 export function DrillResult({
   title,
   summary,
@@ -31,13 +45,15 @@ export function DrillResult({
   practice,
 }: DrillResultProps) {
   const { t } = useTranslation();
+  const unit = loadSettings().speedUnit;
   const accuracyDelta = previous
     ? Math.round(summary.accuracy * 100) - Math.round(previous.accuracy * 100)
     : null;
-  const kpmDelta =
-    previous?.kpm != null && summary.kpm !== null
-      ? Math.round(summary.kpm) - Math.round(previous.kpm)
-      : null;
+  const speed = speedIn(unit, summary);
+  // 지난 판이 그 단위로 바꿀 수 없는 예전 기록이면 비교하지 않는다
+  const previousSpeed = previous ? speedIn(unit, previous) : null;
+  const speedDelta =
+    speed !== null && previousSpeed !== null ? Math.round(speed) - Math.round(previousSpeed) : null;
   const passed = summary.accuracy >= PASS_ACCURACY;
   // 많은 순. 종류를 알 수 없는 '기타'는 맨 뒤
   const kinds = (Object.entries(summary.mistakeKinds) as [MistakeKind, number][])
@@ -63,10 +79,12 @@ export function DrillResult({
           )}
         </div>
         <div>
-          <dt>{t('result.speed')}</dt>
-          <dd>{summary.kpm === null ? '–' : Math.round(summary.kpm)}</dd>
-          {kpmDelta === null ? null : (
-            <small className="stat-delta">{t('result.vsLast', { value: signed(kpmDelta) })}</small>
+          <dt>{t(`speed.${unit}`)}</dt>
+          <dd>{speedText(speed)}</dd>
+          {speedDelta === null ? null : (
+            <small className="stat-delta">
+              {t('result.vsLast', { value: signed(speedDelta) })}
+            </small>
           )}
         </div>
         <div>
@@ -74,9 +92,7 @@ export function DrillResult({
           <dd>{time}</dd>
         </div>
       </dl>
-      {summary.wpm == null ? null : (
-        <p className="screen-note">{t('result.wpm', { wpm: Math.round(summary.wpm) })}</p>
-      )}
+      <SpeedNote unit={unit} />
 
       <h2 className="section-label">{t('result.missed')}</h2>
       {summary.missed.length > 0 ? (

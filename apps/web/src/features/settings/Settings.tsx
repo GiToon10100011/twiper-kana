@@ -7,6 +7,7 @@ import {
   HELP_IDLE_CHOICES,
   loadSettings,
   saveSettings,
+  SPEED_UNITS,
   type Settings as SettingsValue,
 } from '../../lib/settings';
 import { BackIcon } from '../../ui/icons';
@@ -104,6 +105,20 @@ export function Settings() {
               value={settings.helpIdleMs}
               options={HELP_IDLE_CHOICES.map((ms) => [ms, idleLabel(ms)] as const)}
               onChange={(helpIdleMs) => update({ ...settings, helpIdleMs })}
+            />
+          </div>
+        </li>
+        <li>
+          <div className="setting-row is-stacked">
+            <span>
+              <span className="setting-name">{t('settings.speedUnit')}</span>
+              <small>{t('settings.speedUnitHint')}</small>
+            </span>
+            <Pills
+              label={t('settings.speedUnit')}
+              value={settings.speedUnit}
+              options={SPEED_UNITS.map((unit) => [unit, t(`speed.${unit}`)] as const)}
+              onChange={(speedUnit) => update({ ...settings, speedUnit })}
             />
           </div>
         </li>

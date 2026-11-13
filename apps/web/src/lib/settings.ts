@@ -6,6 +6,13 @@ const SETTINGS_KEY = 'twiper.settings.v1';
 /** 도움말을 기다리는 시간으로 고를 수 있는 값 (ms). 0은 기다려도 띄우지 않는다 */
 export const HELP_IDLE_CHOICES: readonly number[] = [30_000, 60_000, 180_000, 300_000, 0];
 
+/**
+ * 속도 단위: 가나/분(기본) · CPM(1분에 친 헤본식 로마자 글자 수) · WPM(로마자 5글자 = 1단어).
+ * 결과·종합 테스트·홈 최고 속도·추세에 함께 쓴다
+ */
+export const SPEED_UNITS = ['kpm', 'cpm', 'wpm'] as const;
+export type SpeedUnit = (typeof SPEED_UNITS)[number];
+
 export interface Settings {
   /** 순서와 관계없이 모든 레벨을 연다 */
   readonly unlockAll: boolean;
@@ -18,6 +25,8 @@ export interface Settings {
   readonly requireKanji: boolean;
   /** 화면 언어. auto는 기기 언어를 따른다 */
   readonly language: LanguageChoice;
+  /** 화면에 보일 속도 단위 */
+  readonly speedUnit: SpeedUnit;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -25,7 +34,11 @@ export const DEFAULT_SETTINGS: Settings = {
   helpIdleMs: HELP_POLICY.idleMs,
   requireKanji: true,
   language: 'auto',
+  speedUnit: 'kpm',
 };
+
+const isSpeedUnit = (value: unknown): value is SpeedUnit =>
+  SPEED_UNITS.some((unit) => unit === value);
 
 const isLanguageChoice = (value: unknown): value is LanguageChoice =>
   value === 'auto' || LOCALES.some((locale) => locale === value);
@@ -36,7 +49,10 @@ export function loadSettings(): Settings {
     if (!raw) return DEFAULT_SETTINGS;
     const parsed: unknown = JSON.parse(raw);
     if (typeof parsed !== 'object' || parsed === null) return DEFAULT_SETTINGS;
-    const { unlockAll, helpIdleMs, requireKanji, language } = parsed as Record<string, unknown>;
+    const { unlockAll, helpIdleMs, requireKanji, language, speedUnit } = parsed as Record<
+      string,
+      unknown
+    >;
     return {
       unlockAll: unlockAll === true,
       helpIdleMs:
@@ -46,6 +62,7 @@ export function loadSettings(): Settings {
       // 예전에 저장한 설정에는 없으므로 껐을 때만 끈다
       requireKanji: requireKanji !== false,
       language: isLanguageChoice(language) ? language : DEFAULT_SETTINGS.language,
+      speedUnit: isSpeedUnit(speedUnit) ? speedUnit : DEFAULT_SETTINGS.speedUnit,
     };
   } catch {
     return DEFAULT_SETTINGS;

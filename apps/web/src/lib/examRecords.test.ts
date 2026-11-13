@@ -24,6 +24,12 @@ describe('examRecords', () => {
     expect(loadExamRecords().word).toBeUndefined();
   });
 
+  it('최고 기록에 로마자 속도(WPM)를 함께 남겨 CPM·WPM으로도 보일 수 있게 한다', () => {
+    recordExam('word', { kpm: 90, accuracy: 1, wpm: 30 }, 1, at);
+
+    expect(loadExamRecords().word?.best).toMatchObject({ kpm: 90, wpm: 30 });
+  });
+
   it('하나도 못 쳤으면 응시만 세고 최고 기록은 남기지 않는다', () => {
     recordExam('long', { kpm: 0, accuracy: 0 }, 1, at);
 

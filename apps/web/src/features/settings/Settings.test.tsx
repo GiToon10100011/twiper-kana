@@ -57,6 +57,29 @@ describe('Settings', () => {
     expect(screen.getByRole('button', { name: 'Device' })).toBeTruthy();
   });
 
+  it('속도 단위는 처음에 가나/분이고, CPM을 고르면 저장된다', () => {
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>,
+    );
+    const units = screen.getByRole('group', { name: '속도 단위' });
+    expect(
+      [...units.querySelectorAll('button')].map((b) => [
+        b.textContent,
+        b.getAttribute('aria-pressed'),
+      ]),
+    ).toEqual([
+      ['가나/분', 'true'],
+      ['CPM', 'false'],
+      ['WPM', 'false'],
+    ]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'CPM' }));
+
+    expect(loadSettings().speedUnit).toBe('cpm');
+  });
+
   it('「모든 레슨 열기」를 켜면 저장된다', () => {
     render(
       <MemoryRouter>

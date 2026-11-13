@@ -20,7 +20,6 @@ test('글자 1분 테스트를 치고 시간이 끝나면 결과가 나오고, �
   await expect(page.getByRole('heading', { name: /글자 테스트 끝/ })).toBeVisible();
   await expect(page.getByText('2줄')).toBeVisible();
   await expect(page.getByText('최고 기록이에요!')).toBeVisible();
-  await expect(page.getByText(/^영문 타자로 치면 약 \d+ WPM이에요/)).toBeVisible();
 
   await page.goto('/');
   await expect(page.getByText('1회')).toBeVisible();
