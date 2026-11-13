@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import {
+  countFinishedSessions,
   replacesSession,
   type AttemptRecord,
   type SessionRecord,
@@ -38,6 +39,9 @@ export function createDexieRepo(name = 'twiper'): TrainingRepo {
         .filter((session) => session.endedAt !== null)
         .limit(limit)
         .toArray();
+    },
+    async finishedSessionCounts() {
+      return countFinishedSessions(await db.sessions.toArray());
     },
     attemptsOf(sessionId) {
       return db.attempts.where('sessionId').equals(sessionId).sortBy('id');

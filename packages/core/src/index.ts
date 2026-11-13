@@ -66,6 +66,31 @@ export { isAttemptRecord, isSessionRecord, replacesSession } from './record/dump
 export { createMemoryRepo } from './record/memoryRepo';
 export { ulid } from './record/ulid';
 export {
+  countFinishedSessions,
+  legacyPlaysOf,
+  mergeLegacyPlays,
+  playsOf,
+  type LegacyPlays,
+  type PlayCounts,
+} from './sync/plays';
+export {
+  mergeExamRecord,
+  mergeLevelRecord,
+  type ExamBest,
+  type ExamRecord,
+  type ExamRecords,
+  type LevelRecord,
+  type Progress,
+} from './sync/records';
+export {
+  isLaterStamp,
+  mergeStamped,
+  nextStampAt,
+  type Stamp,
+  type StampedValues,
+  type Stamps,
+} from './sync/stamp';
+export {
   confusions,
   dueReviews,
   REVIEW_INTERVALS,

@@ -1,3 +1,4 @@
+import { countFinishedSessions } from '../sync/plays';
 import { replacesSession } from './dump';
 import type { AttemptRecord, SessionRecord, TrainingRepo } from './types';
 
@@ -21,6 +22,9 @@ export function createMemoryRepo(): TrainingRepo {
           .sort((a, b) => b.startedAt.localeCompare(a.startedAt))
           .slice(0, limit),
       );
+    },
+    finishedSessionCounts() {
+      return Promise.resolve(countFinishedSessions([...sessions.values()]));
     },
     attemptsOf(sessionId) {
       return Promise.resolve(attempts.filter((a) => a.sessionId === sessionId));

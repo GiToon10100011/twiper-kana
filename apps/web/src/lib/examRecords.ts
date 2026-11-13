@@ -1,34 +1,19 @@
-import type { ExamMode, ExamSummary } from '@twiper/core';
+import {
+  mergeExamRecord,
+  type ExamBest,
+  type ExamMode,
+  type ExamRecord,
+  type ExamRecords,
+  type ExamSummary,
+} from '@twiper/core';
 import type { SpeedUnit } from './settings';
 
 const EXAM_KEY = 'twiper.exams.v1';
 
-/** 최고 기록으로 남긴 한 판 */
-export interface ExamBest {
-  readonly kpm: number;
-  /** 그 판의 WPM (헤본식 로마자 5글자 = 1단어). 이 값을 남기기 전의 기록에는 없다 */
-  readonly wpm?: number;
-  /** 그 판의 첫 시도 정확도 (0–1) */
-  readonly accuracy: number;
-  /** 그 판의 시간 (분) */
-  readonly minutes: number;
-  /** ISO 8601 */
-  readonly at: string;
-}
+export type { ExamBest, ExamRecord, ExamRecords } from '@twiper/core';
 
-export interface ExamRecord {
-  /** 시간을 끝까지 채운 횟수 */
-  readonly plays: number;
-  /** 가나/분이 가장 빨랐던 판 */
-  readonly best: ExamBest | null;
-  /**
-   * 로마자 속도(CPM·WPM)가 가장 빨랐던 판. 가나 한 글자의 로마자 길이가 줄마다 달라 best와 다른 판일 수 있다.
-   * 로마자 속도를 남기기 전의 기록에는 없다
-   */
-  readonly romajiBest?: ExamBest & { readonly wpm: number };
-}
-
-export type ExamRecords = Readonly<Partial<Record<ExamMode, ExamRecord>>>;
+/** 종합 테스트 세션의 levelId (세션으로 응시 횟수를 센다) */
+export const examLevelId = (mode: ExamMode): string => `test-${mode}`;
 
 const isBest = (value: unknown): value is ExamBest => {
   if (typeof value !== 'object' || value === null) return false;
@@ -120,16 +105,9 @@ export function recordExam(
   return { records: updated, faster: { kana, romaji }, previous };
 }
 
-/** 둘 중 speed가 빠른 쪽 (같으면 a) */
-const fasterOf = <T extends ExamBest>(
-  a: T | null | undefined,
-  b: T | null | undefined,
-  speed: (best: T) => number,
-) => (a == null ? b : b == null || speed(a) >= speed(b) ? a : b);
-
 /**
- * 백업 파일의 종목별 기록을 합친다. 횟수는 큰 쪽, 최고 기록은 가나/분·로마자 속도마다 빠른 쪽을 남겨
- * 같은 파일을 두 번 합쳐도 그대로다. 바뀐 종목 수와, 바뀐 기록을 저장했는지(바뀐 게 없으면 true)를 돌려준다
+ * 백업 파일의 종목별 기록을 합친다. 최고 기록은 가나/분·로마자 속도마다 빠른 쪽을 남겨
+ * 같은 파일을 두 번 합쳐도 그대로다. 응시 횟수는 합친 뒤 끝난 세션 수와 옛 횟수로 다시 센다 (lib/plays). 바뀐 종목 수와, 바뀐 기록을 저장했는지(바뀐 게 없으면 true)를 돌려준다
  */
 export function mergeExamRecords(incoming: ExamRecords): { changed: number; persisted: boolean } {
   const records = loadExamRecords();
@@ -137,14 +115,7 @@ export function mergeExamRecords(incoming: ExamRecords): { changed: number; pers
   let changed = 0;
   for (const [mode, record] of Object.entries(incoming)) {
     const prev = merged[mode];
-    const romajiBest = prev && fasterOf(prev.romajiBest, record.romajiBest, (best) => best.wpm);
-    const next: ExamRecord = prev
-      ? {
-          plays: Math.max(prev.plays, record.plays),
-          best: fasterOf(prev.best, record.best, (best) => best.kpm) ?? null,
-          ...(romajiBest ? { romajiBest } : {}),
-        }
-      : record;
+    const next: ExamRecord = prev ? mergeExamRecord(prev, record) : record;
     if (
       prev &&
       prev.plays === next.plays &&
@@ -157,4 +128,21 @@ export function mergeExamRecords(incoming: ExamRecords): { changed: number; pers
     changed += 1;
   }
   return { changed, persisted: changed === 0 || saveExamRecords(merged) };
+}
+
+/** 종목마다 응시 횟수를 playsOf(종목)으로 바꾼다. 바뀐 종목 수와, 저장했는지를 돌려준다 */
+export function replaceExamPlays(playsOf: (mode: ExamMode) => number): {
+  changed: number;
+  persisted: boolean;
+} {
+  const records = loadExamRecords();
+  const updated: Partial<Record<ExamMode, ExamRecord>> = { ...records };
+  let changed = 0;
+  for (const [mode, record] of Object.entries(records) as [ExamMode, ExamRecord][]) {
+    const plays = playsOf(mode);
+    if (plays === record.plays) continue;
+    updated[mode] = { ...record, plays };
+    changed += 1;
+  }
+  return { changed, persisted: changed === 0 || saveExamRecords(updated) };
 }

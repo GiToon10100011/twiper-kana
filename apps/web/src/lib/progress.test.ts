@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest';
 import { clearedLevels, loadProgress, recordLevel } from './progress';
-import { loadSettings, saveSettings } from './settings';
+import { loadSettingStamps, loadSettings, saveSettings } from './settings';
 
 afterEach(() => localStorage.clear());
 
@@ -97,5 +97,22 @@ describe('settings', () => {
       language: 'auto',
       speedUnit: 'kpm',
     });
+  });
+
+  it('바꾼 항목에만 바꾼 때와 기기를 찍고, 다음에 찍는 때는 앞서 찍은 때보다 늦다', () => {
+    saveSettings({ ...loadSettings(), speedUnit: 'cpm' }, 1_000);
+    const first = loadSettingStamps();
+    expect(Object.keys(first)).toEqual(['speedUnit']);
+    expect(first.speedUnit?.at).toBe(1_000);
+    expect(first.speedUnit?.deviceId).toMatch(/^[0-9A-Z]{26}$/u);
+
+    // 시계가 거꾸로 가도 나중에 바꾼 것이 늦게 찍힌다
+    saveSettings({ ...loadSettings(), unlockAll: true }, 500);
+    expect(loadSettingStamps().unlockAll?.at).toBe(1_001);
+    expect(loadSettingStamps().speedUnit?.at).toBe(1_000);
+
+    // 바뀐 것이 없으면 찍지 않는다
+    saveSettings(loadSettings(), 9_000);
+    expect(loadSettingStamps().unlockAll?.at).toBe(1_001);
   });
 });

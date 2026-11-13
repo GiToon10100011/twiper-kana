@@ -132,6 +132,8 @@ describe('createDexieRepo', () => {
     });
     expect(await repo.attemptTimes()).toEqual([at(1), at(2), at(3)]);
     expect((await repo.finishedSessions('L1', 10)).map((x) => x.id)).toEqual(['S2', 'S1']);
+    // 끝난 세션 수로 플레이 횟수를 다시 센다
+    expect(await repo.finishedSessionCounts()).toEqual({ L1: 2, L2: 1 });
 
     expect(await repo.mergeRecords(incoming)).toEqual({
       attempts: 0,
@@ -147,6 +149,7 @@ describe('resilientRepo', () => {
       saveAttempt: () => Promise.reject(new Error('blocked')),
       saveSession: () => Promise.reject(new Error('blocked')),
       finishedSessions: () => Promise.reject(new Error('blocked')),
+      finishedSessionCounts: () => Promise.reject(new Error('blocked')),
       attemptsOf: () => Promise.reject(new Error('blocked')),
       recentAttempts: () => Promise.reject(new Error('blocked')),
       attemptTimes: () => Promise.reject(new Error('blocked')),

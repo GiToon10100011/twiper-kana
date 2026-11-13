@@ -7,6 +7,7 @@ import {
   type AttemptRecord,
   type InputErrorCause,
   type JudgeMode,
+  type SessionRecord,
   type TrainingRepo,
 } from '@twiper/core';
 import { backupFileName, createBackup, parseBackup, restoreBackup } from './backup';
@@ -37,6 +38,20 @@ const attempt = (id: string, minute: number): AttemptRecord =>
   });
 
 const day = (date: number) => new Date(Date.UTC(2026, 10, date, 3));
+
+const finished = (id: string, levelId: string): SessionRecord => ({
+  id,
+  levelId,
+  startedAt: day(5).toISOString(),
+  endedAt: day(5).toISOString(),
+  summary: null,
+});
+
+/** 레벨을 한 판 끝낸다: 세션을 남기고 진도를 기록한다 (Drill과 같다) */
+const play = async (repo: TrainingRepo, sessionId: string, levelId: string) => {
+  await repo.saveSession(finished(sessionId, levelId));
+  recordLevel(levelId, { accuracy: 0.9, kpm: 40 }, day(5));
+};
 
 describe('backup', () => {
   it('진도·종합 테스트 기록·연습 기록을 한 파일에 담고, 다시 읽으면 그대로다', async () => {
@@ -199,5 +214,50 @@ describe('backup', () => {
     expect(loadProgress()).toEqual({});
     // 훈련 결과는 저장하지 못해도 화면에 보여 줄 기록을 돌려준다
     expect(recordLevel('L2', { accuracy: 1, kpm: 50 }, day(6)).L2?.plays).toBe(1);
+  });
+
+  it('두 기기의 백업을 서로 가져오면 플레이 횟수가 더해지고, 다시 가져와도 늘지 않는다', async () => {
+    // 기기 A에서 두 판
+    const deviceA = savedRepo();
+    await play(deviceA, 'SA1', 'L1');
+    await play(deviceA, 'SA2', 'L1');
+    const backup = await createBackup(deviceA, day(6));
+
+    // 기기 B(저장소가 따로)에서 한 판
+    localStorage.clear();
+    const deviceB = savedRepo();
+    await play(deviceB, 'SB1', 'L1');
+
+    await restoreBackup(backup, deviceB);
+    expect(loadProgress().L1?.plays).toBe(3);
+    await restoreBackup(backup, deviceB);
+    expect(loadProgress().L1?.plays).toBe(3);
+  });
+
+  it('옛 횟수가 없는 예전 백업은 횟수에서 끝난 세션 수를 뺀 만큼을 옛 횟수로 옮긴다', async () => {
+    const backup = parseBackup(
+      JSON.stringify({
+        format: 'twiper-backup',
+        version: 1,
+        progress: {
+          L1: { clearedAt: day(1).toISOString(), plays: 4, bestAccuracy: 1, bestKpm: 40 },
+        },
+        exams: {},
+        attempts: [],
+        sessions: [finished('S1', 'L1')],
+      }),
+    );
+    if (!backup) throw new Error('백업을 읽지 못함');
+    const repo = savedRepo();
+
+    // 세션 1판 + 세션을 남기기 전의 3판
+    await restoreBackup(backup, repo);
+    expect(loadProgress().L1?.plays).toBe(4);
+    await restoreBackup(backup, repo);
+    expect(loadProgress().L1?.plays).toBe(4);
+    // 그 뒤로 친 판은 세션과 함께 하나씩 늘어난다
+    await play(repo, 'S2', 'L1');
+    await restoreBackup(backup, repo);
+    expect(loadProgress().L1?.plays).toBe(5);
   });
 });
