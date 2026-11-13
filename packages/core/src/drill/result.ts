@@ -1,5 +1,6 @@
 import type { InputSessionState } from '../input/types';
 import { classifyMistake, type MistakeKind } from '../kana/classify';
+import { wordsPerMinute } from '../kana/romaji';
 import type { DrillSummary, LineResult } from './types';
 
 type KindCounts = Partial<Record<MistakeKind, number>>;
@@ -74,6 +75,14 @@ export function summarizeDrill(results: readonly LineResult[]): DrillSummary {
     firstTryUnits,
     accuracy: units > 0 ? firstTryUnits / units : 0,
     kpm: totalMs > 0 ? timedUnits / (totalMs / 60_000) : null,
+    // 가나/분과 같은 줄(시간을 잰 줄)과 같은 시간으로 잰다
+    wpm: wordsPerMinute(
+      results
+        .filter((result) => result.elapsedMs !== null)
+        .map((result) => result.target)
+        .join(''),
+      totalMs,
+    ),
     totalMs,
     missed,
     mistakeKinds,

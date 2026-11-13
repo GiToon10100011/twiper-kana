@@ -317,6 +317,9 @@ function ExamResult({
           <dd>{t('exam.linesValue', { count: summary.lines })}</dd>
         </div>
       </dl>
+      {summary.wpm == null ? null : (
+        <p className="screen-note">{t('result.wpm', { wpm: Math.round(summary.wpm) })}</p>
+      )}
 
       <h2 className="section-label">{t('result.missed')}</h2>
       {summary.missed.length > 0 ? (

@@ -9,6 +9,10 @@ test('Lv.1을 끝까지 치면 결과가 나오고, 다시 열어도 진도와 �
   expect(await playThrough(page)).toBe(8);
   await expect(page.getByText('100%').first()).toBeVisible();
   await expect(page.getByText('한 번도 틀리지 않았어요.')).toBeVisible();
+  // 참고용 WPM은 계산법과 함께 보인다
+  await expect(
+    page.getByText(/^영문 타자로 치면 약 \d+ WPM이에요\. .*헤본식 로마자/),
+  ).toBeVisible();
 
   // 다시 열어도 진도(localStorage)와 시도 기록(IndexedDB)이 남는다
   await page.goto('/steps');

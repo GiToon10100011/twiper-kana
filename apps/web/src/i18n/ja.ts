@@ -455,6 +455,7 @@ export const ja: typeof ko = {
     minutes: '{{min}}分{{sec}}秒',
     seconds: '{{sec}}秒',
     vsLast: '前回より {{value}}',
+    wpm: '英文タイピングに換算すると約{{wpm}} WPMです。打ったかなをヘボン式ローマ字にして、5文字を1語として数えた参考値です。',
     points: '{{value}}pt',
     missed: '間違えた文字',
     kinds: '間違いの種類',

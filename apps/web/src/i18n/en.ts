@@ -477,6 +477,7 @@ const english = {
     minutes: '{{min}} min {{sec}} s',
     seconds: '{{sec}} s',
     vsLast: '{{value}} vs last time',
+    wpm: 'About {{wpm}} WPM in English typing terms: the kana you typed, written in Hepburn romaji and counted as one word per 5 letters (for reference).',
     points: '{{value}} pts',
     missed: 'Missed characters',
     kinds: 'Mistake types',

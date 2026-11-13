@@ -165,6 +165,8 @@ describe('partialLineResult·summarizeExam', () => {
       firstTryUnits: 3,
       accuracy: 0.75,
       kpm: 8,
+      // aiu + 치던 줄은 맞춘 데까지 ka = 로마자 5글자 = 1단어 ÷ 0.5분
+      wpm: 2,
       durationMs: 30_000,
       mistakeKinds: { key: 1 },
     });

@@ -451,6 +451,7 @@ export const ko = {
     minutes: '{{min}}분 {{sec}}초',
     seconds: '{{sec}}초',
     vsLast: '지난번보다 {{value}}',
+    wpm: '영문 타자로 치면 약 {{wpm}} WPM이에요. 친 가나를 헤본식 로마자로 바꿔 5글자를 한 단어로 센 참고 값이에요.',
     points: '{{value}}%p',
     missed: '틀린 글자',
     kinds: '틀린 종류',

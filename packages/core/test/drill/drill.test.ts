@@ -312,6 +312,8 @@ describe('summarizeDrill', () => {
     expect(summary.firstTryUnits).toBe(7);
     expect(summary.accuracy).toBeCloseTo(0.7);
     expect(summary.kpm).toBeCloseTo(100);
+    // kakikukeko + kikakokeku = 로마자 20글자 = 4단어 ÷ 0.1분
+    expect(summary.wpm).toBeCloseTo(40);
     expect(summary.totalMs).toBe(6000);
     expect(summary.missed).toEqual([
       { char: 'き', count: 2 },
