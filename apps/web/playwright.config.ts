@@ -20,6 +20,8 @@ export default defineConfig({
     hasTouch: true,
     // 화면 문구를 한국어로 확인한다 (기기 언어가 영어면 영어로 열린다)
     locale: 'ko-KR',
+    // 홈의 오프닝을 기다리지 않게 하고, 키 도해 애니메이션을 멈춘다
+    reducedMotion: 'reduce',
     trace: 'retain-on-failure',
   },
   webServer: {
