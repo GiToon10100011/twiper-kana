@@ -22,8 +22,15 @@ test('이틀 전에 틀린 글자가 홈의 오늘 복습에 나오고, 복습 �
   expect(await playThrough(page)).toBe(8);
   await expect(page.getByRole('heading', { name: '오늘 복습 끝' })).toBeVisible();
 
-  // 오늘 맞혔으므로 다음 복습은 사흘 뒤다
+  // 오늘 맞혔으므로 다음 복습은 사흘 뒤다 (테스트와 브라우저는 같은 기기 시간대를 쓴다)
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3);
   await page.goto('/');
-  await expect(page.getByText(/^오늘 복습할 글자는 없어요\. 다음 복습 .+ · 2글자$/)).toBeVisible();
+  await expect(
+    page.getByText(
+      `오늘 복습할 글자는 없어요. 다음 복습 ${next.getMonth() + 1}월 ${next.getDate()}일 · 2글자`,
+      { exact: true },
+    ),
+  ).toBeVisible();
   await expect(page.getByRole('link', { name: /^오늘 복습/ })).toHaveCount(0);
 });
