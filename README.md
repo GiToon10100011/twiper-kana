@@ -115,3 +115,7 @@ CI(GitHub Actions)는 타입 검사·린트·단위 테스트·빌드·화면 �
 - [구현 계획](docs/superpowers/specs/2026-10-07-twiper-design.md) — 제품 정의, 입력·채점 구조, 커리큘럼, 통계, 저장, 로드맵
 - [결정 0001: 문제 전환은 確定 후에 한다](docs/decisions/0001-ime-input.md) — iPhone 실기 trace로 정한 입력 처리 방식
 - [기기 간 동기화 설계](docs/superpowers/specs/2026-11-13-cloud-sync-design.md) — 계정 없는 동기화 코드 + 종단 간 암호화 (구현 전)
+
+## 라이선스
+
+[MIT](LICENSE)
