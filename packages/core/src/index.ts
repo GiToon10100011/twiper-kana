@@ -56,6 +56,8 @@ export { frontierLevel, unlockedLevels } from './progress/unlock';
 export type {
   AttemptFlag,
   AttemptRecord,
+  OutboxEntry,
+  PendingRecords,
   RecordDump,
   RecordMerge,
   SessionRecord,
@@ -65,6 +67,21 @@ export { attemptRecordOf, type AttemptMeta } from './record/attempt';
 export { isAttemptRecord, isSessionRecord, replacesSession } from './record/dump';
 export { createMemoryRepo } from './record/memoryRepo';
 export { ulid } from './record/ulid';
+export {
+  BATCH_RECORDS,
+  buildBatches,
+  SYNC_VERSION,
+  syncOnce,
+  type SyncBatch,
+  type SyncCodec,
+  type SyncCursor,
+  type SyncDevice,
+  type SyncEnvelope,
+  type SyncOutcome,
+  type SyncServer,
+  type SyncState,
+} from './sync/engine';
+export { createMemorySyncServer } from './sync/memoryServer';
 export {
   countFinishedSessions,
   legacyPlaysOf,
