@@ -72,6 +72,8 @@ export interface TrainingRepo {
   saveSession(session: SessionRecord): Promise<void>;
   /** 끝낸 세션, 최근에 시작한 순 */
   finishedSessions(levelId: string, limit: number): Promise<SessionRecord[]>;
+  /** 레벨·종목(levelId)별 끝낸 세션 수 (플레이·응시 횟수를 다시 셀 때) */
+  finishedSessionCounts(): Promise<Record<string, number>>;
   /** 세션의 시도, 저장한 순 */
   attemptsOf(sessionId: string): Promise<AttemptRecord[]>;
   /** 세션과 관계없이 최근 시도, 최근 순으로 limit개 (스킬 통계) */
