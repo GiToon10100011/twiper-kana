@@ -16,7 +16,7 @@ import {
   type LineResult,
 } from '@twiper/core';
 import { newId, trainingRepo } from '../../lib/db';
-import { recordExam, type ExamBest } from '../../lib/examRecords';
+import { bestIn, recordExam, type ExamBest } from '../../lib/examRecords';
 import { hasSeenExamRules, markExamRulesSeen } from '../../lib/flags';
 import { loadSettings } from '../../lib/settings';
 import { speedIn } from '../../lib/speed';
@@ -65,7 +65,9 @@ export function ExamRoute() {
 
 interface Outcome {
   summary: ExamSummary;
+  /** 설정한 속도 단위로 최고 기록을 바꿨는지 */
   isBest: boolean;
+  /** 이 판 전의, 설정한 속도 단위로 본 최고 기록 */
   previous: ExamBest | null;
 }
 
@@ -165,9 +167,15 @@ export function ExamRun({
     const partial =
       session && session.completedAt === null ? partialLineResult(session, shownAt.current) : null;
     const summary = summarizeExam(results.current, partial, durationMs);
-    const { isBest, previous } = recordExam(mode, summary, minutes);
+    const { faster, previous } = recordExam(mode, summary, minutes);
+    // 최고 기록은 설정한 속도 단위로 본다 (CPM·WPM이면 로마자 속도가 가장 빨랐던 판)
+    const unit = loadSettings().speedUnit;
     inputRef.current?.blur();
-    setOutcome({ summary, isBest, previous });
+    setOutcome({
+      summary,
+      isBest: unit === 'kpm' ? faster.kana : faster.romaji,
+      previous: bestIn(unit, previous),
+    });
     const record = sessionRef.current;
     if (record) {
       void trainingRepo().saveSession({
@@ -296,7 +304,7 @@ function ExamResult({
   const { t } = useTranslation();
   const { summary, isBest, previous } = outcome;
   const unit = loadSettings().speedUnit;
-  // 예전 최고 기록은 가나/분만 있어 CPM·WPM으로 바꿀 수 없으면 알리지 않는다
+  // 로마자 속도를 남기기 전의 기록뿐이라 CPM·WPM 최고 기록이 없으면 알리지 않는다
   const previousSpeed = previous ? speedIn(unit, previous) : null;
   return (
     <section>

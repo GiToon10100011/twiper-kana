@@ -77,10 +77,7 @@ export function summarizeDrill(results: readonly LineResult[]): DrillSummary {
     kpm: totalMs > 0 ? timedUnits / (totalMs / 60_000) : null,
     // 가나/분과 같은 줄(시간을 잰 줄)과 같은 시간으로 잰다
     wpm: wordsPerMinute(
-      results
-        .filter((result) => result.elapsedMs !== null)
-        .map((result) => result.target)
-        .join(''),
+      results.filter((result) => result.elapsedMs !== null).map((result) => result.target),
       totalMs,
     ),
     totalMs,

@@ -27,6 +27,12 @@ describe('toRomaji', () => {
     ['チェック', 'chekku'],
     ['ヴァイオリン', 'vaiorin'],
     ['デュエット', 'dyuetto'],
+    ['ひゃく', 'hyaku'],
+    ['イェス', 'yesu'],
+    ['キェ', 'kye'],
+    ['クァ', 'kwa'],
+    ['グォ', 'gwo'],
+    ['ジェット', 'jetto'],
     // 영문자·숫자·기호는 그대로
     ['OKです', 'OKdesu'],
     ['3じに', '3jini'],
@@ -42,7 +48,12 @@ describe('toRomaji', () => {
 describe('wordsPerMinute', () => {
   it('로마자 5글자를 한 단어로 센다', () => {
     // こんにちは = konnichiha 10글자 = 2단어, 30초 → 4 WPM
-    expect(wordsPerMinute('こんにちは', 30_000)).toBe(4);
-    expect(wordsPerMinute('こんにちは', 0)).toBeNull();
+    expect(wordsPerMinute(['こんにちは'], 30_000)).toBe(4);
+    expect(wordsPerMinute(['こんにちは'], 0)).toBeNull();
+  });
+
+  it("줄은 따로 바꿔 센다 (줄 끝 ん과 다음 줄 첫 모음을 n'로 잇지 않는다)", () => {
+    // n + a = 2글자, 1분 → 0.4 WPM
+    expect(wordsPerMinute(['ん', 'あ'], 60_000)).toBeCloseTo(0.4);
   });
 });

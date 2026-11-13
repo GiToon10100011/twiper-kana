@@ -9,7 +9,7 @@ import {
   type ExamMode,
   type TrainingRepo,
 } from '@twiper/core';
-import { loadExamRecords, type ExamRecords } from '../../lib/examRecords';
+import { bestIn, loadExamRecords, type ExamRecords } from '../../lib/examRecords';
 import { loadSettings } from '../../lib/settings';
 import { speedIn } from '../../lib/speed';
 import { ChartIcon, ForwardIcon, GearIcon, PlayIcon, TimerIcon } from '../../ui/icons';
@@ -71,7 +71,7 @@ function ExamPanel({ records }: { records: ExamRecords }) {
   const [seed] = useState(newExamSeed);
   const line = useMemo(() => createExam(examSource(mode), seed).line, [mode, seed]);
   const record = records[mode];
-  const best = record?.best ?? null;
+  const best = bestIn(unit, record);
 
   return (
     <>
