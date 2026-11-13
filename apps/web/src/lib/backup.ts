@@ -95,18 +95,37 @@ export interface RestoreResult {
 
 /**
  * 백업을 지금 기록에 합친다. 지금 기록은 지우지 않고, 같은 파일을 두 번 합쳐도 늘지 않는다.
- * 플레이·응시 횟수는 합친 뒤 끝난 세션 수와 옛 횟수로 다시 세므로, 다른 기기의 백업을 가져오면 더해진다
+ * 플레이·응시 횟수는 합친 뒤 끝난 세션 수와 옛 횟수로 다시 세므로, 다른 기기의 백업을 가져오면 더해진다.
+ * 가져온 기록은 동기화 공간에도 올라가도록 outbox에 넣는다
  */
-export async function restoreBackup(backup: Backup, repo: TrainingRepo): Promise<RestoreResult> {
+export function restoreBackup(backup: Backup, repo: TrainingRepo): Promise<RestoreResult> {
+  return mergeRecordsOf(backup, repo, true);
+}
+
+/** 백업이나 동기화로 받은 묶음에서 합칠 부분 */
+export type MergeableRecords = Pick<
+  Backup,
+  'progress' | 'exams' | 'attempts' | 'sessions' | 'legacyPlays'
+>;
+
+/**
+ * 진도·종합 테스트 기록·옛 횟수·시도·세션을 합치고 횟수를 다시 센다 (백업 가져오기와 동기화가 함께 쓴다).
+ * track: 새로 넣은 기록을 outbox에 넣을지. 동기화로 받은 기록은 이미 공간에 있으므로 넣지 않는다
+ */
+export async function mergeRecordsOf(
+  records: MergeableRecords,
+  repo: TrainingRepo,
+  track: boolean,
+): Promise<RestoreResult> {
   // 이 기기의 옛 횟수는 세션이 늘기 전에 만든다
   const current = await ensureLegacyPlays(repo);
   const legacy = mergeLegacy(
     current,
-    backup.legacyPlays ?? legacyOfOldBackup(backup.progress, backup.exams, backup.sessions),
+    records.legacyPlays ?? legacyOfOldBackup(records.progress, records.exams, records.sessions),
   );
-  const levels = mergeProgress(backup.progress);
-  const exams = mergeExamRecords(backup.exams);
-  const added = await repo.mergeRecords(backup);
+  const levels = mergeProgress(records.progress);
+  const exams = mergeExamRecords(records.exams);
+  const added = await repo.mergeRecords(records, { track });
   const recount = await recountPlays(repo, legacy.legacy);
   return {
     attempts: added.attempts,

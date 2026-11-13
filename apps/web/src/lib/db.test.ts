@@ -141,6 +141,40 @@ describe('createDexieRepo', () => {
       persisted: true,
     });
   });
+
+  it('저장하거나 가져온 기록은 outbox에 남고, 올린 뒤 지운다. 그사이 다시 바뀐 기록은 남긴다', async () => {
+    const repo = freshRepo();
+    const attempt = attemptRecordOf(createInputSession('か'), {
+      id: 'A1',
+      sessionId: 'S1',
+      levelId: 'L1',
+      shownAt: 0,
+      at: new Date(Date.UTC(2026, 10, 14, 0, 0)),
+    });
+    const started = '2026-11-14T00:00:00.000Z';
+    await repo.saveSession(session('S1', 'L1', started, false));
+    await repo.saveAttempt(attempt);
+
+    const pending = await repo.pendingRecords();
+    expect(pending.attempts.map((a) => a.id)).toEqual(['A1']);
+    expect(pending.sessions.map((s) => s.endedAt)).toEqual([null]);
+
+    // 올리는 동안 세션이 끝났다: 끝난 세션은 다음에 올라가야 한다
+    await repo.saveSession(session('S1', 'L1', started, true));
+    await repo.markPushed(pending.entries);
+    const next = await repo.pendingRecords();
+    expect(next.attempts).toEqual([]);
+    expect(next.sessions.map((s) => s.endedAt)).toEqual([started]);
+    await repo.markPushed(next.entries);
+    expect((await repo.pendingRecords()).entries).toEqual([]);
+
+    // 동기화로 받은 기록은 다시 올리지 않고, 백업으로 가져온 기록은 올린다
+    const incoming = { attempts: [], sessions: [session('S2', 'L1', started, true)] };
+    await repo.mergeRecords(incoming, { track: false });
+    expect((await repo.pendingRecords()).entries).toEqual([]);
+    await repo.mergeRecords({ attempts: [], sessions: [session('S3', 'L1', started, true)] });
+    expect((await repo.pendingRecords()).sessions.map((s) => s.id)).toEqual(['S3']);
+  });
 });
 
 describe('resilientRepo', () => {
@@ -156,6 +190,8 @@ describe('resilientRepo', () => {
       attemptsSince: () => Promise.reject(new Error('blocked')),
       dumpRecords: () => Promise.reject(new Error('blocked')),
       mergeRecords: () => Promise.reject(new Error('blocked')),
+      pendingRecords: () => Promise.reject(new Error('blocked')),
+      markPushed: () => Promise.reject(new Error('blocked')),
     };
     const repo = resilientRepo(broken, createMemoryRepo());
 
