@@ -463,7 +463,7 @@ interface Attempt {
 
 - core에 포트 정의: `AttemptRepo`, `StatRepo`, `ProgressRepo`, `SchedulerRepo`, `SettingsRepo`. web이 Dexie로 구현, 테스트·core는 인메모리 구현. RN은 SQLite 구현으로 교체.
 - 스토어: `attempts`(append-only, 인덱스 `at`·`itemId`·`sessionId`), `unitStats`, `skillStats`, `confusions`, `progress`, `scheduler`, `sessions`, `daily`, `meta`.
-- **동기화 대비**: 모든 레코드에 ULID `id`·`updatedAt`·`deviceId`. attempt 로그가 원본이고 집계는 파생값이라, 클라우드 동기화는 "로그 병합 후 재집계"로 붙일 수 있다.
+- **동기화 대비**: 모든 레코드에 ULID `id`·`updatedAt`·`deviceId`. attempt 로그가 원본이고 집계는 파생값이라, 클라우드 동기화는 "로그 병합 후 재집계"로 붙일 수 있다. 설계: [기기 간 동기화](2026-11-13-cloud-sync-design.md).
 - iOS 대응: Safari 탭에서는 7일 미사용 시 스크립트 저장소가 지워질 수 있고 홈 화면 설치 앱은 예외 → 설치 유도 + `navigator.storage.persist()` 요청 + JSON 내보내기/가져오기(M4, 필요 시 앞당김).
 
 ---
@@ -521,7 +521,7 @@ IME 실동작은 에뮬레이터로 재현되지 않으므로 **실기기 trace�
 - web: 문장·채팅 모드, 약점 보완 세션, 대시보드, 관대한 채점 옵션, Android 실기 검증.
 
 **M4 (MVP 4) — 고급 학습** ← M3
-- LeitnerScheduler(세션 간 간격 반복), L21 혼합 입력 + Part 16, 행·단별 분석·추세, WPM(참고), 내보내기/가져오기, **en 로케일**, 클라우드 동기화 설계 문서.
+- LeitnerScheduler(세션 간 간격 반복), L21 혼합 입력 + Part 16, 행·단별 분석·추세, WPM(참고), 내보내기/가져오기, **en 로케일**, 클라우드 동기화 설계 문서 → [2026-11-13-cloud-sync-design.md](2026-11-13-cloud-sync-design.md).
 
 **Future** — RN(Expo) 앱, 계정·크로스 플랫폼 동기화, 커스텀 코스, 고급 통계.
 

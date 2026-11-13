@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+# 개발용 시안·진단 화면
+Disallow: /lab/
+
+Sitemap: https://twiper-kana.vercel.app/sitemap.xml

@@ -24,9 +24,12 @@ export default defineConfig({
       injectRegister: false,
       includeAssets: ['favicon-64.png', 'apple-touch-icon.png'],
       manifest: {
+        id: '/',
         name: 'twiper',
         short_name: 'twiper',
-        description: '실제 키보드로 익히는 일본어 플릭 입력',
+        description:
+          'iPhone 일본어 가나 키보드(12키)로 플릭 입력을 연습하는 무료 웹앱. 가입 없이, 오프라인에서도.',
+        categories: ['education'],
         lang: 'ko',
         start_url: '/',
         scope: '/',
@@ -47,6 +50,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,webmanifest}'],
+        // 링크 공유 미리보기 이미지는 앱에서 쓰지 않으므로 미리 받지 않는다
+        globIgnores: ['**/og-image.png'],
         navigateFallback: '/index.html',
         // 개발용 trace 수집 엔드포인트는 가로채지 않는다
         navigateFallbackDenylist: [/^\/__trace/],
