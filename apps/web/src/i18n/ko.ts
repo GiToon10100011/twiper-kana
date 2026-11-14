@@ -549,6 +549,7 @@ export const ko = {
     hideCode: '숨기기',
     copy: '복사',
     copied: '복사했어요',
+    copyFailed: '복사하지 못했어요. 코드를 길게 눌러 직접 복사하세요.',
     on: '동기화 켜짐',
     never: '아직 동기화하지 않았어요',
     justNow: '방금 동기화했어요',

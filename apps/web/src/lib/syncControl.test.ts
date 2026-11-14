@@ -125,4 +125,47 @@ describe('syncControl', () => {
     turnOffSync();
     expect(await runSync(repo, { fetchFn })).toBeNull();
   });
+
+  it('주고받거나 지우는 도중에 끄고 새로 켜면, 늦게 끝난 옛 작업은 새 연결과 커서를 건드리지 않는다', async () => {
+    const store = createMemoryStore();
+    // 서버 응답을 붙잡아 두었다가 나중에 놓는다
+    const held: (() => void)[] = [];
+    const slowFetch = (input: string, init?: RequestInit) =>
+      new Promise<Response>((resolve) => {
+        held.push(() => void serverOf(store)(input, init).then(resolve));
+      });
+    const tick = () => new Promise((resolve) => setTimeout(resolve, 1));
+    /** 요청이 하나라도 나갈 때까지 기다린다 */
+    const requested = async () => {
+      while (held.length === 0) await tick();
+    };
+    /** 작업이 끝날 때까지 붙잡은 요청을 하나씩 놓는다 */
+    const settle = async <T>(work: Promise<T>): Promise<T> => {
+      let done = false;
+      void work.finally(() => {
+        done = true;
+      });
+      while (!done) {
+        held.shift()?.();
+        await tick();
+      }
+      return work;
+    };
+
+    enableSync();
+    const stale = runSync(savedRepo(), { fetchFn: slowFetch });
+    await requested();
+    turnOffSync();
+    const fresh = enableSync();
+    expect(await settle(stale)).toBeNull();
+    expect(loadSyncLink()).toEqual(fresh);
+    expect(localStorage.getItem('twiper.sync.v1')).toBeNull();
+
+    const removal = removeSyncSpace({ fetchFn: slowFetch });
+    await requested();
+    turnOffSync();
+    const replacement = enableSync();
+    expect(await settle(removal)).toBe(false);
+    expect(loadSyncLink()).toEqual(replacement);
+  });
 });

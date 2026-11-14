@@ -581,6 +581,7 @@ const english = {
     hideCode: 'Hide',
     copy: 'Copy',
     copied: 'Copied',
+    copyFailed: "Couldn't copy. Press and hold the code to copy it yourself.",
     on: 'Sync is on',
     never: 'Not synced yet',
     justNow: 'Synced just now',

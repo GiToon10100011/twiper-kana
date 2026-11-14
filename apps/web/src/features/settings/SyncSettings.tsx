@@ -70,19 +70,29 @@ export function SyncSettings({ onSynced: changed }: { onSynced?: () => void }) {
     },
     cancelJoin: () => setJoining('no'),
     syncNow: () => void sync(),
-    copy: (code) => navigator.clipboard?.writeText(code) ?? Promise.resolve(),
+    // 클립보드를 쓸 수 없으면 실패로 돌려준다 (복사하지 않았는데 「복사했어요」가 뜨지 않게)
+    copy: (code) =>
+      navigator.clipboard
+        ? navigator.clipboard.writeText(code)
+        : Promise.reject(new Error('클립보드를 쓸 수 없다')),
     turnOff() {
       turnOffSync();
       setLink(null);
       setCreated(false);
     },
     remove() {
+      const code = link?.code;
+      // 그사이 끄거나 다른 코드로 바꿨으면 지우기 결과로 새 연결을 건드리지 않는다
       void removeSyncSpace().then(
-        () => {
+        (applied) => {
+          if (!applied) return;
           setLink(null);
           setCreated(false);
         },
-        () => setLink((current) => current && { ...current, problem: 'failed' }),
+        () =>
+          setLink((current) =>
+            current && current.code === code ? { ...current, problem: 'failed' } : current,
+          ),
       );
     },
   };

@@ -90,7 +90,10 @@ export function SyncLab() {
         );
       }, 1_200);
     },
-    copy: (text) => navigator.clipboard?.writeText(text) ?? Promise.resolve(),
+    copy: (text) =>
+      navigator.clipboard
+        ? navigator.clipboard.writeText(text)
+        : Promise.reject(new Error('클립보드를 쓸 수 없다')),
     turnOff: () => show('off'),
     remove: () => show('gone'),
   };

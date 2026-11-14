@@ -97,4 +97,15 @@ describe('SyncSection', () => {
     );
     expect(screen.getByRole('status').textContent).toMatch(/새 코드를 만드세요/u);
   });
+
+  it('복사하지 못하면 「복사했어요」 대신 직접 복사하라고 알리고 코드를 펼친다', async () => {
+    const actions = actionsMock();
+    actions.copy.mockRejectedValue(new Error('denied'));
+    render(<SyncSection panel={on()} actions={actions} now={NOW} />);
+
+    fireEvent.click(screen.getByRole('button', { name: '복사' }));
+    expect(await screen.findByText(/복사하지 못했어요/u)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: '복사했어요' })).toBeNull();
+    expect(screen.getByLabelText('동기화 코드').textContent).toContain('ZFH0');
+  });
 });

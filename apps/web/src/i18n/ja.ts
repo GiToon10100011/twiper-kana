@@ -555,6 +555,7 @@ export const ja: typeof ko = {
     hideCode: '隠す',
     copy: 'コピー',
     copied: 'コピーしました',
+    copyFailed: 'コピーできませんでした。コードを長押ししてコピーしてください。',
     on: '同期オン',
     never: 'まだ同期していません',
     justNow: 'たった今同期しました',

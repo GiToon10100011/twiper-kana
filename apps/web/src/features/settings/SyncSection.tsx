@@ -162,7 +162,7 @@ function SyncOn({
   const { t } = useTranslation();
   const synced = useSyncedText(panel.syncedAt, now);
   const [shown, setShown] = useState(panel.created);
-  const [copied, setCopied] = useState(false);
+  const [copy, setCopy] = useState<'idle' | 'copied' | 'failed'>('idle');
   const [confirming, setConfirming] = useState(false);
   const code = formatSyncCode(panel.code);
   const problem =
@@ -207,12 +207,24 @@ function SyncOn({
                 type="button"
                 className="btn"
                 onClick={() => {
-                  void actions.copy(panel.code).then(() => setCopied(true));
+                  actions.copy(panel.code).then(
+                    () => setCopy('copied'),
+                    () => {
+                      // 직접 길게 눌러 복사할 수 있게 코드를 펼친다
+                      setCopy('failed');
+                      setShown(true);
+                    },
+                  );
                 }}
               >
-                {copied ? t('sync.copied') : t('sync.copy')}
+                {copy === 'copied' ? t('sync.copied') : t('sync.copy')}
               </button>
             </span>
+            {copy === 'failed' ? (
+              <p className="sync-status is-warning" role="status">
+                {t('sync.copyFailed')}
+              </p>
+            ) : null}
             {panel.created ? <small className="sync-keep">{t('sync.keepCode')}</small> : null}
           </div>
         </li>
