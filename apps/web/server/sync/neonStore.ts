@@ -1,5 +1,5 @@
 import type { NeonQueryFunction } from '@neondatabase/serverless';
-import type { Denial, SyncStore } from './store';
+import type { Denial, SyncStore } from './store.js';
 
 type Sql = NeonQueryFunction<false, false>;
 

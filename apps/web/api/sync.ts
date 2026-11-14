@@ -1,7 +1,8 @@
 import { neon } from '@neondatabase/serverless';
-import { handleSync } from '../server/sync/handler';
-import { createNeonStore } from '../server/sync/neonStore';
-import type { SyncStore } from '../server/sync/store';
+// Vercel Function은 ESM으로 돌므로 상대 경로에 .js를 붙인다 (빌드가 .ts를 .js로 바꾼다)
+import { handleSync } from '../server/sync/handler.js';
+import { createNeonStore } from '../server/sync/neonStore.js';
+import type { SyncStore } from '../server/sync/store.js';
 
 let store: SyncStore | null = null;
 

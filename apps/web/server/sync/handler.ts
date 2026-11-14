@@ -1,4 +1,4 @@
-import type { Denial, SpaceLimits, SyncStore } from './store';
+import type { Denial, SpaceLimits, SyncStore } from './store.js';
 
 /** 서버 한도 (동기화 설계 §4.6) */
 export const SYNC_LIMITS = {
