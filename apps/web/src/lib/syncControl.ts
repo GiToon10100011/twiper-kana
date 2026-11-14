@@ -19,6 +19,21 @@ const COMPACTION_KEY = 'twiper.sync.compaction.v1';
 /** 공간이 이만큼 쌓이면 압축한다 (공간 한도의 절반, 동기화 설계 §4.6) */
 export const COMPACT_AT_BYTES = 10 * 1024 * 1024;
 
+/** 1분 한도에 걸린 스냅샷 조각을 다시 올리기 전에 기다리는 시간 (한도 창 1분 + 여유) */
+const RATE_RETRY_MS = 61_000;
+
+/** 1분 한도에 걸린 조각을 다시 올리는 횟수 */
+const RATE_RETRIES = 3;
+
+/**
+ * 압축할 때인가: 문턱과, 마지막 압축 직후 크기의 2배 가운데 큰 값을 넘었을 때.
+ * 스냅샷만으로 문턱을 넘는 공간을 동기화할 때마다 다시 압축하지 않게 한다
+ */
+export const shouldCompact = (
+  size: { readonly bytes: number; readonly compactedBytes: number } | null,
+  threshold = COMPACT_AT_BYTES,
+): boolean => size !== null && size.bytes >= Math.max(threshold, size.compactedBytes * 2);
+
 /** 지난 동기화가 남긴 문제: 연결 실패 · 더 높은 버전의 묶음이 있어 업데이트가 필요함 */
 export type SyncLinkProblem = 'failed' | 'update';
 
@@ -141,18 +156,37 @@ async function compact(
   encode: (batch: Awaited<ReturnType<typeof snapshotBatches>>[number]) => Promise<SyncPayload>,
   code: string,
   isCurrent: () => boolean,
+  wait: (ms: number) => Promise<void>,
 ): Promise<void> {
   const id = await server.startCompaction(syncCursor().lastSeq);
   savePendingCompaction({ code, id });
   for (const batch of await snapshotBatches(repo)) {
     // 그사이 연결이 바뀌었으면 그만둔다 (적어 둔 임대는 다음에 취소한다)
     if (!isCurrent()) return;
-    await server.pushSnapshot(await encode(batch), id);
+    const payload = await encode(batch);
+    // 조각이 많으면 공간의 1분 한도에 걸린다: 한도가 풀릴 때까지 기다렸다 다시 올린다
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        await server.pushSnapshot(payload, id);
+        break;
+      } catch (error) {
+        const limited = error instanceof SyncHttpError && error.status === 429;
+        if (!limited || attempt >= RATE_RETRIES) throw error;
+        await wait(RATE_RETRY_MS);
+        if (!isCurrent()) return;
+      }
+    }
   }
   if (!isCurrent()) return;
   await server.finishCompaction(id);
   savePendingCompaction(null);
 }
+
+/** 뒤에서 도는 압축. 한 번에 하나만 돌린다 */
+let compacting: Promise<void> | null = null;
+
+/** 뒤에서 도는 압축이 끝날 때까지 기다린다 (테스트용) */
+export const compactionSettled = (): Promise<void> => compacting ?? Promise.resolve();
 
 /** 한 번 주고받은 결과. 다른 기기에서 서버의 기록을 지웠으면(410) 이 기기의 동기화도 꺼지고 gone */
 export type SyncRun = { readonly link: SyncLink } | { readonly gone: true };
@@ -172,6 +206,8 @@ export function runSync(
     readonly now?: () => number;
     /** 이만큼 쌓이면 압축한다 (테스트용) */
     readonly compactAt?: number;
+    /** 한도에 걸린 조각을 다시 올리기 전에 기다린다 (테스트용) */
+    readonly wait?: (ms: number) => Promise<void>;
   } = {},
 ): Promise<SyncRun | null> {
   if (running && running.generation === generation) return running.result;
@@ -195,16 +231,27 @@ export function runSync(
         },
         isCurrent,
       );
-      const bytes = server.spaceBytes() ?? 0;
       if (
         outcome.status === 'done' &&
         isCurrent() &&
-        bytes >= (options.compactAt ?? COMPACT_AT_BYTES)
+        compacting === null &&
+        shouldCompact(server.spaceSize(), options.compactAt)
       ) {
-        // 압축은 실패해도 동기화 결과와 상관없다 (다음 동기화에서 다시 한다)
-        await compact(repo, server, (batch) => codec.encode(batch), link.code, isCurrent).catch(
-          () => undefined,
-        );
+        // 압축은 동기화 결과를 남긴 뒤 뒤에서 돌린다. 실패해도 동기화 결과와 상관없다 (다음에 다시 한다)
+        const wait =
+          options.wait ?? ((ms: number) => new Promise<void>((done) => setTimeout(done, ms)));
+        compacting = compact(
+          repo,
+          server,
+          (batch) => codec.encode(batch),
+          link.code,
+          isCurrent,
+          wait,
+        )
+          .catch(() => undefined)
+          .finally(() => {
+            compacting = null;
+          });
       }
       next =
         outcome.status === 'done'

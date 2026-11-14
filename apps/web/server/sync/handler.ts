@@ -58,7 +58,7 @@ const whole = (value: string | null, fallback: number) => {
 /**
  * 동기화 API (동기화 설계 §4.6). 공간은 주소의 space, 키는 Authorization: Bearer <authKey>로 받고,
  * 서버는 authKey의 SHA-256만 저장한다.
- * - GET    ?space=&after=&limit=  → { batches: [{ seq, deviceId, iv, data }], bytes }
+ * - GET    ?space=&after=&limit=  → { batches: [{ seq, deviceId, iv, data }], bytes, compactedBytes }
  * - POST   ?space=  { deviceId, iv, data } → { seq }  (Compaction-Id 머리가 있으면 압축의 스냅샷 조각)
  * - POST   ?space=&op=compact-start { upTo } → { compactionId }  (다른 압축이 진행 중이면 409)
  * - POST   ?space=&op=compact-finish|compact-abort { compactionId } → { done: true }
@@ -89,7 +89,11 @@ export async function handleSync(request: Request, store: SyncStore): Promise<Re
     });
     return 'denied' in result
       ? json(DENIED[result.denied], { error: result.denied })
-      : json(200, { batches: result.batches, bytes: result.bytes });
+      : json(200, {
+          batches: result.batches,
+          bytes: result.bytes,
+          compactedBytes: result.compactedBytes,
+        });
   }
 
   if (request.method === 'POST') {

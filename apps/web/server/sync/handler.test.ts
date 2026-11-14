@@ -40,10 +40,11 @@ describe('handleSync', () => {
     expect(await response.json()).toEqual({
       batches: [{ seq: 2, deviceId: DEVICE, iv: 'aXY=', data: 'Qg==' }],
       bytes: 8,
+      compactedBytes: 0,
     });
     // 아직 아무도 올리지 않은 공간은 빈 목록이다
     const empty = await handleSync(request('GET', { space: 'b'.repeat(32) }), store);
-    expect(await empty.json()).toEqual({ batches: [], bytes: 0 });
+    expect(await empty.json()).toEqual({ batches: [], bytes: 0, compactedBytes: 0 });
   });
 
   it('공간·키·본문이 모양에 맞지 않으면 받지 않는다', async () => {
@@ -170,7 +171,11 @@ describe('압축 (S3b)', () => {
       done: true,
     });
     expect(await seqs(store)).toEqual([3, 4]);
-    expect(await store.pull({ ...key, after: 0, limit: 50 })).toMatchObject({ bytes: 12 });
+    // 압축 직후 크기를 기억한다 (다음 압축의 문턱)
+    expect(await store.pull({ ...key, after: 0, limit: 50 })).toMatchObject({
+      bytes: 12,
+      compactedBytes: 12,
+    });
   });
 
   it('임대는 공간마다 하나뿐이고, 취소하면 그 조각만 지운다', async () => {

@@ -20,6 +20,8 @@ export type PullResult =
       readonly batches: readonly StoredBatch[];
       /** 공간에 쌓인 암호문 크기. 기기가 압축할 때인지 정하는 데 쓴다 */
       readonly bytes: number;
+      /** 마지막 압축 직후의 크기 (압축한 적이 없으면 0). 스냅샷만으로 큰 공간을 거듭 압축하지 않게 */
+      readonly compactedBytes: number;
     }
   | { readonly denied: Denial };
 export type RemoveResult = { readonly removed: true } | { readonly denied: Denial };
@@ -85,6 +87,7 @@ interface MemorySpace {
   deleted: boolean;
   batches: MemoryBatch[];
   lease: { id: string; upTo: number; at: number } | null;
+  compactedBytes: number;
 }
 
 const MINUTE = 60_000;
@@ -103,6 +106,7 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
     deleted,
     batches: [],
     lease: null,
+    compactedBytes: 0,
   });
   const check = (space: MemorySpace, authHash: string): Denial | null =>
     space.authHash !== authHash ? 'forbidden' : space.deleted ? 'gone' : null;
@@ -149,7 +153,7 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
     },
     pull({ space: id, authHash, after, limit }) {
       const space = spaces.get(id);
-      if (!space) return Promise.resolve({ batches: [], bytes: 0 });
+      if (!space) return Promise.resolve({ batches: [], bytes: 0, compactedBytes: 0 });
       const denied = check(space, authHash);
       if (denied) return Promise.resolve({ denied });
       return Promise.resolve({
@@ -158,6 +162,7 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
           .slice(0, limit)
           .map(({ seq, deviceId, iv, data }) => ({ seq, deviceId, iv, data })),
         bytes: bytesOf(space),
+        compactedBytes: space.compactedBytes,
       });
     },
     remove({ space: id, authHash }) {
@@ -202,6 +207,7 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
         .filter((b) => b.compactionId !== null || b.seq > lease.upTo)
         .map((b) => (b.compactionId === lease.id ? { ...b, compactionId: null } : b));
       space.lease = null;
+      space.compactedBytes = bytesOf(space);
       return Promise.resolve({ done: true });
     },
     abortCompaction(input) {

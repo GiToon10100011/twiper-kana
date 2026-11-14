@@ -35,6 +35,7 @@ const SCHEMA = [
   'alter table sync_space add column if not exists compaction_up_to bigint',
   'alter table sync_space add column if not exists compaction_at timestamptz',
   'alter table sync_batch add column if not exists compaction_id text',
+  'alter table sync_space add column if not exists compacted_bytes bigint not null default 0',
 ];
 
 /** 요청자(IP의 해시)의 1분 카운터를 하나 올리고 그 수를 돌려준다 */
@@ -87,6 +88,7 @@ interface SpaceRow {
   readonly auth_hash: string;
   readonly deleted_at: string | null;
   readonly bytes: string | number;
+  readonly compacted_bytes: string | number;
 }
 
 /** Postgres(Neon) 저장소. 접속은 Vercel에 연결한 Neon의 DATABASE_URL로 한다 */
@@ -101,9 +103,10 @@ export function createNeonStore(sql: Sql): SyncStore {
     }));
   const spaceOf = async (space: string) =>
     (
-      (await sql.query('select auth_hash, deleted_at, bytes from sync_space where id = $1', [
-        space,
-      ])) as SpaceRow[]
+      (await sql.query(
+        'select auth_hash, deleted_at, bytes, compacted_bytes from sync_space where id = $1',
+        [space],
+      )) as SpaceRow[]
     )[0];
   const denialOf = (row: SpaceRow | undefined, authHash: string): Denial | null =>
     !row || row.auth_hash !== authHash ? 'forbidden' : row.deleted_at ? 'gone' : null;
@@ -150,7 +153,7 @@ export function createNeonStore(sql: Sql): SyncStore {
     async pull({ space, authHash, after, limit }) {
       await ensure();
       const row = await spaceOf(space);
-      if (!row) return { batches: [], bytes: 0 };
+      if (!row) return { batches: [], bytes: 0, compactedBytes: 0 };
       const denied = denialOf(row, authHash);
       if (denied) return { denied };
       const rows = (await sql.query(
@@ -166,6 +169,7 @@ export function createNeonStore(sql: Sql): SyncStore {
           data: r.data,
         })),
         bytes: Number(row.bytes),
+        compactedBytes: Number(row.compacted_bytes),
       };
     },
     async remove({ space, authHash }) {
@@ -238,7 +242,7 @@ export function createNeonStore(sql: Sql): SyncStore {
         ),
         sql.query(
           `update sync_space set compaction_id = null, compaction_up_to = null,
-             compaction_at = null, bytes = ${RECOUNT}
+             compaction_at = null, bytes = ${RECOUNT}, compacted_bytes = ${RECOUNT}
            where id = $1 and auth_hash = $2 and compaction_id = $3 and ${LEASE_LIVE}
            returning id`,
           [space, authHash, compactionId],
