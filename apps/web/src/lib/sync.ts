@@ -11,7 +11,7 @@ import {
 import { mergeRecordsOf } from './backup';
 import { deviceId } from './device';
 import { loadExamRecords, parseExamRecords } from './examRecords';
-import { ensureLegacyPlays, parseLegacyPlays } from './plays';
+import { ensureLegacyPlays, loadLegacyPlays, parseLegacyPlays } from './plays';
 import { loadProgress, parseProgress } from './progress';
 import {
   latestOwnSettingStamp,
@@ -26,20 +26,37 @@ const SYNC_KEY = 'twiper.sync.v1';
 interface SyncStored extends SyncCursor {
   /** 마지막으로 올린, 이 기기에서 바꾼 설정의 가장 늦은 때. 이보다 늦게 바꿨으면 다시 올린다 */
   readonly settingsAt: number;
+  /**
+   * 공간과 같다고 아는 진도·종합 테스트 기록·옛 횟수의 요약값. 지금 요약값이 다르면 (백업을 가져와
+   * 진도만 바뀐 경우처럼) 새 기록이 없어도 올린다
+   */
+  readonly summary: string;
 }
 
-const EMPTY: SyncStored = { lastSeq: 0, uploaded: false, settingsAt: 0 };
+const EMPTY: SyncStored = { lastSeq: 0, uploaded: false, settingsAt: 0, summary: '' };
+
+/** 진도·종합 테스트 기록·옛 횟수의 요약값 (FNV-1a) */
+function summaryHash(): string {
+  const text = JSON.stringify([loadProgress(), loadExamRecords(), loadLegacyPlays()]);
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16);
+}
 
 function loadSync(): SyncStored {
   try {
     const raw = localStorage.getItem(SYNC_KEY);
     const parsed: unknown = raw ? JSON.parse(raw) : null;
     if (typeof parsed !== 'object' || parsed === null) return EMPTY;
-    const { lastSeq, uploaded, settingsAt } = parsed as Record<string, unknown>;
+    const { lastSeq, uploaded, settingsAt, summary } = parsed as Record<string, unknown>;
     return {
       lastSeq: typeof lastSeq === 'number' ? lastSeq : 0,
       uploaded: uploaded === true,
       settingsAt: typeof settingsAt === 'number' ? settingsAt : 0,
+      summary: typeof summary === 'string' ? summary : '',
     };
   } catch {
     return EMPTY;
@@ -73,6 +90,8 @@ export function createSyncDevice(
       return Promise.resolve();
     },
     async merge(batch) {
+      // 합치기 전에 공간과 같았다면, 합친 뒤의 상태도 공간에서 온 것이라 다시 올릴 필요가 없다
+      const clean = summaryHash() === loadSync().summary;
       const merged = await mergeRecordsOf(
         {
           progress: parseProgress(batch.progress),
@@ -87,15 +106,18 @@ export function createSyncDevice(
       // 기기에 남기지 못했으면(메모리 저장소로 바뀐 경우 등) 받은 것으로 치지 않는다: 다음에 다시 받는다
       if (!merged.persisted) throw new Error('받은 기록을 기기에 저장하지 못했다');
       const changed = mergeSyncedSettings(batch.settings);
+      if (clean) saveSync({ ...loadSync(), summary: summaryHash() });
       if (changed.length > 0) onSettings?.(changed);
     },
     async collect(full) {
       const legacyPlays = await ensureLegacyPlays(repo);
       const pending = await repo.pendingRecords();
       const settingsAt = latestOwnSettingStamp(deviceId());
+      const summary = summaryHash();
+      const stored = loadSync();
       const records = full ? await repo.dumpRecords() : pending;
       const nothing = records.attempts.length === 0 && records.sessions.length === 0;
-      if (!full && nothing && settingsAt <= loadSync().settingsAt) {
+      if (!full && nothing && settingsAt <= stored.settingsAt && summary === stored.summary) {
         return { batches: [], done: () => Promise.resolve() };
       }
       const state = {
@@ -108,7 +130,7 @@ export function createSyncDevice(
         batches: buildBatches(deviceId(), state, records),
         async done() {
           await repo.markPushed(pending.entries);
-          saveSync({ ...loadSync(), settingsAt });
+          saveSync({ ...loadSync(), settingsAt, summary });
         },
       };
     },

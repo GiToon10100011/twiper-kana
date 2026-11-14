@@ -157,15 +157,16 @@ export const latestOwnSettingStamp = (device: string): number =>
 
 /**
  * 다른 기기의 설정을 합친다: 항목마다 나중에 바꾼 쪽이 이긴다 (동기화 설계 §4.4).
- * 이 앱이 고를 수 있는 값만 받는다. 값이 바뀐 항목을 돌려준다 (언어가 바뀌면 화면에 바로 반영한다).
+ * 이 앱이 고를 수 있는 값만 받는다. 받은 값으로 정해진 항목을 돌려준다 (언어가 바뀌면 화면에 바로 반영한다).
+ * 값이 이미 같아도 돌려준다: 지난번에 값만 저장하고 바꾼 때를 저장하지 못했다면, 다시 받을 때에야 알리게 된다.
  * 저장하지 못하면 던진다: 동기화가 그 묶음을 받은 것으로 치지 않고 다음에 다시 받게
  */
 export function mergeSyncedSettings(incoming: unknown): SettingKey[] {
   if (typeof incoming !== 'object' || incoming === null) return [];
   const stamps: Partial<Record<SettingKey, Stamp>> = { ...loadSettingStamps() };
   let next: Settings = loadSettings();
-  let stampsChanged = false;
-  const changed: SettingKey[] = [];
+  let valuesChanged = false;
+  const adopted: SettingKey[] = [];
   for (const key of SETTING_KEYS) {
     const theirs: unknown = (incoming as Record<string, unknown>)[key];
     if (typeof theirs !== 'object' || theirs === null) continue;
@@ -175,14 +176,14 @@ export function mergeSyncedSettings(incoming: unknown): SettingKey[] {
     const candidate = parseSettings({ ...next, [key]: value });
     if (candidate[key] !== value) continue;
     stamps[key] = stamp;
-    stampsChanged = true;
+    adopted.push(key);
     if (next[key] !== value) {
       next = candidate;
-      changed.push(key);
+      valuesChanged = true;
     }
   }
   // 받은 값에는 새로 찍지 않는다 (바꾼 때는 받은 그대로)
-  if (changed.length > 0) localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
-  if (stampsChanged) localStorage.setItem(STAMPS_KEY, JSON.stringify(stamps));
-  return changed;
+  if (valuesChanged) localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+  if (adopted.length > 0) localStorage.setItem(STAMPS_KEY, JSON.stringify(stamps));
+  return adopted;
 }

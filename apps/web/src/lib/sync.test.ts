@@ -6,6 +6,7 @@ import {
   type SessionRecord,
   type TrainingRepo,
 } from '@twiper/core';
+import { parseBackup, restoreBackup } from './backup';
 import { loadProgress, recordLevel } from './progress';
 import { loadSettings, saveSettings } from './settings';
 import { jsonCodec, syncDevice } from './sync';
@@ -158,5 +159,60 @@ describe('sync', () => {
     blocked.mockRestore();
     await syncDevice(repoB, server, jsonCodec);
     expect(loadSettings().speedUnit).toBe('cpm');
+  });
+
+  it('백업을 가져와 진도만 바뀌어도(새 기록 없이) 올린다', async () => {
+    const server = createMemorySyncServer<string>();
+    const repoA = savedRepo();
+    await syncDevice(repoA, server, jsonCodec);
+
+    const backup = parseBackup(
+      JSON.stringify({
+        format: 'twiper-backup',
+        version: 1,
+        progress: {
+          L5: { clearedAt: '2026-11-01T00:00:00.000Z', plays: 2, bestAccuracy: 1, bestKpm: 60 },
+        },
+        exams: {},
+        attempts: [],
+        sessions: [],
+      }),
+    );
+    if (!backup) throw new Error('백업을 읽지 못함');
+    await restoreBackup(backup, repoA);
+    expect(await syncDevice(repoA, server, jsonCodec)).toMatchObject({ pushed: 1 });
+
+    useStorage({});
+    await syncDevice(savedRepo(), server, jsonCodec);
+    expect(loadProgress().L5?.plays).toBe(2);
+  });
+
+  it('바꾼 때를 저장하지 못해 다시 받을 때도, 받은 설정 항목을 알린다', async () => {
+    const server = createMemorySyncServer<string>();
+    saveSettings({ ...loadSettings(), speedUnit: 'cpm' }, 1_000);
+    await syncDevice(savedRepo(), server, jsonCodec);
+
+    useStorage({});
+    const repoB = savedRepo();
+    const original = Storage.prototype.setItem;
+    const blocked = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (
+      this: Storage,
+      key: string,
+      value: string,
+    ) {
+      if (key === 'twiper.settings.stamps.v1') {
+        throw new DOMException('저장 공간이 찼음', 'QuotaExceededError');
+      }
+      original.call(this, key, value);
+    });
+    const onSettings = vi.fn();
+    await expect(syncDevice(repoB, server, jsonCodec, onSettings)).rejects.toThrow();
+    // 값은 이미 저장됐지만 받은 것으로 치지 않았다
+    expect(loadSettings().speedUnit).toBe('cpm');
+    expect(onSettings).not.toHaveBeenCalled();
+
+    blocked.mockRestore();
+    await syncDevice(repoB, server, jsonCodec, onSettings);
+    expect(onSettings).toHaveBeenCalledWith(['speedUnit']);
   });
 });
