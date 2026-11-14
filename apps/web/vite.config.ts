@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -14,7 +15,17 @@ const traceSinkEnabled = process.env.TWIPER_TRACE_SINK === '1';
 
 const BG = '#fcfcf9';
 
+// 설정 맨 아래 「버전」 줄에 보일 값. 빌드 번호는 Vercel이 빌드할 때 주는 커밋 앞 7자 (로컬에서는 없음)
+const { version } = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
+) as { version: string };
+const build = (process.env.VERCEL_GIT_COMMIT_SHA ?? '').slice(0, 7);
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+    __APP_BUILD__: JSON.stringify(build),
+  },
   plugins: [
     react(),
     // 설치형 앱 + 오프라인 (계획 §14). 서비스 워커는 빌드에서만 만들고 개발 서버에는 켜지 않는다.

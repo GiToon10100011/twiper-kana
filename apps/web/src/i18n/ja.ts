@@ -532,6 +532,13 @@ export const ja: typeof ko = {
     importInvalid: 'twiperで書き出した記録ファイルではありません。',
     importNotSaved:
       '記録を合わせましたが、この端末に保存できませんでした。アプリを開き直すと、読み込んだ記録が消えることがあります。',
+    about: 'アプリ情報',
+    version: 'バージョン',
+    devModeOnIn: 'あと{{count}}回押すと開発者モードがオンになります。',
+    devModeOffIn: 'あと{{count}}回押すと開発者モードがオフになります。',
+    devModeOn: '開発者モードをオンにしました。「ステップで覚える」の下に開発ツールが表示されます。',
+    devModeOff: '開発者モードをオフにしました。',
+    devModeActive: '開発者モードがオンです。7回押すとオフになります。',
   },
   sync: {
     title: '端末間の同期',

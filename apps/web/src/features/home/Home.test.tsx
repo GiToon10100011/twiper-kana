@@ -11,6 +11,7 @@ import {
   type TrainingRepo,
 } from '@twiper/core';
 import '../../i18n';
+import { setDevMode } from '../../lib/flags';
 import { recordLevel } from '../../lib/progress';
 import { recordExam } from '../../lib/examRecords';
 import { Home } from './Home';
@@ -173,7 +174,7 @@ describe('Home', () => {
 });
 
 describe('Steps (단계별 익히기)', () => {
-  it('튜토리얼과 코스 목록, 개발 도구를 보여 주고 홈으로 돌아갈 수 있다', () => {
+  it('튜토리얼과 코스 목록을 보여 주고 홈으로 돌아갈 수 있다. 개발 도구는 숨는다', () => {
     render(
       <MemoryRouter>
         <Steps />
@@ -186,6 +187,19 @@ describe('Steps (단계별 익히기)', () => {
     expect(screen.getByRole('link', { name: /글자 찾기/ }).getAttribute('href')).toBe('/find');
     expect(screen.getByRole('link', { name: /あ행/ }).getAttribute('href')).toBe('/train/L1');
     expect(screen.getByRole('link', { name: '홈으로' }).getAttribute('href')).toBe('/');
+    expect(screen.queryByRole('heading', { name: '개발 도구' })).toBeNull();
+    expect(document.querySelector('a[href^="/lab/"]')).toBeNull();
+  });
+
+  it('개발자 모드가 켜져 있으면 개발 도구 목록을 보여 준다', () => {
+    setDevMode(true);
+    render(
+      <MemoryRouter>
+        <Steps />
+      </MemoryRouter>,
+    );
+
     expect(screen.getByRole('heading', { name: '개발 도구' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /동기화/ }).getAttribute('href')).toBe('/lab/sync');
   });
 });
