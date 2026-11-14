@@ -196,6 +196,11 @@ create table sync_batch (
   at         timestamptz not null default now(),
   primary key (space_id, seq)
 );
+create table sync_client (
+  id           text primary key,              -- SHA-256(IP) hex
+  window_start timestamptz not null default now(),
+  window_count integer not null default 0
+);
 -- S3b에서 더한다: sync_space.compaction_id·compaction_up_to·compaction_at, sync_batch.compaction_id
 ```
 
@@ -209,7 +214,7 @@ create table sync_batch (
   - **끊겼을 때:** 기기는 진행 중인 `compactionId`를 localStorage에 적어 둔다. 앱을 다시 열면 이어 올리지 않고 `compact/abort`로 그 임대의 조각만 지운 뒤 처음부터 다시 한다. 끝나지 않은 조각과 끝난 스냅샷은 `compaction_id`가 있느냐로 가린다.
   - **한도:** 끝나지 않은 조각은 공간 한도를 잠시 넘어도 받되, 조각의 합은 공간 한도(20MB)를 넘지 못한다. 그래서 공간은 많아야 40MB이고, 임대가 하나뿐이라 여러 압축이 이 여유를 나눠 먹지 않는다. 스냅샷은 합친 기록이라 옛 묶음 합보다 크지 않다.
   - 조각이 숨어 있는 동안 받은 기기는 옛 묶음을 그대로 받으므로 빠뜨리는 것이 없다. 아직 올리지 못한 기기의 기록은 그 기기의 outbox에 남아 있으므로, 나중에 올리면 된다. 합치기가 합집합이라 스냅샷과 늦게 온 묶음의 순서는 상관없다.
-- **한도:** 요청당 512KB, 공간당 20MB, IP와 공간마다 분당 요청 수 제한. 1년 동안 쓰지 않은 공간은 지운다고 화면과 안내문에 밝힌다.
+- **한도:** 요청당 512KB(받은 바이트로 잰다), 공간당 20MB, 공간마다 1분에 올리기 60번, 요청자(IP)마다 1분에 요청 120번. 요청자 한도는 함수가 여러 개 떠도 함께 세도록 Postgres `sync_client`(IP의 SHA-256, 1분 카운터)에 두고, 1시간 지난 카운터는 치운다. IP 자체는 남기지 않는다. 1년 동안 쓰지 않은 공간은 지운다고 화면과 안내문에 밝힌다.
 - **크기 어림:** 시도 기록 한 줄은 JSON으로 0.5–1KB, gzip을 거치면 그 1/3 안팎이다. 하루 100줄씩 1년을 쳐도 압축 후 10MB 안쪽이다. 구현할 때 실제 기록으로 다시 잰다.
 - 서버가 아는 것: spaceId, 기기 ULID, 묶음 크기와 시각, 요청 IP(접속 기록). 연습 내용·글자·속도는 모른다.
 

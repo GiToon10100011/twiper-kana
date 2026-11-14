@@ -11,12 +11,13 @@ const DEVICE = '01JD0000000000000000000000';
 const request = (
   method: string,
   params: Record<string, string>,
-  { key = KEY, body }: { key?: string | null; body?: unknown } = {},
+  { key = KEY, body, ip }: { key?: string | null; body?: unknown; ip?: string } = {},
 ) =>
   new Request(`https://twiper.test/api/sync?${new URLSearchParams(params)}`, {
     method,
     headers: {
       ...(key ? { authorization: `Bearer ${key}` } : {}),
+      ...(ip ? { 'x-forwarded-for': `${ip}, 10.0.0.1` } : {}),
       ...(body === undefined ? {} : { 'content-type': 'application/json' }),
     },
     body: body === undefined ? undefined : JSON.stringify(body),
@@ -87,9 +88,27 @@ describe('handleSync', () => {
   it('요청이 너무 크면 413, 1분에 너무 자주 올리면 429', async () => {
     const store = createMemoryStore();
     expect((await push(store, 'A'.repeat(600 * 1024))).status).toBe(413);
+    // 글자 수는 한도 안이지만 바이트로는 넘는 본문
+    const wide = new Request(`https://twiper.test/api/sync?space=${SPACE}`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${KEY}` },
+      body: '가'.repeat(200 * 1024),
+    });
+    expect((await handleSync(wide, store)).status).toBe(413);
 
     for (let i = 0; i < 60; i += 1) expect((await push(store)).status).toBe(200);
     expect((await push(store)).status).toBe(429);
+  });
+
+  it('같은 요청자(IP)가 1분에 120번을 넘기면 공간과 관계없이 429, 다른 요청자는 받는다', async () => {
+    const store = createMemoryStore();
+    const get = (ip: string, space: string) => handleSync(request('GET', { space }, { ip }), store);
+    for (let i = 0; i < 120; i += 1) {
+      const space = i.toString(16).padStart(32, '0');
+      expect((await get('203.0.113.7', space)).status).toBe(200);
+    }
+    expect((await get('203.0.113.7', 'f'.repeat(32))).status).toBe(429);
+    expect((await get('198.51.100.2', 'f'.repeat(32))).status).toBe(200);
   });
 
   it('공간이 가득 차면 507로 거절한다', async () => {

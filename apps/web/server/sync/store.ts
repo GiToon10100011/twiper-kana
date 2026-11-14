@@ -45,6 +45,11 @@ export interface SyncStore {
   }): Promise<PullResult>;
   /** 묶음을 모두 지우고 「지움」 표시를 남긴다. 그 뒤 같은 키의 요청은 모두 gone */
   remove(input: { readonly space: string; readonly authHash: string }): Promise<RemoveResult>;
+  /**
+   * 요청자(IP의 해시)가 1분 안에 보낸 요청을 하나 더 세고, 한도 안이면 true. 함수가 여러 개 떠 있어도
+   * 함께 센다 (새 공간을 마구 만드는 요청을 막는다)
+   */
+  admit(input: { readonly client: string; readonly perMinute: number }): Promise<boolean>;
 }
 
 interface MemorySpace {
@@ -62,6 +67,7 @@ const MINUTE = 60_000;
 /** 메모리 저장소 (테스트용). Postgres 구현과 같은 규칙을 따른다 */
 export function createMemoryStore(now: () => number = Date.now): SyncStore {
   const spaces = new Map<string, MemorySpace>();
+  const clients = new Map<string, { windowStart: number; count: number }>();
   const create = (authHash: string, deleted: boolean): MemorySpace => ({
     authHash,
     nextSeq: 0,
@@ -113,6 +119,13 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
       space.batches = [];
       space.bytes = 0;
       return Promise.resolve({ removed: true });
+    },
+    admit({ client, perMinute }) {
+      const seen = clients.get(client);
+      const fresh = !seen || now() - seen.windowStart >= MINUTE;
+      const next = fresh ? { windowStart: now(), count: 1 } : { ...seen, count: seen.count + 1 };
+      clients.set(client, next);
+      return Promise.resolve(next.count <= perMinute);
     },
   };
 }

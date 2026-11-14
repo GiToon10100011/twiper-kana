@@ -6,6 +6,8 @@ export const SYNC_LIMITS = {
   maxRequestBytes: 512 * 1024,
   /** 한 번에 돌려주는 묶음 수 */
   maxPage: 50,
+  /** 요청자(IP)마다 1분에 받는 요청 수 */
+  clientRequestsPerMinute: 120,
   space: { maxBytes: 20 * 1024 * 1024, pushesPerMinute: 60 } satisfies SpaceLimits,
 } as const;
 
@@ -29,6 +31,16 @@ async function sha256Hex(text: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+/** 요청자: Vercel이 붙여 주는 IP의 해시. 서버에는 IP 자체를 남기지 않는다 */
+const clientOf = (request: Request) =>
+  sha256Hex(
+    `twiper-sync/client/${
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+      request.headers.get('x-real-ip') ??
+      'unknown'
+    }`,
+  );
+
 const whole = (value: string | null, fallback: number) => {
   const n = Number(value ?? fallback);
   return Number.isSafeInteger(n) && n >= 0 ? n : null;
@@ -48,6 +60,11 @@ export async function handleSync(request: Request, store: SyncStore): Promise<Re
   const key = AUTH.exec(request.headers.get('authorization') ?? '')?.[1];
   if (!key) return json(401, { error: 'auth' });
   const authHash = await sha256Hex(key);
+  const admitted = await store.admit({
+    client: await clientOf(request),
+    perMinute: SYNC_LIMITS.clientRequestsPerMinute,
+  });
+  if (!admitted) return json(429, { error: 'rate' });
 
   if (request.method === 'GET') {
     const after = whole(url.searchParams.get('after'), 0);
@@ -67,11 +84,12 @@ export async function handleSync(request: Request, store: SyncStore): Promise<Re
   if (request.method === 'POST') {
     const declared = Number(request.headers.get('content-length') ?? 0);
     if (declared > SYNC_LIMITS.maxRequestBytes) return json(413, { error: 'size' });
-    const text = await request.text();
-    if (text.length > SYNC_LIMITS.maxRequestBytes) return json(413, { error: 'size' });
+    // 글자 수가 아니라 받은 바이트로 잰다
+    const raw = new Uint8Array(await request.arrayBuffer());
+    if (raw.byteLength > SYNC_LIMITS.maxRequestBytes) return json(413, { error: 'size' });
     let body: unknown;
     try {
-      body = JSON.parse(text);
+      body = JSON.parse(new TextDecoder().decode(raw));
     } catch {
       return json(400, { error: 'body' });
     }

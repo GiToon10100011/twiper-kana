@@ -25,7 +25,25 @@ const SCHEMA = [
     at        timestamptz not null default now(),
     primary key (space_id, seq)
   )`,
+  `create table if not exists sync_client (
+    id           text primary key,
+    window_start timestamptz not null default now(),
+    window_count integer not null default 0
+  )`,
 ];
+
+/** 요청자(IP의 해시)의 1분 카운터를 하나 올리고 그 수를 돌려준다 */
+const ADMIT = `
+  insert into sync_client (id, window_start, window_count) values ($1, now(), 1)
+  on conflict (id) do update set
+    window_count = case when sync_client.window_start > now() - interval '1 minute'
+      then sync_client.window_count + 1 else 1 end,
+    window_start = case when sync_client.window_start > now() - interval '1 minute'
+      then sync_client.window_start else now() end
+  returning window_count`;
+
+/** 1시간 넘게 쓰지 않은 요청자 카운터 (가끔 치운다) */
+const SWEEP_CLIENTS = `delete from sync_client where window_start < now() - interval '1 hour'`;
 
 /**
  * 묶음 쌓기. 공간 행을 바꾸는 update가 커밋까지 그 행을 잠그므로, 같은 공간의 쓰기는 한 줄로 서고
@@ -135,6 +153,12 @@ export function createNeonStore(sql: Sql): SyncStore {
         sql.query('delete from sync_batch where space_id = $1', [space]),
       ]);
       return { removed: true };
+    },
+    async admit({ client, perMinute }) {
+      await ensure();
+      const [row] = (await sql.query(ADMIT, [client])) as { window_count: number }[];
+      if (Math.random() < 0.01) await sql.query(SWEEP_CLIENTS);
+      return (row?.window_count ?? 0) <= perMinute;
     },
   };
 }
