@@ -1348,31 +1348,27 @@ a.tile-row:active {
   opacity: 0.45;
 }
 
-/* 앱 정보의 「버전」: 줄 전체가 버튼이지만 보통 줄처럼 보인다 (7번 누르면 개발자 모드) */
-button.setting-tap {
-  width: 100%;
-  min-height: 3.5rem;
-  font: inherit;
-  color: var(--ink);
-  text-align: left;
-  cursor: pointer;
-  background: none;
-  border: 0;
-  transition: background var(--duration-fast) var(--ease);
-}
-
-button.setting-tap:active {
-  background: var(--accent-soft);
-}
-
-.setting-tap small:empty {
-  display: none;
-}
-
-.setting-value {
-  flex: none;
+/* 설정 맨 아래의 버전: 버튼처럼 보이지 않는 회색 글씨. 눌러도 반응이 없다 (7번 누르면 개발자 모드) */
+.settings-footer {
+  margin-top: 1.5rem;
+  font-size: 0.8125rem;
   color: var(--ink-muted);
+  text-align: center;
+}
+
+.settings-version {
+  margin: 0;
   font-variant-numeric: tabular-nums;
+  /* 잇달아 눌러도 확대되거나 글자가 골라지지 않게 */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.settings-footer-note {
+  min-height: 1.25rem;
+  margin: var(--space-1) 0 0;
 }
 
 .backup-status {

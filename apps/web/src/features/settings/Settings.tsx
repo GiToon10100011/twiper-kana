@@ -12,7 +12,7 @@ import {
 } from '../../lib/settings';
 import { BackIcon } from '../../ui/icons';
 import { Pills } from '../../ui/Pills';
-import { AboutSection } from './AboutSection';
+import { VersionFooter } from './VersionFooter';
 import { BackupSection } from './BackupSection';
 import { SyncSettings } from './SyncSettings';
 
@@ -128,7 +128,7 @@ export function Settings() {
       {/* 다른 기기에서 받은 설정이 있을 수 있어 동기화가 끝나면 값을 다시 읽는다 */}
       <SyncSettings onSynced={() => setSettings(loadSettings())} />
       <BackupSection />
-      <AboutSection />
+      <VersionFooter />
     </main>
   );
 }
