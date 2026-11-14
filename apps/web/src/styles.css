@@ -1353,6 +1353,73 @@ a.tile-row:active {
   color: var(--danger);
 }
 
+/* 기기 간 동기화 */
+.sync-code {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.sync-code-input {
+  height: 3rem;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.sync-code-input::placeholder {
+  text-transform: none;
+}
+
+.sync-buttons {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.sync-buttons.is-end {
+  justify-content: flex-end;
+}
+
+.setting-row small.sync-keep {
+  margin-top: 0;
+}
+
+.sync-status {
+  min-height: 1.25rem;
+  margin: var(--space-3) var(--space-1) 0;
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.setting-row .sync-status {
+  min-height: 0;
+  margin: 0;
+}
+
+.sync-status.is-warning {
+  color: var(--danger);
+}
+
+.sync-privacy {
+  margin-top: var(--space-2);
+}
+
+.btn-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:active {
+  background: var(--danger-soft);
+}
+
 .switch {
   position: relative;
   flex: none;

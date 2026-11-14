@@ -9,6 +9,7 @@ import { CourseTilesLab } from './features/lab/CourseTilesLab';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
 import { ReviewLab } from './features/lab/ReviewLab';
+import { SyncLab } from './features/lab/SyncLab';
 import { TrendLab } from './features/lab/TrendLab';
 import { ReviewPractice } from './features/review/ReviewPractice';
 import { WeakPractice } from './features/weak/WeakPractice';
@@ -49,6 +50,7 @@ export function App() {
           <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
           <Route path="/lab/trend" element={<TrendLab />} />
           <Route path="/lab/review" element={<ReviewLab />} />
+          <Route path="/lab/sync" element={<SyncLab />} />
         </Routes>
       )}
     </BrowserRouter>
