@@ -1342,6 +1342,12 @@ a.tile-row:active {
   color: var(--ink-muted);
 }
 
+/* 주요 동작(동기화 코드 「연결」)은 비활성이어도 흰 글씨로 두고 버튼째 흐리게 한다 */
+.setting-row .btn-primary:disabled {
+  color: var(--on-accent);
+  opacity: 0.45;
+}
+
 .backup-status {
   min-height: 1.25rem;
   margin: var(--space-3) var(--space-1) 0;
