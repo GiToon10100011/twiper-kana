@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { handleSync } from './handler';
-import { createMemoryStore, type SyncStore } from './store';
+import { createMemoryStore, LEASE_IDLE_MS, type SyncStore } from './store';
 
 const SPACE = 'a'.repeat(32);
 const KEY = 'k'.repeat(43);
@@ -39,10 +39,11 @@ describe('handleSync', () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
       batches: [{ seq: 2, deviceId: DEVICE, iv: 'aXY=', data: 'Qg==' }],
+      bytes: 8,
     });
     // 아직 아무도 올리지 않은 공간은 빈 목록이다
     const empty = await handleSync(request('GET', { space: 'b'.repeat(32) }), store);
-    expect(await empty.json()).toEqual({ batches: [] });
+    expect(await empty.json()).toEqual({ batches: [], bytes: 0 });
   });
 
   it('공간·키·본문이 모양에 맞지 않으면 받지 않는다', async () => {
@@ -133,5 +134,109 @@ describe('createMemoryStore', () => {
     expect(await store.push({ ...input, data: 'QUJD' })).toEqual({ seq: 2 });
     now = 120_000;
     expect(await store.push({ ...input, data: 'QUJD' })).toEqual({ denied: 'full' });
+  });
+});
+
+describe('압축 (S3b)', () => {
+  const key = { space: SPACE, authHash: 'h' };
+  const limits = { maxBytes: 12, pushesPerMinute: 100 };
+  const put = (store: SyncStore, data: string, compactionId?: string) =>
+    store.push({
+      ...key,
+      deviceId: DEVICE,
+      iv: 'aXY=',
+      data,
+      limits,
+      ...(compactionId ? { compactionId } : {}),
+    });
+  const seqs = async (store: SyncStore) => {
+    const result = await store.pull({ ...key, after: 0, limit: 50 });
+    return 'denied' in result ? result : result.batches.map((b) => b.seq);
+  };
+
+  it('스냅샷 조각은 끝내기 전까지 보이지 않고, 끝내면 upTo 이하를 지우고 조각을 보인다', async () => {
+    const store = createMemoryStore();
+    await put(store, 'QUJD');
+    await put(store, 'REVG');
+    const lease = await store.startCompaction({ ...key, upTo: 2 });
+    if (!('compactionId' in lease)) throw new Error('임대를 받지 못함');
+    // 압축 중에 다른 기기가 올린 묶음은 그대로 보인다
+    await put(store, 'R0hJ');
+    // 한도(12)를 넘지만 압축 조각은 2배까지 받는다
+    expect(await put(store, 'QUJDREVG', lease.compactionId)).toEqual({ seq: 4 });
+    expect(await seqs(store)).toEqual([1, 2, 3]);
+
+    expect(await store.finishCompaction({ ...key, compactionId: lease.compactionId })).toEqual({
+      done: true,
+    });
+    expect(await seqs(store)).toEqual([3, 4]);
+    expect(await store.pull({ ...key, after: 0, limit: 50 })).toMatchObject({ bytes: 12 });
+  });
+
+  it('임대는 공간마다 하나뿐이고, 취소하면 그 조각만 지운다', async () => {
+    const store = createMemoryStore();
+    await put(store, 'QUJD');
+    const lease = await store.startCompaction({ ...key, upTo: 1 });
+    if (!('compactionId' in lease)) throw new Error('임대를 받지 못함');
+    expect(await store.startCompaction({ ...key, upTo: 1 })).toEqual({ denied: 'busy' });
+    await put(store, 'REVG', lease.compactionId);
+
+    expect(await store.abortCompaction({ ...key, compactionId: lease.compactionId })).toEqual({
+      done: true,
+    });
+    expect(await seqs(store)).toEqual([1]);
+    // 끝낸 임대로는 더 올리거나 끝낼 수 없다
+    expect(await put(store, 'R0hJ', lease.compactionId)).toEqual({ denied: 'busy' });
+    expect(await store.finishCompaction({ ...key, compactionId: lease.compactionId })).toEqual({
+      denied: 'busy',
+    });
+  });
+
+  it('15분 동안 활동이 없는 임대는 버려진 것으로 보고, 다음 압축이 그 조각을 지우고 넘겨받는다', async () => {
+    let now = 0;
+    const store = createMemoryStore(() => now);
+    await put(store, 'QUJD');
+    const stale = await store.startCompaction({ ...key, upTo: 1 });
+    if (!('compactionId' in stale)) throw new Error('임대를 받지 못함');
+    await put(store, 'REVG', stale.compactionId);
+
+    now = LEASE_IDLE_MS;
+    const fresh = await store.startCompaction({ ...key, upTo: 1 });
+    expect(fresh).toHaveProperty('compactionId');
+    expect(await store.finishCompaction({ ...key, compactionId: stale.compactionId })).toEqual({
+      denied: 'busy',
+    });
+    if (!('compactionId' in fresh)) throw new Error('임대를 받지 못함');
+    await store.finishCompaction({ ...key, compactionId: fresh.compactionId });
+    // 버려진 조각(2번)은 사라졌고, 1번도 upTo라 지워졌다
+    expect(await seqs(store)).toEqual([]);
+  });
+
+  it('처리부: 임대를 받고 조각을 올려 끝내며, 진행 중인 압축이 있으면 409', async () => {
+    const store = createMemoryStore();
+    await push(store);
+    const post = (op: string, body: unknown) =>
+      handleSync(request('POST', { space: SPACE, op }, { body }), store);
+    const started = await post('compact-start', { upTo: 1 });
+    expect(started.status).toBe(200);
+    const { compactionId } = (await started.json()) as { compactionId: string };
+    expect((await post('compact-start', { upTo: 1 })).status).toBe(409);
+
+    const piece = new Request(`https://twiper.test/api/sync?space=${SPACE}`, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${KEY}`,
+        'compaction-id': compactionId,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ deviceId: DEVICE, iv: 'aXY=', data: 'U05BUA==' }),
+    });
+    expect(await (await handleSync(piece, store)).json()).toEqual({ seq: 2 });
+    expect((await post('compact-finish', { compactionId })).status).toBe(200);
+    const listed = await handleSync(request('GET', { space: SPACE }), store);
+    expect(
+      ((await listed.json()) as { batches: { seq: number }[] }).batches.map((b) => b.seq),
+    ).toEqual([2]);
+    expect((await post('compact-abort', { compactionId: 'nope' })).status).toBe(400);
   });
 });

@@ -1,6 +1,7 @@
 import {
   buildBatches,
   syncOnce,
+  type SyncBatch,
   type SyncCodec,
   type SyncCursor,
   type SyncDevice,
@@ -63,6 +64,24 @@ function loadSync(): SyncStored {
   } catch {
     return EMPTY;
   }
+}
+
+/** 지금 커서 (어디까지 받았는지) */
+export function syncCursor(): SyncCursor {
+  const { lastSeq, uploaded } = loadSync();
+  return { lastSeq, uploaded };
+}
+
+/** 이 기기의 전체 상태와 기록을 묶음들로 만든다 (압축의 스냅샷, 동기화 설계 §4.6) */
+export async function snapshotBatches(repo: TrainingRepo): Promise<SyncBatch[]> {
+  const legacyPlays = await ensureLegacyPlays(repo);
+  const state = {
+    progress: loadProgress(),
+    exams: loadExamRecords(),
+    legacyPlays,
+    settings: stampedSettings(),
+  };
+  return buildBatches(deviceId(), state, await repo.dumpRecords());
 }
 
 /** 커서를 비운다 (동기화를 켜거나 끌 때: 새 공간은 처음부터 받고, 처음 올리기를 다시 한다) */

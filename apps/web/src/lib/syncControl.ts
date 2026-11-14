@@ -2,11 +2,22 @@ import type { TrainingRepo } from '@twiper/core';
 import { applyLanguage } from '../i18n';
 import { deviceId } from './device';
 import { clearSettingStamps, loadSettings, stampAllSettings } from './settings';
-import { resetSyncCursor, syncDevice } from './sync';
-import { cryptoCodec, newSyncCode, normalizeSyncCode, syncKeys } from './syncCrypto';
+import { resetSyncCursor, snapshotBatches, syncCursor, syncDevice } from './sync';
+import {
+  cryptoCodec,
+  newSyncCode,
+  normalizeSyncCode,
+  syncKeys,
+  type SyncPayload,
+} from './syncCrypto';
 import { httpSyncServer, SyncHttpError } from './syncHttp';
 
 const LINK_KEY = 'twiper.sync.link.v1';
+/** 진행 중인 압축 임대 { code, id }. 끊기면 다음 동기화 처음에 취소한다 */
+const COMPACTION_KEY = 'twiper.sync.compaction.v1';
+
+/** 공간이 이만큼 쌓이면 압축한다 (공간 한도의 절반, 동기화 설계 §4.6) */
+export const COMPACT_AT_BYTES = 10 * 1024 * 1024;
 
 /** 지난 동기화가 남긴 문제: 연결 실패 · 더 높은 버전의 묶음이 있어 업데이트가 필요함 */
 export type SyncLinkProblem = 'failed' | 'update';
@@ -90,6 +101,59 @@ export function turnOffSync(): void {
   resetSyncCursor();
 }
 
+function loadPendingCompaction(): { code: string; id: string } | null {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(COMPACTION_KEY) ?? 'null');
+    if (typeof parsed !== 'object' || parsed === null) return null;
+    const { code, id } = parsed as Record<string, unknown>;
+    return typeof code === 'string' && typeof id === 'string' ? { code, id } : null;
+  } catch {
+    return null;
+  }
+}
+
+function savePendingCompaction(pending: { code: string; id: string } | null): void {
+  try {
+    if (pending) localStorage.setItem(COMPACTION_KEY, JSON.stringify(pending));
+    else localStorage.removeItem(COMPACTION_KEY);
+  } catch {
+    // 적지 못하면 끊긴 임대는 15분 뒤 버려진 것으로 보고 다음 압축이 넘겨받는다.
+  }
+}
+
+type Server = ReturnType<typeof httpSyncServer>;
+
+/** 지난번에 끊긴 압축이 있으면 그 임대의 조각만 지운다. 다른 코드의 임대는 15분 뒤 저절로 풀린다 */
+async function abortPendingCompaction(code: string, server: Server): Promise<void> {
+  const pending = loadPendingCompaction();
+  if (!pending) return;
+  if (pending.code === code) await server.abortCompaction(pending.id).catch(() => undefined);
+  savePendingCompaction(null);
+}
+
+/**
+ * 압축 (§4.6): 임대를 받고, 이 기기의 전체 상태와 기록을 스냅샷 조각으로 올린 뒤 끝낸다. 서버는 끝낼 때
+ * 이 기기가 받은 데(upTo)까지의 묶음을 지운다. 스냅샷에는 그것이 모두 들어 있다
+ */
+async function compact(
+  repo: TrainingRepo,
+  server: Server,
+  encode: (batch: Awaited<ReturnType<typeof snapshotBatches>>[number]) => Promise<SyncPayload>,
+  code: string,
+  isCurrent: () => boolean,
+): Promise<void> {
+  const id = await server.startCompaction(syncCursor().lastSeq);
+  savePendingCompaction({ code, id });
+  for (const batch of await snapshotBatches(repo)) {
+    // 그사이 연결이 바뀌었으면 그만둔다 (적어 둔 임대는 다음에 취소한다)
+    if (!isCurrent()) return;
+    await server.pushSnapshot(await encode(batch), id);
+  }
+  if (!isCurrent()) return;
+  await server.finishCompaction(id);
+  savePendingCompaction(null);
+}
+
 /** 한 번 주고받은 결과. 다른 기기에서 서버의 기록을 지웠으면(410) 이 기기의 동기화도 꺼지고 gone */
 export type SyncRun = { readonly link: SyncLink } | { readonly gone: true };
 
@@ -103,7 +167,12 @@ let running: { readonly generation: number; readonly result: Promise<SyncRun | n
  */
 export function runSync(
   repo: TrainingRepo,
-  options: { readonly fetchFn?: Fetch; readonly now?: () => number } = {},
+  options: {
+    readonly fetchFn?: Fetch;
+    readonly now?: () => number;
+    /** 이만큼 쌓이면 압축한다 (테스트용) */
+    readonly compactAt?: number;
+  } = {},
 ): Promise<SyncRun | null> {
   if (running && running.generation === generation) return running.result;
   const started = generation;
@@ -113,17 +182,30 @@ export function runSync(
     if (!link) return null;
     const keys = await syncKeys(link.code);
     const server = httpSyncServer(keys, deviceId(), options.fetchFn);
+    const codec = cryptoCodec(keys.encKey);
     let next: SyncLink;
     try {
+      await abortPendingCompaction(link.code, server);
       const outcome = await syncDevice(
         repo,
         server,
-        cryptoCodec(keys.encKey),
+        codec,
         (changed) => {
           if (changed.includes('language')) applyLanguage(loadSettings().language);
         },
         isCurrent,
       );
+      const bytes = server.spaceBytes() ?? 0;
+      if (
+        outcome.status === 'done' &&
+        isCurrent() &&
+        bytes >= (options.compactAt ?? COMPACT_AT_BYTES)
+      ) {
+        // 압축은 실패해도 동기화 결과와 상관없다 (다음 동기화에서 다시 한다)
+        await compact(repo, server, (batch) => codec.encode(batch), link.code, isCurrent).catch(
+          () => undefined,
+        );
+      }
       next =
         outcome.status === 'done'
           ? { ...link, syncedAt: (options.now ?? Date.now)(), problem: null }
