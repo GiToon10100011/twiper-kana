@@ -85,11 +85,17 @@ describe('동기화 서버 (암호화 + HTTP + API 처리부)', () => {
     await syncDevice(repoA, a.server, a.codec);
     expect(loadProgress().L1?.plays).toBe(2);
 
-    // 서버로 간 것은 암호문뿐이다 (기기 ID 말고는 내용을 알 수 없다)
-    const posted = requests.filter((r) => r.body !== '').map((r) => r.body);
+    // 서버로 간 것은 기기 ID와 암호문뿐이다: 같은 코드의 키로는 묶음이 풀리고, 다른 키로는 풀리지 않는다
+    const posted = requests
+      .filter((r) => r.body !== '')
+      .map((r) => JSON.parse(r.body) as Record<string, string>);
     expect(posted.length).toBeGreaterThan(0);
+    const other = cryptoCodec((await syncKeys(newSyncCode())).encKey);
     for (const body of posted) {
-      expect(body).not.toMatch(/L1|wpm|speedUnit|twiper-sync/u);
+      expect(Object.keys(body).sort()).toEqual(['data', 'deviceId', 'iv']);
+      const payload = { iv: body.iv ?? '', data: body.data ?? '' };
+      expect(await a.codec.decode(payload)).toMatchObject({ format: 'twiper-sync' });
+      await expect(other.decode(payload)).rejects.toThrow();
     }
   });
 
