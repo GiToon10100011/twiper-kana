@@ -278,14 +278,22 @@ export function createNeonStore(sql: Sql): SyncStore {
     },
     async sweep() {
       await ensure();
-      // 묶음은 on delete cascade로 함께 지워진다
-      const rows = (await sql.query(
-        `delete from sync_space
-         where coalesce(deleted_at, used_at) < now() - interval '1 year'
-         returning id`,
-      )) as unknown[];
+      // 행은 「지움」 표시로 남겨 번호(next_seq)를 이어 가고, 묶음만 지운다 (store.sweep 참고)
+      const results = await sql.transaction([
+        sql.query(
+          `delete from sync_batch where space_id in (select id from sync_space
+             where deleted_at is null and used_at < now() - interval '1 year')`,
+        ),
+        sql.query(
+          `update sync_space set deleted_at = now(), bytes = 0,
+             compaction_id = null, compaction_up_to = null, compaction_at = null
+           where deleted_at is null and used_at < now() - interval '1 year'
+           returning id`,
+        ),
+      ]);
       await sql.query(SWEEP_CLIENTS);
-      return { spaces: rows.length };
+      const swept = (results as unknown[][])[1];
+      return { spaces: swept?.length ?? 0 };
     },
   };
 }

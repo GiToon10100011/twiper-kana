@@ -39,7 +39,7 @@ export interface SpaceLimits {
 /** 이만큼 활동이 없는 압축 임대는 버려진 것으로 본다 (§4.6) */
 export const LEASE_IDLE_MS = 15 * 60_000;
 
-/** 이만큼 쓰지 않은 공간과 「지움」 표시는 지운다 (§4.6, 동기화 칸의 안내문과 같다) */
+/** 이만큼 쓰지 않은 공간의 기록은 지운다 (§4.6, 동기화 칸의 안내문과 같다) */
 export const RETENTION_MS = 365 * 24 * 60 * 60_000;
 
 /** 받기만 하는 기기도 공간을 쓰는 것으로 치되, 쓴 때는 하루에 한 번만 고쳐 쓴다 */
@@ -80,8 +80,9 @@ export interface SyncStore {
   /** 그 임대의 조각만 지우고 임대를 푼다 */
   abortCompaction(input: SpaceKey & { readonly compactionId: string }): Promise<LeaseResult>;
   /**
-   * 1년 넘게 쓰지 않은 공간과, 지운 지 1년 지난 「지움」 표시를 묶음째 지운다. 지운 공간 수를 돌려준다.
-   * 하루 한 번 예약 작업이 부른다
+   * 1년 넘게 쓰지 않은 공간의 묶음을 지우고 「지움」 표시로 바꾼다. 지운 공간 수를 돌려준다. 하루 한 번 예약
+   * 작업이 부른다. 표시(행)는 지우지 않는다: 같은 코드로 공간이 다시 생겨 번호가 1부터 다시 시작하면,
+   * 예전 커서를 가진 기기가 새 묶음을 조용히 건너뛰기 때문이다. 표시가 남으면 그 기기는 410을 받아 꺼진다
    */
   sweep(): Promise<{ readonly spaces: number }>;
 }
@@ -240,9 +241,12 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
     },
     sweep() {
       let removed = 0;
-      for (const [id, space] of spaces) {
-        if (now() - (space.deletedAt ?? space.usedAt) < RETENTION_MS) continue;
-        spaces.delete(id);
+      for (const space of spaces.values()) {
+        if (space.deleted || now() - space.usedAt < RETENTION_MS) continue;
+        space.deleted = true;
+        space.deletedAt = now();
+        space.batches = [];
+        space.lease = null;
         removed += 1;
       }
       return Promise.resolve({ spaces: removed });

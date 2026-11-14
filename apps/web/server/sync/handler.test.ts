@@ -253,29 +253,33 @@ describe('1년 동안 쓰지 않은 공간 지우기', () => {
   const put = (store: SyncStore, space: string) =>
     store.push({ space, authHash: 'h', deviceId: DEVICE, iv: 'aXY=', data: 'QUJD', limits });
 
-  it('1년 넘게 쓰지 않은 공간과 지운 지 1년 지난 표시를 지우고, 받기만 해도 쓰는 것으로 친다', async () => {
+  it('1년 넘게 쓰지 않은 공간의 기록을 지우고 「지움」 표시로 남기며, 받기만 해도 쓰는 것으로 친다', async () => {
     let now = 0;
     const store = createMemoryStore(() => now);
     const idle = '1'.repeat(32);
     const reader = '2'.repeat(32);
-    const removed = '3'.repeat(32);
+    await put(store, idle);
     await put(store, idle);
     await put(store, reader);
-    await store.remove({ space: removed, authHash: 'h' });
 
     // 반년 뒤 reader 공간에서 받기만 한다
     now = 180 * day;
     await store.pull({ space: reader, authHash: 'h', after: 0, limit: 50 });
 
     now = RETENTION_MS + day;
-    expect(await store.sweep()).toEqual({ spaces: 2 });
-    // 지운 공간은 처음부터 다시 쓸 수 있고, reader는 그대로다
-    expect(await store.pull({ space: idle, authHash: 'h', after: 0, limit: 50 })).toMatchObject({
-      batches: [],
+    expect(await store.sweep()).toEqual({ spaces: 1 });
+    // 지운 공간은 같은 코드로 되살아나지 않는다: 예전 커서(2번)를 가진 기기는 410을 받아 꺼진다
+    expect(await store.pull({ space: idle, authHash: 'h', after: 2, limit: 50 })).toEqual({
+      denied: 'gone',
     });
+    expect(await put(store, idle)).toEqual({ denied: 'gone' });
     expect(await store.pull({ space: reader, authHash: 'h', after: 0, limit: 50 })).toMatchObject({
       batches: [{ seq: 1 }],
     });
+    // 표시는 다시 정리해도 남는다
+    now += RETENTION_MS * 2;
+    expect(await store.sweep()).toEqual({ spaces: 1 });
+    expect(await put(store, idle)).toEqual({ denied: 'gone' });
   });
 
   it('예약 작업 요청은 CRON_SECRET이 맞을 때만 정리한다', async () => {
