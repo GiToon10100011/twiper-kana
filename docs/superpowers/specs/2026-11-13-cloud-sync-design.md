@@ -60,7 +60,7 @@ encKey   = HKDF-SHA256(코드, info = "twiper-sync/v1/enc")  → AES-GCM 256    
 ```
 
 - 모두 WebCrypto(`crypto.subtle`)로 만든다. iOS Safari에서 쓸 수 있다.
-- 코드는 localStorage `twiper.sync.v1`에 둔다. 「코드 보기」에서 다시 확인하고 복사할 수 있다.
+- 코드는 localStorage `twiper.sync.link.v1`(`{ code, syncedAt, problem }`)에 둔다. 받은 데까지의 커서는 `twiper.sync.v1`에 따로 둔다. 「코드 보기」에서 다시 확인하고 복사할 수 있다.
 - **코드를 잃으면 서버의 기록은 되찾을 수 없다.** 기기에 남은 기록은 그대로이므로, 새 코드를 만들면 그 기기의 기록이 새 공간으로 올라간다. 화면에서 이것을 분명히 알린다.
 - QR 코드는 넣지 않는다. iPhone 카메라로 읽으면 홈 화면 앱이 아니라 Safari 탭이 열려, 정작 묶고 싶은 쪽으로 가지 않기 때문이다. **복사 → 붙여 넣기**를 기본으로 한다.
 
