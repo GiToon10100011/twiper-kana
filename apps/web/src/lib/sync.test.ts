@@ -115,4 +115,48 @@ describe('sync', () => {
     await syncDevice(repoB, server, jsonCodec);
     expect(loadSettings().speedUnit).toBe('kpm');
   });
+
+  it('받은 기록을 기기에 남기지 못하면 받은 것으로 치지 않고, 다음에 다시 받는다', async () => {
+    const server = createMemorySyncServer<string>();
+    const repoA = savedRepo();
+    await play(repoA, 'L1');
+    await syncDevice(repoA, server, jsonCodec);
+
+    useStorage({});
+    // IndexedDB를 쓸 수 없어 메모리에만 합쳐지는 기기
+    await expect(syncDevice(createMemoryRepo(), server, jsonCodec)).rejects.toThrow();
+    expect(localStorage.getItem('twiper.sync.v1')).toBeNull();
+
+    const repoB = savedRepo();
+    expect(await syncDevice(repoB, server, jsonCodec)).toMatchObject({ status: 'done', pulled: 1 });
+    expect(loadProgress().L1?.plays).toBe(1);
+  });
+
+  it('받은 설정을 저장하지 못하면 받은 것으로 치지 않고, 다음에 다시 받는다', async () => {
+    const server = createMemorySyncServer<string>();
+    saveSettings({ ...loadSettings(), speedUnit: 'cpm' }, 1_000);
+    await syncDevice(savedRepo(), server, jsonCodec);
+
+    useStorage({});
+    const repoB = savedRepo();
+    const original = Storage.prototype.setItem;
+    const blocked = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (
+      this: Storage,
+      key: string,
+      value: string,
+    ) {
+      if (key === 'twiper.settings.v1')
+        throw new DOMException('저장 공간이 찼음', 'QuotaExceededError');
+      original.call(this, key, value);
+    });
+    await expect(syncDevice(repoB, server, jsonCodec)).rejects.toThrow();
+    expect(JSON.parse(localStorage.getItem('twiper.sync.v1') ?? '{}')).not.toHaveProperty(
+      'lastSeq',
+      1,
+    );
+
+    blocked.mockRestore();
+    await syncDevice(repoB, server, jsonCodec);
+    expect(loadSettings().speedUnit).toBe('cpm');
+  });
 });

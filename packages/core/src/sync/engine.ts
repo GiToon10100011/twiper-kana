@@ -130,7 +130,8 @@ function readBatch(value: unknown): SyncBatch | 'newer' | null {
 
 /**
  * 한 번 주고받는다 (동기화 설계 §4.5): 받은 데 다음부터 끝까지 받아 합치고, 그다음 올린다.
- * 받은 묶음마다 커서를 저장하므로 도중에 끊겨도 받은 데까지는 남는다. 올리다 끊기면 outbox가 남아
+ * 받은 묶음마다 커서를 저장하므로 도중에 끊겨도 받은 데까지는 남는다. 합치기(device.merge)가 실패하면
+ * 커서를 그 앞에 두고 멈추므로, 다음에 그 묶음부터 다시 받는다. 올리다 끊기면 outbox가 남아
  * 다음에 다시 올린다 (같은 묶음을 두 번 올려도 합치기가 중복을 없앤다)
  */
 export async function syncOnce<P>(
@@ -142,8 +143,11 @@ export async function syncOnce<P>(
   let cursor = await device.loadCursor();
   let pulled = 0;
   for (;;) {
-    const page = await server.pull(cursor.lastSeq, pageSize);
+    const after = cursor.lastSeq;
+    const page = await server.pull(after, pageSize);
     for (const { seq, payload } of page) {
+      // 이미 받은 번호는 건너뛴다 (서버는 after보다 큰 번호만 주어야 한다)
+      if (seq <= cursor.lastSeq) continue;
       const batch = readBatch(await codec.decode(payload));
       // 그 묶음과 뒤의 묶음은 합치지 않고, 커서도 그 앞까지만 둔다
       if (batch === 'newer') return { status: 'update-required', pulled, at: seq };
@@ -155,6 +159,8 @@ export async function syncOnce<P>(
       await device.saveCursor(cursor);
     }
     if (page.length < pageSize) break;
+    // 꽉 찬 페이지인데 커서가 나아가지 않았으면 같은 페이지를 끝없이 받게 되므로 멈춘다
+    if (cursor.lastSeq <= after) throw new Error('서버가 다음 묶음을 주지 않았다');
   }
   const { batches, done } = await device.collect(!cursor.uploaded);
   for (const batch of batches) await server.push(await codec.encode(batch));

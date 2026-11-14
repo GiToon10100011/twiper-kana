@@ -73,7 +73,7 @@ export function createSyncDevice(
       return Promise.resolve();
     },
     async merge(batch) {
-      await mergeRecordsOf(
+      const merged = await mergeRecordsOf(
         {
           progress: parseProgress(batch.progress),
           exams: parseExamRecords(batch.exams),
@@ -84,6 +84,8 @@ export function createSyncDevice(
         repo,
         false,
       );
+      // 기기에 남기지 못했으면(메모리 저장소로 바뀐 경우 등) 받은 것으로 치지 않는다: 다음에 다시 받는다
+      if (!merged.persisted) throw new Error('받은 기록을 기기에 저장하지 못했다');
       const changed = mergeSyncedSettings(batch.settings);
       if (changed.length > 0) onSettings?.(changed);
     },

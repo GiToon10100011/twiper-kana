@@ -227,6 +227,59 @@ describe('syncOnce', () => {
   });
 });
 
+describe('syncOnce 실패', () => {
+  it('합치기가 실패하면 커서를 그 앞에 두고 멈춰, 다음에 그 묶음부터 다시 받는다', async () => {
+    const server = createMemorySyncServer<string>();
+    const a = createDevice('A');
+    await a.play('L1');
+    await syncOnce(a.device, server, codec);
+    const c = createDevice('C');
+    await c.play('L2');
+    await syncOnce(c.device, server, codec);
+
+    const b = createDevice('B');
+    let fail = true;
+    const flakyMerge: SyncDevice = {
+      ...b.device,
+      merge: (batch) =>
+        batch.deviceId === 'C' && fail
+          ? Promise.reject(new Error('저장 못함'))
+          : b.device.merge(batch),
+    };
+    await expect(syncOnce(flakyMerge, server, codec)).rejects.toThrow('저장 못함');
+    expect((await b.device.loadCursor()).lastSeq).toBe(1);
+
+    fail = false;
+    await syncOnce(flakyMerge, server, codec);
+    expect((await b.snapshot()).plays).toEqual({ L1: 1, L2: 1 });
+  });
+
+  it('꽉 찬 페이지인데 커서가 나아가지 않으면 끝없이 받지 않고 멈춘다', async () => {
+    const batch = buildBatches(
+      'A',
+      { progress: {}, exams: {}, legacyPlays: {}, settings: {} },
+      {
+        attempts: [],
+        sessions: [],
+      },
+    )[0];
+    const payload = JSON.stringify(batch);
+    // after와 관계없이 늘 같은 두 묶음을 주는 서버
+    const stuck: SyncServer<string> = {
+      pull: () =>
+        Promise.resolve([
+          { seq: 1, payload },
+          { seq: 2, payload },
+        ]),
+      push: () => Promise.resolve(3),
+    };
+
+    await expect(syncOnce(createDevice('B').device, stuck, codec, 2)).rejects.toThrow(
+      '서버가 다음 묶음을 주지 않았다',
+    );
+  });
+});
+
 describe('buildBatches', () => {
   const state = { progress: {}, exams: {}, legacyPlays: {}, settings: {} };
   const session = (id: string) => ({
