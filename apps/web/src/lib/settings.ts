@@ -1,4 +1,4 @@
-import { HELP_POLICY, nextStampAt, type Stamp, type Stamps } from '@twiper/core';
+import { HELP_POLICY, isLaterStamp, nextStampAt, type Stamp, type Stamps } from '@twiper/core';
 import { deviceId } from './device';
 import { LOCALES, type LanguageChoice } from '../i18n/locale';
 
@@ -48,27 +48,30 @@ const isLanguageChoice = (value: unknown): value is LanguageChoice =>
 export function loadSettings(): Settings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
-    if (!raw) return DEFAULT_SETTINGS;
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== 'object' || parsed === null) return DEFAULT_SETTINGS;
-    const { unlockAll, helpIdleMs, requireKanji, language, speedUnit } = parsed as Record<
-      string,
-      unknown
-    >;
-    return {
-      unlockAll: unlockAll === true,
-      helpIdleMs:
-        typeof helpIdleMs === 'number' && HELP_IDLE_CHOICES.includes(helpIdleMs)
-          ? helpIdleMs
-          : DEFAULT_SETTINGS.helpIdleMs,
-      // 예전에 저장한 설정에는 없으므로 껐을 때만 끈다
-      requireKanji: requireKanji !== false,
-      language: isLanguageChoice(language) ? language : DEFAULT_SETTINGS.language,
-      speedUnit: isSpeedUnit(speedUnit) ? speedUnit : DEFAULT_SETTINGS.speedUnit,
-    };
+    return raw ? parseSettings(JSON.parse(raw)) : DEFAULT_SETTINGS;
   } catch {
     return DEFAULT_SETTINGS;
   }
+}
+
+/** 저장해 둔 값을 읽는다. 고를 수 없는 값은 기본값으로 본다 */
+function parseSettings(parsed: unknown): Settings {
+  if (typeof parsed !== 'object' || parsed === null) return DEFAULT_SETTINGS;
+  const { unlockAll, helpIdleMs, requireKanji, language, speedUnit } = parsed as Record<
+    string,
+    unknown
+  >;
+  return {
+    unlockAll: unlockAll === true,
+    helpIdleMs:
+      typeof helpIdleMs === 'number' && HELP_IDLE_CHOICES.includes(helpIdleMs)
+        ? helpIdleMs
+        : DEFAULT_SETTINGS.helpIdleMs,
+    // 예전에 저장한 설정에는 없으므로 껐을 때만 끈다
+    requireKanji: requireKanji !== false,
+    language: isLanguageChoice(language) ? language : DEFAULT_SETTINGS.language,
+    speedUnit: isSpeedUnit(speedUnit) ? speedUnit : DEFAULT_SETTINGS.speedUnit,
+  };
 }
 
 /** 바꾼 항목에는 바꾼 때를 찍는다 (동기화 설계 §4.4). now는 테스트용 */
@@ -126,4 +129,61 @@ function stampChanges(before: Settings, after: Settings, now: number): void {
   } catch {
     // 찍지 못한 항목은 다른 기기와 맞출 때 가장 약한 값으로 친다.
   }
+}
+
+/** 동기화 묶음에 실을 설정: 바꾼 때가 있는 항목만 값과 함께 (동기화 설계 §4.4) */
+export function stampedSettings(): Record<string, { value: unknown; stamp: Stamp }> {
+  const settings = loadSettings();
+  const stamps = loadSettingStamps();
+  return Object.fromEntries(
+    SETTING_KEYS.flatMap((key) => {
+      const stamp = stamps[key];
+      return stamp ? [[key, { value: settings[key], stamp }]] : [];
+    }),
+  );
+}
+
+/**
+ * 이 기기에서 가장 늦게 바꾼 때 (ms), 없으면 0. 다른 기기에서 받은 값은 이미 공간에 있으므로 세지 않는다
+ * (받은 때로 세면, 이 기기에서 다른 항목을 바꾼 것이 올라가지 않을 수 있다)
+ */
+export const latestOwnSettingStamp = (device: string): number =>
+  Math.max(
+    0,
+    ...Object.values(loadSettingStamps()).map((stamp) =>
+      stamp?.deviceId === device ? stamp.at : 0,
+    ),
+  );
+
+/**
+ * 다른 기기의 설정을 합친다: 항목마다 나중에 바꾼 쪽이 이긴다 (동기화 설계 §4.4).
+ * 이 앱이 고를 수 있는 값만 받는다. 받은 값으로 정해진 항목을 돌려준다 (언어가 바뀌면 화면에 바로 반영한다).
+ * 값이 이미 같아도 돌려준다: 지난번에 값만 저장하고 바꾼 때를 저장하지 못했다면, 다시 받을 때에야 알리게 된다.
+ * 저장하지 못하면 던진다: 동기화가 그 묶음을 받은 것으로 치지 않고 다음에 다시 받게
+ */
+export function mergeSyncedSettings(incoming: unknown): SettingKey[] {
+  if (typeof incoming !== 'object' || incoming === null) return [];
+  const stamps: Partial<Record<SettingKey, Stamp>> = { ...loadSettingStamps() };
+  let next: Settings = loadSettings();
+  let valuesChanged = false;
+  const adopted: SettingKey[] = [];
+  for (const key of SETTING_KEYS) {
+    const theirs: unknown = (incoming as Record<string, unknown>)[key];
+    if (typeof theirs !== 'object' || theirs === null) continue;
+    const { value, stamp } = theirs as { value: unknown; stamp: unknown };
+    const mine = stamps[key];
+    if (!isStamp(stamp) || (mine && !isLaterStamp(stamp, mine))) continue;
+    const candidate = parseSettings({ ...next, [key]: value });
+    if (candidate[key] !== value) continue;
+    stamps[key] = stamp;
+    adopted.push(key);
+    if (next[key] !== value) {
+      next = candidate;
+      valuesChanged = true;
+    }
+  }
+  // 받은 값에는 새로 찍지 않는다 (바꾼 때는 받은 그대로)
+  if (valuesChanged) localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+  if (adopted.length > 0) localStorage.setItem(STAMPS_KEY, JSON.stringify(stamps));
+  return adopted;
 }

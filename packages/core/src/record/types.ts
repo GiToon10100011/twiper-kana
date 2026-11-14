@@ -55,6 +55,18 @@ export interface RecordDump {
   readonly sessions: readonly SessionRecord[];
 }
 
+/** 아직 동기화 공간에 올리지 않은 기록 하나 (outbox). rev는 기록이 다시 바뀔 때마다 새로 정한다 */
+export interface OutboxEntry {
+  /** a:<시도 id> 또는 s:<세션 id> */
+  readonly key: string;
+  readonly rev: string;
+}
+
+/** outbox에 있는 기록과 그 항목들 (동기화 설계 §4.2) */
+export interface PendingRecords extends RecordDump {
+  readonly entries: readonly OutboxEntry[];
+}
+
 /** 기록을 합친 결과 */
 export interface RecordMerge {
   /** 새로 넣은 시도 수 */
@@ -86,7 +98,12 @@ export interface TrainingRepo {
   dumpRecords(): Promise<RecordDump>;
   /**
    * 내보낸 기록을 합친다. 이미 있는 id는 그대로 두고, 끝나지 않은 세션만 끝난 쪽으로 바꾼다.
-   * 같은 파일을 두 번 가져와도 기록이 늘지 않는다
+   * 같은 파일을 두 번 가져와도 기록이 늘지 않는다. 새로 넣은 기록은 outbox에도 넣는다
+   * (백업으로 들어온 기록도 동기화 공간에 올라가게). 동기화로 받은 기록은 track: false로 넣지 않는다
    */
-  mergeRecords(dump: RecordDump): Promise<RecordMerge>;
+  mergeRecords(dump: RecordDump, options?: { readonly track?: boolean }): Promise<RecordMerge>;
+  /** 아직 동기화 공간에 올리지 않은 기록 (outbox). 저장하거나 합친 시도·세션이 들어간다 */
+  pendingRecords(): Promise<PendingRecords>;
+  /** 올린 기록을 outbox에서 지운다. 그사이 다시 바뀐 기록(rev가 다른 항목)은 남긴다 */
+  markPushed(entries: readonly OutboxEntry[]): Promise<void>;
 }
