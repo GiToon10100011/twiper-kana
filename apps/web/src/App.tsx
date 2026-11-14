@@ -15,6 +15,7 @@ import { ReviewPractice } from './features/review/ReviewPractice';
 import { WeakPractice } from './features/weak/WeakPractice';
 import { Onboarding } from './features/onboarding/Onboarding';
 import { UpdatePrompt } from './features/pwa/UpdatePrompt';
+import { AutoSync } from './features/settings/AutoSync';
 import { Settings } from './features/settings/Settings';
 import { Stats } from './features/stats/Stats';
 import { DrillRoute } from './features/training/Drill';
@@ -31,6 +32,7 @@ export function App() {
   return (
     <BrowserRouter>
       {opening ? <Opening onFinish={finishOpening} /> : <UpdatePrompt />}
+      {opening ? null : <AutoSync />}
       {opening ? null : (
         <Routes>
           <Route path="/" element={<Home />} />

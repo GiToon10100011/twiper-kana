@@ -13,6 +13,7 @@ import {
 import { BackIcon } from '../../ui/icons';
 import { Pills } from '../../ui/Pills';
 import { BackupSection } from './BackupSection';
+import { SyncSettings } from './SyncSettings';
 
 /** 언어 이름은 그 언어로 적는다 (지금 화면 언어를 읽지 못해도 자기 언어를 찾을 수 있게) */
 const LANGUAGE_NAMES: readonly (readonly [Exclude<LanguageChoice, 'auto'>, string])[] = [
@@ -123,6 +124,8 @@ export function Settings() {
           </div>
         </li>
       </ul>
+      {/* 다른 기기에서 받은 설정이 있을 수 있어 동기화가 끝나면 값을 다시 읽는다 */}
+      <SyncSettings onSynced={() => setSettings(loadSettings())} />
       <BackupSection />
     </main>
   );
