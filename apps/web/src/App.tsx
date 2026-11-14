@@ -9,11 +9,13 @@ import { CourseTilesLab } from './features/lab/CourseTilesLab';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
 import { ReviewLab } from './features/lab/ReviewLab';
+import { SyncLab } from './features/lab/SyncLab';
 import { TrendLab } from './features/lab/TrendLab';
 import { ReviewPractice } from './features/review/ReviewPractice';
 import { WeakPractice } from './features/weak/WeakPractice';
 import { Onboarding } from './features/onboarding/Onboarding';
 import { UpdatePrompt } from './features/pwa/UpdatePrompt';
+import { AutoSync } from './features/settings/AutoSync';
 import { Settings } from './features/settings/Settings';
 import { Stats } from './features/stats/Stats';
 import { DrillRoute } from './features/training/Drill';
@@ -30,6 +32,7 @@ export function App() {
   return (
     <BrowserRouter>
       {opening ? <Opening onFinish={finishOpening} /> : <UpdatePrompt />}
+      {opening ? null : <AutoSync />}
       {opening ? null : (
         <Routes>
           <Route path="/" element={<Home />} />
@@ -49,6 +52,7 @@ export function App() {
           <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
           <Route path="/lab/trend" element={<TrendLab />} />
           <Route path="/lab/review" element={<ReviewLab />} />
+          <Route path="/lab/sync" element={<SyncLab />} />
         </Routes>
       )}
     </BrowserRouter>

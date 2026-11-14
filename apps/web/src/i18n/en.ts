@@ -25,6 +25,8 @@ const english = {
     trendLabHint: 'Daily accuracy and speed in My skills',
     reviewLab: 'Review preview',
     reviewLabHint: 'Spaced review on the home screen',
+    syncLab: 'Sync preview',
+    syncLabHint: 'Sync between devices for Settings',
   },
   review: {
     title: "Today's review",
@@ -555,6 +557,55 @@ const english = {
     importInvalid: "This isn't a record file exported from twiper.",
     importNotSaved:
       "Records were merged but couldn't be saved on this device. They may disappear when you reopen the app.",
+  },
+  sync: {
+    title: 'Sync between devices',
+    enable: 'Turn on for this device',
+    enableHint:
+      'Creates a new sync code. Devices with the same code share records and settings. No account needed.',
+    enableButton: 'Turn on',
+    join: 'Enter a code from another device',
+    joinHint:
+      'Enter the code from a device that already has sync on to share its records and settings.',
+    joinButton: 'Enter',
+    codeLabel: 'Sync code',
+    codePlaceholder: '7K2Q-…',
+    connect: 'Connect',
+    cancel: 'Cancel',
+    codeInvalid: "That code doesn't match. Paste the 26 characters copied from your other device.",
+    created:
+      'Code created. On your other device, paste it into Settings › Sync between devices › “Enter a code from another device”.',
+    keepCode:
+      'Keep the code like a password: anyone with it can read and change your records. If you lose it, the records on the server can’t be recovered, but each device keeps its own records.',
+    showCode: 'Show',
+    hideCode: 'Hide',
+    copy: 'Copy',
+    copied: 'Copied',
+    copyFailed: "Couldn't copy. Press and hold the code to copy it yourself.",
+    on: 'Sync is on',
+    never: 'Not synced yet',
+    justNow: 'Synced just now',
+    minutesAgo_one: 'Synced {{count}} minute ago',
+    minutesAgo: 'Synced {{count}} minutes ago',
+    hoursAgo_one: 'Synced {{count}} hour ago',
+    hoursAgo: 'Synced {{count}} hours ago',
+    daysAgo_one: 'Synced {{count}} day ago',
+    daysAgo: 'Synced {{count}} days ago',
+    syncNow: 'Sync now',
+    syncing: 'Syncing…',
+    turnOff: 'Turn off for this device',
+    turnOffHint: 'Records on this device stay. To turn sync back on, enter the code again.',
+    turnOffButton: 'Turn off',
+    remove: 'Delete records on the server',
+    removeHint:
+      'Deletes everything uploaded to the server. Sync stops on every device and this code can’t be used again. Each device keeps its own records.',
+    removeButton: 'Delete',
+    removeConfirm: 'Delete for sure? This can’t be undone.',
+    failed: 'Couldn’t sync. Check your internet connection and try again.',
+    updateRequired: 'A newer version of the app uploaded records. Update the app, then sync again.',
+    gone: 'Another device deleted the records on the server, so sync is off on this device too. To turn it back on, create a new code.',
+    privacy:
+      'Records are encrypted on this device before they’re sent, so the server can’t read them. Server records unused for a year are deleted.',
   },
 };
 

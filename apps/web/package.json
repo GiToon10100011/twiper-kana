@@ -13,6 +13,7 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.1",
     "@twiper/content": "workspace:*",
     "@twiper/core": "workspace:*",
     "dexie": "^4.4.6",

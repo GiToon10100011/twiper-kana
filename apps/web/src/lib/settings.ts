@@ -116,6 +116,32 @@ export function loadSettingStamps(): Stamps<SettingKey> {
   }
 }
 
+/**
+ * 「동기화 켜기」로 공간을 새로 만들 때: 기본값을 포함한 모든 항목에 지금 때를 찍어, 이 기기의 설정이
+ * 공간의 첫 설정이 되게 한다 (동기화 설계 §4.4)
+ */
+export function stampAllSettings(now = Date.now()): void {
+  const stamps = loadSettingStamps();
+  const stamp: Stamp = { at: nextStampAt(now, stamps), deviceId: deviceId() };
+  try {
+    localStorage.setItem(
+      STAMPS_KEY,
+      JSON.stringify(Object.fromEntries(SETTING_KEYS.map((key) => [key, stamp]))),
+    );
+  } catch {
+    // 찍지 못하면 공간에 올라가지 않을 뿐, 이 기기의 설정은 그대로다.
+  }
+}
+
+/** 「코드 넣기」로 들어올 때: 남은 바꾼 때를 지워, 모든 항목에서 공간의 설정을 따르게 한다 (§4.4) */
+export function clearSettingStamps(): void {
+  try {
+    localStorage.removeItem(STAMPS_KEY);
+  } catch {
+    // 지우지 못하면 이 기기에서 예전에 바꾼 항목은 그 값이 남을 수 있다.
+  }
+}
+
 function stampChanges(before: Settings, after: Settings, now: number): void {
   const changed = SETTING_KEYS.filter((key) => before[key] !== after[key]);
   if (changed.length === 0) return;

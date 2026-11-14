@@ -75,6 +75,12 @@ export function Steps() {
             <small>{t('home.reviewLabHint')}</small>
           </Link>
         </li>
+        <li>
+          <Link to="/lab/sync">
+            <span>{t('home.syncLab')}</span>
+            <small>{t('home.syncLabHint')}</small>
+          </Link>
+        </li>
       </ul>
     </main>
   );

@@ -1,6 +1,6 @@
 # twiper — 기기 간 동기화 설계
 
-> 작성일 2026-11-13 · 상태: **S1·S2 구현, S3–S5는 설계.** 2026-11-13 사용자 결정: 계정 없이 동기화 코드로 시작, 설정도 동기화, 무료 구성(Vercel Hobby + Neon Free)으로 운영 · 관련: [구현 계획](2026-10-07-twiper-design.md) §13 Storage, §16 M4 「클라우드 동기화 설계 문서」, Future 「계정·크로스 플랫폼 동기화」
+> 작성일 2026-11-13 · 상태: **S1·S2·S3a 구현, S3b–S5는 설계.** 2026-11-13 사용자 결정: 계정 없이 동기화 코드로 시작, 설정도 동기화, 무료 구성(Vercel Hobby + Neon Free)으로 운영 · 관련: [구현 계획](2026-10-07-twiper-design.md) §13 Storage, §16 M4 「클라우드 동기화 설계 문서」, Future 「계정·크로스 플랫폼 동기화」
 
 ## 0. 요약
 
@@ -60,7 +60,7 @@ encKey   = HKDF-SHA256(코드, info = "twiper-sync/v1/enc")  → AES-GCM 256    
 ```
 
 - 모두 WebCrypto(`crypto.subtle`)로 만든다. iOS Safari에서 쓸 수 있다.
-- 코드는 localStorage `twiper.sync.v1`에 둔다. 「코드 보기」에서 다시 확인하고 복사할 수 있다.
+- 코드는 localStorage `twiper.sync.link.v1`(`{ code, syncedAt, problem }`)에 둔다. 받은 데까지의 커서는 `twiper.sync.v1`에 따로 둔다. 「코드 보기」에서 다시 확인하고 복사할 수 있다.
 - **코드를 잃으면 서버의 기록은 되찾을 수 없다.** 기기에 남은 기록은 그대로이므로, 새 코드를 만들면 그 기기의 기록이 새 공간으로 올라간다. 화면에서 이것을 분명히 알린다.
 - QR 코드는 넣지 않는다. iPhone 카메라로 읽으면 홈 화면 앱이 아니라 Safari 탭이 열려, 정작 묶고 싶은 쪽으로 가지 않기 때문이다. **복사 → 붙여 넣기**를 기본으로 한다.
 
@@ -162,42 +162,50 @@ interface Stamp {
 지금 배포처와 같은 Vercel에 둔다. API 여섯 개(Functions)와 Postgres 테이블 두 개면 된다.
 
 ```
-POST   /api/sync/{spaceId}/batches          본문 { deviceId, iv, data } → { seq }
-GET    /api/sync/{spaceId}/batches?after=n  → [{ seq, deviceId, iv, data, at }]
-POST   /api/sync/{spaceId}/compact/start    본문 { upTo }          → { compactionId }  압축 임대. 공간마다 하나만
-POST   /api/sync/{spaceId}/batches          + 헤더 Compaction-Id     스냅샷 조각. 끝내기 전까지 받기(GET)에 보이지 않는다
-POST   /api/sync/{spaceId}/compact/finish   본문 { compactionId }  → 조각을 보이게 하고 upTo 이하를 지운다 (한 트랜잭션)
-POST   /api/sync/{spaceId}/compact/abort    본문 { compactionId }  → 그 임대의 조각만 지우고 임대를 푼다
-DELETE /api/sync/{spaceId}                  묶음을 모두 지우고, 공간에 「지움」 표시를 남긴다
+GET    /api/sync?space={spaceId}&after=n&limit=50   → { batches: [{ seq, deviceId, iv, data }] }
+POST   /api/sync?space={spaceId}   본문 { deviceId, iv, data }   → { seq }
+DELETE /api/sync?space={spaceId}   → { removed: true }  묶음을 모두 지우고 「지움」 표시를 남긴다
 모두   Authorization: Bearer base64url(authKey)
+거절   400 모양이 틀림 · 401 키 없음 · 403 키가 다름 · 410 지운 공간 · 413 요청이 큼 · 429 너무 잦음 · 507 공간이 가득 참
+
+압축 (S3b)
+POST   /api/sync?space=&op=compact-start    본문 { upTo }          → { compactionId }  압축 임대. 공간마다 하나만
+POST   /api/sync?space=   + 머리 Compaction-Id                         스냅샷 조각. 끝내기 전까지 받기에 보이지 않는다
+POST   /api/sync?space=&op=compact-finish   본문 { compactionId }  → 조각을 보이게 하고 upTo 이하를 지운다 (한 트랜잭션)
+POST   /api/sync?space=&op=compact-abort    본문 { compactionId }  → 그 임대의 조각만 지우고 임대를 푼다
 ```
 
 ```sql
-create table space (
-  id         bytea primary key,           -- spaceId
-  auth_hash  bytea not null,              -- SHA-256(authKey)
-  bytes      bigint not null default 0,   -- 쌓인 암호문 크기 (한도 확인용)
-  created_at timestamptz not null default now(),
-  used_at    timestamptz not null default now(),
-  deleted_at timestamptz,                 -- 「서버의 기록 지우기」 표시. 행은 지우지 않는다
-  compaction_id    text,                  -- 진행 중인 압축 임대 (없으면 null)
-  compaction_up_to bigint,
-  compaction_at    timestamptz            -- 임대의 마지막 활동 시각
+create table sync_space (
+  id           text primary key,              -- spaceId (32자 hex)
+  auth_hash    text not null,                 -- SHA-256(authKey) hex
+  next_seq     bigint not null default 0,     -- 공간마다 매기는 묶음 번호
+  bytes        bigint not null default 0,     -- 쌓인 암호문 크기 (한도 확인용)
+  window_start timestamptz not null default now(),  -- 1분 한도
+  window_count integer not null default 0,
+  created_at   timestamptz not null default now(),
+  used_at      timestamptz not null default now(),
+  deleted_at   timestamptz                    -- 「서버의 기록 지우기」 표시. 행은 지우지 않는다
 );
-create table batch (
-  space_id   bytea not null references space(id) on delete cascade,
-  seq        bigint generated always as identity,
+create table sync_batch (
+  space_id   text not null references sync_space(id) on delete cascade,
+  seq        bigint not null,
   device_id  text not null,
-  iv         bytea not null,
-  data       bytea not null,
-  compaction_id text,                     -- 끝나지 않은 스냅샷 조각이면 그 임대 id, 보통 묶음과 끝난 스냅샷은 null
+  iv         text not null,                   -- base64
+  data       text not null,                   -- base64 암호문
   at         timestamptz not null default now(),
   primary key (space_id, seq)
 );
+create table sync_client (
+  id           text primary key,              -- SHA-256(IP) hex
+  window_start timestamptz not null default now(),
+  window_count integer not null default 0
+);
+-- S3b에서 더한다: sync_space.compaction_id·compaction_up_to·compaction_at, sync_batch.compaction_id
 ```
 
 - 공간은 처음 올리는 요청이 만든다. 이미 있는 공간이면 `auth_hash`가 맞아야 한다.
-- **번호(`seq`)는 커밋 순서대로.** 동시에 온 두 요청이 1·2번을 받고 2번이 먼저 커밋되면, 그사이 받은 기기는 `lastSeq = 2`로 올라가 1번을 영영 놓친다. 그래서 올리기 트랜잭션은 먼저 그 공간의 행을 잠그고(`select id from space where id = $1 for update`), 커밋할 때까지 쥔다. 같은 공간에 대한 쓰기는 한 줄로 서므로 번호 순서와 커밋 순서가 같다. 공간마다 기기가 몇 대뿐이라 기다림은 무시할 만하다.
+- **번호(`seq`)는 커밋 순서대로.** 동시에 온 두 요청이 1·2번을 받고 2번이 먼저 커밋되면, 그사이 받은 기기는 `lastSeq = 2`로 올라가 1번을 영영 놓친다. 그래서 번호는 공간 행의 카운터(`next_seq`)로 매기고, 올리기는 「공간 행을 갱신해 번호를 받고 그 번호로 묶음을 넣는」 한 문장(`with s as (update … returning next_seq) insert …`)으로 한다. 갱신한 행은 커밋까지 잠기므로 같은 공간의 쓰기는 한 줄로 서고, 번호 순서와 커밋 순서가 같다. 같은 문장에서 키·지운 공간·크기 한도·1분 한도도 함께 확인한다. 공간마다 기기가 몇 대뿐이라 기다림은 무시할 만하다.
 - **지운 공간:** 「서버의 기록 지우기」는 묶음을 모두 지우고 `deleted_at`을 남긴다. 행과 `auth_hash`는 남겨, 지운 뒤 같은 코드로 오는 요청(올리지 못한 outbox가 남은 기기 포함)을 모두 `410 Gone`으로 거절한다. 그래서 같은 코드로 공간이 되살아나지 않는다. `410`을 받은 기기는 그 기기의 동기화를 끄고 「다른 기기에서 서버의 기록을 지웠어요. 다시 켜려면 새 코드를 만드세요」라고 알린다. 모든 기기에서 동기화가 끊긴다는 화면 안내(§4.7)는 이 규칙에서 나온다.
 - **압축(compact):** 묶음이 쌓이면(예: 200개, 또는 공간이 한도의 절반인 10MB) 모든 묶음을 `upTo`번까지 받은 기기 하나가 압축한다.
   1. `compact/start { upTo }`로 **임대**를 받는다. 공간마다 임대는 하나뿐이다. 다른 임대가 살아 있으면 거절하므로 두 기기가 동시에 압축하지 않는다. 15분 동안 활동이 없는 임대는 버려진 것으로 보고, 다음 `start`가 그 조각을 지운 뒤 새 임대를 준다.
@@ -206,7 +214,7 @@ create table batch (
   - **끊겼을 때:** 기기는 진행 중인 `compactionId`를 localStorage에 적어 둔다. 앱을 다시 열면 이어 올리지 않고 `compact/abort`로 그 임대의 조각만 지운 뒤 처음부터 다시 한다. 끝나지 않은 조각과 끝난 스냅샷은 `compaction_id`가 있느냐로 가린다.
   - **한도:** 끝나지 않은 조각은 공간 한도를 잠시 넘어도 받되, 조각의 합은 공간 한도(20MB)를 넘지 못한다. 그래서 공간은 많아야 40MB이고, 임대가 하나뿐이라 여러 압축이 이 여유를 나눠 먹지 않는다. 스냅샷은 합친 기록이라 옛 묶음 합보다 크지 않다.
   - 조각이 숨어 있는 동안 받은 기기는 옛 묶음을 그대로 받으므로 빠뜨리는 것이 없다. 아직 올리지 못한 기기의 기록은 그 기기의 outbox에 남아 있으므로, 나중에 올리면 된다. 합치기가 합집합이라 스냅샷과 늦게 온 묶음의 순서는 상관없다.
-- **한도:** 요청당 512KB, 공간당 20MB, IP와 공간마다 분당 요청 수 제한. 1년 동안 쓰지 않은 공간은 지운다고 화면과 안내문에 밝힌다.
+- **한도:** 요청당 512KB(받은 바이트로 잰다), 공간당 20MB, 공간마다 1분에 올리기 60번, 요청자(IP)마다 1분에 요청 120번. 요청자 한도는 함수가 여러 개 떠도 함께 세도록 Postgres `sync_client`(IP의 SHA-256, 1분 카운터)에 두고, 1시간 지난 카운터는 치운다. IP 자체는 남기지 않는다. 1년 동안 쓰지 않은 공간은 지운다고 화면과 안내문에 밝힌다.
 - **크기 어림:** 시도 기록 한 줄은 JSON으로 0.5–1KB, gzip을 거치면 그 1/3 안팎이다. 하루 100줄씩 1년을 쳐도 압축 후 10MB 안쪽이다. 구현할 때 실제 기록으로 다시 잰다.
 - 서버가 아는 것: spaceId, 기기 ULID, 묶음 크기와 시각, 요청 IP(접속 기록). 연습 내용·글자·속도는 모른다.
 
@@ -261,7 +269,8 @@ create table batch (
 |---|---|---|
 | S1 | 횟수를 세션에서 다시 세기 (§4.3), 합치기 규칙을 core로 옮기기, `deviceId`, 설정 항목별 `Stamp` (§4.4) | 두 기기의 백업을 서로 가져오면 횟수가 더해진다. 같은 파일을 다시 가져와도 늘지 않는다. 설정 합치기가 순서와 무관하다 |
 | S2 | core 동기화 엔진 + 메모리 전송 + outbox (Dexie `version(2)`) | 무작위 순서·중복·재전송으로 기기 셋이 주고받아도 같은 상태에 이르는 테스트 |
-| S3 | 서버 API 여섯 개 + Postgres + 한도·압축 임대 | 잘못된 authKey·큰 요청·잦은 요청을 막는 테스트, 압축 뒤에도 수렴 |
+| S3a | 동기화 코드·키(HKDF)·압축 + 암호화(AES-GCM), 서버 API(받기·올리기·지우기) + Postgres(`sync_space`·`sync_batch`) + 한도 | 잘못된 authKey·큰 요청·잦은 요청·지운 공간을 막는 테스트, 기기 둘이 암호화·HTTP·API 처리부를 거쳐 주고받고 서버에는 암호문만 남는 테스트 |
+| S3b | 압축 임대 세 API + 기기 쪽 압축 | 압축 뒤에도 수렴, 끊긴 압축의 조각만 지움 |
 | S4 | `/lab/sync` 시안 → 설정 「기기 간 동기화」, ko·ja·en | 사용자가 시안을 확인한다 |
 | S5 | 화면 흐름 테스트: 브라우저 두 개가 같은 코드로 기록과 설정을 주고받고(한쪽에서 속도 단위를 바꾸면 다른 쪽도 바뀐다), 오프라인에서 친 기록이 온라인이 되면 올라간다 | CI에서 통과 |
 
