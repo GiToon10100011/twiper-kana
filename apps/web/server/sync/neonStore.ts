@@ -156,6 +156,11 @@ export function createNeonStore(sql: Sql): SyncStore {
       if (!row) return { batches: [], bytes: 0, compactedBytes: 0 };
       const denied = denialOf(row, authHash);
       if (denied) return { denied };
+      // 받기만 하는 기기도 공간을 쓰는 것으로 친다 (하루에 한 번만 고쳐 쓴다)
+      await sql.query(
+        `update sync_space set used_at = now() where id = $1 and used_at < now() - interval '1 day'`,
+        [space],
+      );
       const rows = (await sql.query(
         `select seq, device_id, iv, data from sync_batch
          where space_id = $1 and seq > $2 and compaction_id is null order by seq limit $3`,
@@ -270,6 +275,25 @@ export function createNeonStore(sql: Sql): SyncStore {
         ),
       ]);
       return lastReturned(results) ? { done: true } : { denied: 'busy' };
+    },
+    async sweep() {
+      await ensure();
+      // 행은 「지움」 표시로 남겨 번호(next_seq)를 이어 가고, 묶음만 지운다 (store.sweep 참고)
+      const results = await sql.transaction([
+        sql.query(
+          `delete from sync_batch where space_id in (select id from sync_space
+             where deleted_at is null and used_at < now() - interval '1 year')`,
+        ),
+        sql.query(
+          `update sync_space set deleted_at = now(), bytes = 0,
+             compaction_id = null, compaction_up_to = null, compaction_at = null
+           where deleted_at is null and used_at < now() - interval '1 year'
+           returning id`,
+        ),
+      ]);
+      await sql.query(SWEEP_CLIENTS);
+      const swept = (results as unknown[][])[1];
+      return { spaces: swept?.length ?? 0 };
     },
   };
 }

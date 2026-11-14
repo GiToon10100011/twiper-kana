@@ -603,7 +603,7 @@ const english = {
     removeConfirm: 'Delete for sure? This can’t be undone.',
     failed: 'Couldn’t sync. Check your internet connection and try again.',
     updateRequired: 'A newer version of the app uploaded records. Update the app, then sync again.',
-    gone: 'Another device deleted the records on the server, so sync is off on this device too. To turn it back on, create a new code.',
+    gone: 'The records on the server were deleted, so sync is off on this device too. Another device deleted them, or they went unused for a year. To turn it back on, create a new code.',
     privacy:
       'Records are encrypted on this device before they’re sent, so the server can’t read them. Server records unused for a year are deleted.',
   },
