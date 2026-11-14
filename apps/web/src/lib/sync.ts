@@ -36,8 +36,10 @@ interface SyncStored extends SyncCursor {
 const EMPTY: SyncStored = { lastSeq: 0, uploaded: false, settingsAt: 0, summary: '' };
 
 /** 진도·종합 테스트 기록·옛 횟수의 요약값 (FNV-1a) */
-function summaryHash(): string {
-  const text = JSON.stringify([loadProgress(), loadExamRecords(), loadLegacyPlays()]);
+function summaryHash(
+  state: readonly unknown[] = [loadProgress(), loadExamRecords(), loadLegacyPlays()],
+): string {
+  const text = JSON.stringify(state);
   let hash = 0x811c9dc5;
   for (let i = 0; i < text.length; i += 1) {
     hash ^= text.charCodeAt(i);
@@ -111,21 +113,21 @@ export function createSyncDevice(
     },
     async collect(full) {
       const legacyPlays = await ensureLegacyPlays(repo);
-      const pending = await repo.pendingRecords();
+      // 묶음에 싣는 상태와, 올린 것으로 기록할 요약값·설정을 바꾼 때를 한 번에 읽는다
+      // (기다리는 사이 값이 바뀌어도 둘이 어긋나 바뀐 것을 올리지 않는 일이 없게)
+      const progress = loadProgress();
+      const exams = loadExamRecords();
+      const settings = stampedSettings();
+      const summary = summaryHash([progress, exams, legacyPlays]);
       const settingsAt = latestOwnSettingStamp(deviceId());
-      const summary = summaryHash();
+      const pending = await repo.pendingRecords();
       const stored = loadSync();
       const records = full ? await repo.dumpRecords() : pending;
       const nothing = records.attempts.length === 0 && records.sessions.length === 0;
       if (!full && nothing && settingsAt <= stored.settingsAt && summary === stored.summary) {
         return { batches: [], done: () => Promise.resolve() };
       }
-      const state = {
-        progress: loadProgress(),
-        exams: loadExamRecords(),
-        legacyPlays,
-        settings: stampedSettings(),
-      };
+      const state = { progress, exams, legacyPlays, settings };
       return {
         batches: buildBatches(deviceId(), state, records),
         async done() {
