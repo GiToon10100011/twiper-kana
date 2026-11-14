@@ -156,6 +156,11 @@ export function createNeonStore(sql: Sql): SyncStore {
       if (!row) return { batches: [], bytes: 0, compactedBytes: 0 };
       const denied = denialOf(row, authHash);
       if (denied) return { denied };
+      // 받기만 하는 기기도 공간을 쓰는 것으로 친다 (하루에 한 번만 고쳐 쓴다)
+      await sql.query(
+        `update sync_space set used_at = now() where id = $1 and used_at < now() - interval '1 day'`,
+        [space],
+      );
       const rows = (await sql.query(
         `select seq, device_id, iv, data from sync_batch
          where space_id = $1 and seq > $2 and compaction_id is null order by seq limit $3`,
@@ -270,6 +275,17 @@ export function createNeonStore(sql: Sql): SyncStore {
         ),
       ]);
       return lastReturned(results) ? { done: true } : { denied: 'busy' };
+    },
+    async sweep() {
+      await ensure();
+      // 묶음은 on delete cascade로 함께 지워진다
+      const rows = (await sql.query(
+        `delete from sync_space
+         where coalesce(deleted_at, used_at) < now() - interval '1 year'
+         returning id`,
+      )) as unknown[];
+      await sql.query(SWEEP_CLIENTS);
+      return { spaces: rows.length };
     },
   };
 }

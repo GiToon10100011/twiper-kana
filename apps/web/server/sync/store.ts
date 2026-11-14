@@ -39,6 +39,12 @@ export interface SpaceLimits {
 /** 이만큼 활동이 없는 압축 임대는 버려진 것으로 본다 (§4.6) */
 export const LEASE_IDLE_MS = 15 * 60_000;
 
+/** 이만큼 쓰지 않은 공간과 「지움」 표시는 지운다 (§4.6, 동기화 칸의 안내문과 같다) */
+export const RETENTION_MS = 365 * 24 * 60 * 60_000;
+
+/** 받기만 하는 기기도 공간을 쓰는 것으로 치되, 쓴 때는 하루에 한 번만 고쳐 쓴다 */
+export const USED_AT_STEP_MS = 24 * 60 * 60_000;
+
 interface SpaceKey {
   readonly space: string;
   readonly authHash: string;
@@ -73,6 +79,11 @@ export interface SyncStore {
   finishCompaction(input: SpaceKey & { readonly compactionId: string }): Promise<LeaseResult>;
   /** 그 임대의 조각만 지우고 임대를 푼다 */
   abortCompaction(input: SpaceKey & { readonly compactionId: string }): Promise<LeaseResult>;
+  /**
+   * 1년 넘게 쓰지 않은 공간과, 지운 지 1년 지난 「지움」 표시를 묶음째 지운다. 지운 공간 수를 돌려준다.
+   * 하루 한 번 예약 작업이 부른다
+   */
+  sweep(): Promise<{ readonly spaces: number }>;
 }
 
 interface MemoryBatch extends StoredBatch {
@@ -88,6 +99,10 @@ interface MemorySpace {
   batches: MemoryBatch[];
   lease: { id: string; upTo: number; at: number } | null;
   compactedBytes: number;
+  /** 마지막으로 쓴 때 (올리기, 또는 하루에 한 번 받기) */
+  usedAt: number;
+  /** 서버의 기록을 지운 때 */
+  deletedAt: number | null;
 }
 
 const MINUTE = 60_000;
@@ -107,6 +122,8 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
     batches: [],
     lease: null,
     compactedBytes: 0,
+    usedAt: now(),
+    deletedAt: deleted ? now() : null,
   });
   const check = (space: MemorySpace, authHash: string): Denial | null =>
     space.authHash !== authHash ? 'forbidden' : space.deleted ? 'gone' : null;
@@ -141,6 +158,7 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
       space.windowStart = fresh ? now() : space.windowStart;
       space.windowCount = fresh ? 1 : space.windowCount + 1;
       if (compactionId !== undefined && space.lease) space.lease.at = now();
+      space.usedAt = now();
       space.nextSeq += 1;
       space.batches.push({
         seq: space.nextSeq,
@@ -156,6 +174,7 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
       if (!space) return Promise.resolve({ batches: [], bytes: 0, compactedBytes: 0 });
       const denied = check(space, authHash);
       if (denied) return Promise.resolve({ denied });
+      if (now() - space.usedAt >= USED_AT_STEP_MS) space.usedAt = now();
       return Promise.resolve({
         batches: space.batches
           .filter((b) => b.compactionId === null && b.seq > after)
@@ -175,6 +194,7 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
       const denied = check(space, authHash);
       if (denied) return Promise.resolve({ denied });
       space.deleted = true;
+      space.deletedAt = now();
       space.batches = [];
       space.lease = null;
       return Promise.resolve({ removed: true });
@@ -217,6 +237,15 @@ export function createMemoryStore(now: () => number = Date.now): SyncStore {
       dropPending(space, input.compactionId);
       space.lease = null;
       return Promise.resolve({ done: true });
+    },
+    sweep() {
+      let removed = 0;
+      for (const [id, space] of spaces) {
+        if (now() - (space.deletedAt ?? space.usedAt) < RETENTION_MS) continue;
+        spaces.delete(id);
+        removed += 1;
+      }
+      return Promise.resolve({ spaces: removed });
     },
   };
 }
