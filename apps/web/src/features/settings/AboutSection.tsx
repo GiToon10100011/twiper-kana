@@ -26,9 +26,13 @@ export function AboutSection({ now = Date.now }: { readonly now?: () => number }
     const count = at - taps.current.at <= DEV_MODE_TAP_GAP_MS ? taps.current.count + 1 : 1;
     if (count >= DEV_MODE_TAPS) {
       const next = !devMode;
-      setDevMode(next);
-      setDevModeState(next);
       taps.current = { count: 0, at: 0 };
+      // 적지 못하면 실제 상태가 그대로이므로 화면도 그대로 두고 알린다
+      if (!setDevMode(next)) {
+        setMessage(t('settings.devModeNotSaved'));
+        return;
+      }
+      setDevModeState(next);
       setMessage(t(next ? 'settings.devModeOn' : 'settings.devModeOff'));
       return;
     }

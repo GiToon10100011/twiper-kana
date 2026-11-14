@@ -533,6 +533,7 @@ export const ko = {
     devModeOn: '개발자 모드를 켰어요. 단계별 익히기 아래에 개발 도구가 보여요.',
     devModeOff: '개발자 모드를 껐어요.',
     devModeActive: '개발자 모드가 켜져 있어요. 7번 누르면 꺼져요.',
+    devModeNotSaved: '이 기기에 저장하지 못해 개발자 모드를 바꾸지 못했어요.',
   },
   sync: {
     title: '기기 간 동기화',

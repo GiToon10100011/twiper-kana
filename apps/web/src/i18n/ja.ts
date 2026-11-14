@@ -539,6 +539,7 @@ export const ja: typeof ko = {
     devModeOn: '開発者モードをオンにしました。「ステップで覚える」の下に開発ツールが表示されます。',
     devModeOff: '開発者モードをオフにしました。',
     devModeActive: '開発者モードがオンです。7回押すとオフになります。',
+    devModeNotSaved: 'この端末に保存できず、開発者モードを切り替えられませんでした。',
   },
   sync: {
     title: '端末間の同期',

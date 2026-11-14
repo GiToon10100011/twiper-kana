@@ -566,6 +566,7 @@ const english = {
     devModeOn: 'Developer mode is on. Developer tools now appear under Step-by-step lessons.',
     devModeOff: 'Developer mode is off.',
     devModeActive: 'Developer mode is on. Tap 7 times to turn it off.',
+    devModeNotSaved: "Couldn't save on this device, so developer mode didn't change.",
   },
   sync: {
     title: 'Sync between devices',

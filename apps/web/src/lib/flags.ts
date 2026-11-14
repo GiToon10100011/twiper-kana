@@ -49,11 +49,13 @@ export function isDevMode(): boolean {
   }
 }
 
-export function setDevMode(on: boolean): void {
+/** 바꿔 적었으면 true. 저장소를 쓸 수 없으면 그대로 두고 false */
+export function setDevMode(on: boolean): boolean {
   try {
     if (on) localStorage.setItem(DEV_MODE_KEY, '1');
     else localStorage.removeItem(DEV_MODE_KEY);
+    return true;
   } catch {
-    // 저장하지 못하면 개발 도구는 계속 숨는다.
+    return false;
   }
 }

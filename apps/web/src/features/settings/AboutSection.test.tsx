@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import '../../i18n';
 import { isDevMode, setDevMode } from '../../lib/flags';
 import { AboutSection, DEV_MODE_TAP_GAP_MS, DEV_MODE_TAPS } from './AboutSection';
@@ -54,6 +54,20 @@ describe('AboutSection (앱 정보)', () => {
     tap(1, DEV_MODE_TAP_GAP_MS + 1);
 
     expect(isDevMode()).toBe(false);
+  });
+
+  it('저장하지 못하면 켜졌다고 하지 않고 그대로 둔다', () => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('사생활 보호 모드');
+    });
+    const { tap } = renderAbout();
+
+    tap(DEV_MODE_TAPS);
+    setItem.mockRestore();
+
+    expect(isDevMode()).toBe(false);
+    expect(screen.getByText('이 기기에 저장하지 못해 개발자 모드를 바꾸지 못했어요.')).toBeTruthy();
+    expect(screen.queryByText(/개발자 모드를 켰어요/)).toBeNull();
   });
 
   it('켜져 있으면 그렇다고 알려 주고, 다시 7번 누르면 끈다', () => {
