@@ -65,6 +65,15 @@ function loadSync(): SyncStored {
   }
 }
 
+/** 커서를 비운다 (동기화를 켜거나 끌 때: 새 공간은 처음부터 받고, 처음 올리기를 다시 한다) */
+export function resetSyncCursor(): void {
+  try {
+    localStorage.removeItem(SYNC_KEY);
+  } catch {
+    // 비우지 못하면 다음 동기화가 예전 번호부터 받는다. 새 공간이라면 받을 것이 없을 뿐이다.
+  }
+}
+
 function saveSync(stored: SyncStored): void {
   try {
     localStorage.setItem(SYNC_KEY, JSON.stringify(stored));
