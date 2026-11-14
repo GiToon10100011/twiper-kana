@@ -43,7 +43,7 @@ export function Steps() {
       <h2 className="section-label">{t('course.title')}</h2>
       <CourseTiles access={levelAccess()} />
 
-      {/* 개발 도구는 개발자 모드(설정의 「버전」 7번)에서만 보인다 */}
+      {/* 개발 도구는 개발자 모드(설정 맨 아래 버전 글씨 7번)에서만 보인다 */}
       {isDevMode() ? <DevTools /> : null}
     </main>
   );

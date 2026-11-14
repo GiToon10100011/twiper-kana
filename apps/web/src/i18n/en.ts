@@ -557,8 +557,6 @@ const english = {
     importInvalid: "This isn't a record file exported from twiper.",
     importNotSaved:
       "Records were merged but couldn't be saved on this device. They may disappear when you reopen the app.",
-    about: 'About',
-    version: 'Version',
     devModeOnIn: '{{count}} more taps to turn on developer mode.',
     devModeOnIn_one: '1 more tap to turn on developer mode.',
     devModeOffIn: '{{count}} more taps to turn off developer mode.',
