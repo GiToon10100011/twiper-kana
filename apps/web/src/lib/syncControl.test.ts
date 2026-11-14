@@ -1,16 +1,22 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest';
-import { createMemoryRepo, type TrainingRepo } from '@twiper/core';
+import { createMemoryRepo, type SessionRecord, type TrainingRepo } from '@twiper/core';
 import { handleSync } from '../../server/sync/handler';
 import { createMemoryStore, type SyncStore } from '../../server/sync/store';
 import i18n from '../i18n';
+import { deviceId } from './device';
+import { loadProgress, recordLevel } from './progress';
 import { loadSettingStamps, loadSettings, saveSettings } from './settings';
+import { syncKeys } from './syncCrypto';
+import { httpSyncServer } from './syncHttp';
 import {
+  compactionSettled,
   enableSync,
   joinSync,
   loadSyncLink,
   removeSyncSpace,
   runSync,
+  shouldCompact,
   turnOffSync,
 } from './syncControl';
 
@@ -167,5 +173,101 @@ describe('syncControl', () => {
     const replacement = enableSync();
     expect(await settle(removal)).toBe(false);
     expect(loadSyncLink()).toEqual(replacement);
+  });
+
+  it('공간이 쌓이면 압축해, 지난 묶음은 서버에서 사라지고 나중에 들어온 기기도 스냅샷으로 모두 받는다', async () => {
+    const fetchFn = serverOf(createMemoryStore());
+    let played = 0;
+    const play = async (repo: TrainingRepo) => {
+      played += 1;
+      const at = new Date(Date.UTC(2026, 10, 14, 7, played)).toISOString();
+      const session: SessionRecord = {
+        id: `S${played}`,
+        levelId: 'L1',
+        startedAt: at,
+        endedAt: at,
+        summary: null,
+      };
+      await repo.saveSession(session);
+      recordLevel('L1', { accuracy: 0.9, kpm: 40 });
+    };
+
+    // 기기 A: 두 번 동기화해 묶음을 쌓는다
+    const repoA = savedRepo();
+    const link = enableSync();
+    await play(repoA);
+    await runSync(repoA, { fetchFn });
+    await play(repoA);
+    await runSync(repoA, { fetchFn });
+    // 문턱을 낮춰 다음 동기화에서 압축한다 (압축은 동기화 결과를 남긴 뒤 뒤에서 돈다)
+    expect(await runSync(repoA, { fetchFn, compactAt: 1 })).toMatchObject({
+      link: { problem: null },
+    });
+    await compactionSettled();
+    const keys = await syncKeys(link.code);
+    const listed = await httpSyncServer(keys, deviceId(), fetchFn).pull(0, 50);
+    expect(listed.length).toBeGreaterThan(0);
+    // 지난 묶음(1·2번)은 지워지고 스냅샷만 남았다
+    expect(listed.every((envelope) => envelope.seq > 2)).toBe(true);
+    expect(localStorage.getItem('twiper.sync.compaction.v1')).toBeNull();
+
+    // 기기 B: 스냅샷만으로 A의 기록을 모두 받는다
+    useStorage({});
+    joinSync(link.code);
+    await runSync(savedRepo(), { fetchFn });
+    expect(loadProgress().L1?.plays).toBe(2);
+  });
+
+  it('지난번에 끊긴 압축이 있으면 다음 동기화 처음에 그 임대를 취소한다', async () => {
+    const fetchFn = serverOf(createMemoryStore());
+    const link = enableSync();
+    await runSync(savedRepo(), { fetchFn });
+    const keys = await syncKeys(link.code);
+    const server = httpSyncServer(keys, deviceId(), fetchFn);
+    const id = await server.startCompaction(1);
+    localStorage.setItem('twiper.sync.compaction.v1', JSON.stringify({ code: link.code, id }));
+
+    await runSync(savedRepo(), { fetchFn });
+    expect(localStorage.getItem('twiper.sync.compaction.v1')).toBeNull();
+    // 임대가 풀렸으므로 새 압축을 바로 시작할 수 있다
+    await expect(server.startCompaction(1)).resolves.toMatch(/^[0-9a-f-]{36}$/u);
+  });
+
+  it('압축 직후 크기의 2배가 되기 전에는 다시 압축하지 않는다', () => {
+    expect(shouldCompact(null, 10)).toBe(false);
+    expect(shouldCompact({ bytes: 10, compactedBytes: 0 }, 10)).toBe(true);
+    // 스냅샷만 30이라 문턱(10)을 넘어도, 60이 되기 전에는 다시 하지 않는다
+    expect(shouldCompact({ bytes: 59, compactedBytes: 30 }, 10)).toBe(false);
+    expect(shouldCompact({ bytes: 60, compactedBytes: 30 }, 10)).toBe(true);
+  });
+
+  it('스냅샷 조각이 1분 한도에 걸리면 기다렸다 다시 올려 압축을 끝낸다', async () => {
+    const store = createMemoryStore();
+    let limited = false;
+    const fetchFn = async (input: string, init?: RequestInit) => {
+      const headers = new Headers(init?.headers);
+      // 첫 스냅샷 조각을 한 번 한도로 거절한다
+      if (headers.has('compaction-id') && !limited) {
+        limited = true;
+        return new Response(JSON.stringify({ error: 'rate' }), { status: 429 });
+      }
+      return serverOf(store)(input, init);
+    };
+    const waits: number[] = [];
+    const wait = (ms: number) => {
+      waits.push(ms);
+      return Promise.resolve();
+    };
+
+    const link = enableSync();
+    await runSync(savedRepo(), { fetchFn });
+    await runSync(savedRepo(), { fetchFn, compactAt: 1, wait });
+    await compactionSettled();
+
+    expect(waits).toEqual([61_000]);
+    expect(localStorage.getItem('twiper.sync.compaction.v1')).toBeNull();
+    const keys = await syncKeys(link.code);
+    const listed = await httpSyncServer(keys, deviceId(), fetchFn).pull(0, 50);
+    expect(listed.every((envelope) => envelope.seq > 1)).toBe(true);
   });
 });

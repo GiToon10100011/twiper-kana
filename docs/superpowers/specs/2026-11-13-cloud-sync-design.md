@@ -1,6 +1,6 @@
 # twiper — 기기 간 동기화 설계
 
-> 작성일 2026-11-13 · 상태: **S1·S2·S3a 구현, S3b–S5는 설계.** 2026-11-13 사용자 결정: 계정 없이 동기화 코드로 시작, 설정도 동기화, 무료 구성(Vercel Hobby + Neon Free)으로 운영 · 관련: [구현 계획](2026-10-07-twiper-design.md) §13 Storage, §16 M4 「클라우드 동기화 설계 문서」, Future 「계정·크로스 플랫폼 동기화」
+> 작성일 2026-11-13 · 상태: **S1–S5 구현 (2026-11-14).** 2026-11-13 사용자 결정: 계정 없이 동기화 코드로 시작, 설정도 동기화, 무료 구성(Vercel Hobby + Neon Free)으로 운영 · 관련: [구현 계획](2026-10-07-twiper-design.md) §13 Storage, §16 M4 「클라우드 동기화 설계 문서」, Future 「계정·크로스 플랫폼 동기화」
 
 ## 0. 요약
 
@@ -168,7 +168,7 @@ DELETE /api/sync?space={spaceId}   → { removed: true }  묶음을 모두 지�
 모두   Authorization: Bearer base64url(authKey)
 거절   400 모양이 틀림 · 401 키 없음 · 403 키가 다름 · 410 지운 공간 · 413 요청이 큼 · 429 너무 잦음 · 507 공간이 가득 참
 
-압축 (S3b)
+압축
 POST   /api/sync?space=&op=compact-start    본문 { upTo }          → { compactionId }  압축 임대. 공간마다 하나만
 POST   /api/sync?space=   + 머리 Compaction-Id                         스냅샷 조각. 끝내기 전까지 받기에 보이지 않는다
 POST   /api/sync?space=&op=compact-finish   본문 { compactionId }  → 조각을 보이게 하고 upTo 이하를 지운다 (한 트랜잭션)
@@ -201,7 +201,7 @@ create table sync_client (
   window_start timestamptz not null default now(),
   window_count integer not null default 0
 );
--- S3b에서 더한다: sync_space.compaction_id·compaction_up_to·compaction_at, sync_batch.compaction_id
+-- 압축(S3b): sync_space.compaction_id·compaction_up_to·compaction_at, sync_batch.compaction_id (alter table … add column if not exists)
 ```
 
 - 공간은 처음 올리는 요청이 만든다. 이미 있는 공간이면 `auth_hash`가 맞아야 한다.

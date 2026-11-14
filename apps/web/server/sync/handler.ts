@@ -18,7 +18,16 @@ const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/u;
 /** 기기 ID는 ULID */
 const DEVICE = /^[0-9A-Z]{26}$/u;
 
-const DENIED: Record<Denial, number> = { forbidden: 403, gone: 410, full: 507, rate: 429 };
+const DENIED: Record<Denial, number> = {
+  forbidden: 403,
+  gone: 410,
+  full: 507,
+  rate: 429,
+  busy: 409,
+};
+
+/** 압축 임대 ID (UUID) */
+const LEASE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/u;
 
 const json = (status: number, body: unknown, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), {
@@ -49,8 +58,10 @@ const whole = (value: string | null, fallback: number) => {
 /**
  * 동기화 API (동기화 설계 §4.6). 공간은 주소의 space, 키는 Authorization: Bearer <authKey>로 받고,
  * 서버는 authKey의 SHA-256만 저장한다.
- * - GET    ?space=&after=&limit=  → { batches: [{ seq, deviceId, iv, data }] }
- * - POST   ?space=  { deviceId, iv, data } → { seq }
+ * - GET    ?space=&after=&limit=  → { batches: [{ seq, deviceId, iv, data }], bytes, compactedBytes }
+ * - POST   ?space=  { deviceId, iv, data } → { seq }  (Compaction-Id 머리가 있으면 압축의 스냅샷 조각)
+ * - POST   ?space=&op=compact-start { upTo } → { compactionId }  (다른 압축이 진행 중이면 409)
+ * - POST   ?space=&op=compact-finish|compact-abort { compactionId } → { done: true }
  * - DELETE ?space=  → { removed: true } (그 뒤 같은 코드의 요청은 410)
  */
 export async function handleSync(request: Request, store: SyncStore): Promise<Response> {
@@ -78,7 +89,11 @@ export async function handleSync(request: Request, store: SyncStore): Promise<Re
     });
     return 'denied' in result
       ? json(DENIED[result.denied], { error: result.denied })
-      : json(200, { batches: result.batches });
+      : json(200, {
+          batches: result.batches,
+          bytes: result.bytes,
+          compactedBytes: result.compactedBytes,
+        });
   }
 
   if (request.method === 'POST') {
@@ -87,13 +102,42 @@ export async function handleSync(request: Request, store: SyncStore): Promise<Re
     // 글자 수가 아니라 받은 바이트로 잰다
     const raw = new Uint8Array(await request.arrayBuffer());
     if (raw.byteLength > SYNC_LIMITS.maxRequestBytes) return json(413, { error: 'size' });
-    let body: unknown;
+    let body: Record<string, unknown>;
     try {
-      body = JSON.parse(new TextDecoder().decode(raw));
+      body = (JSON.parse(new TextDecoder().decode(raw)) ?? {}) as Record<string, unknown>;
     } catch {
       return json(400, { error: 'body' });
     }
-    const { deviceId, iv, data } = (body ?? {}) as Record<string, unknown>;
+    const op = url.searchParams.get('op');
+    const answer = (result: { denied: Denial } | Record<string, unknown>) =>
+      'denied' in result
+        ? json(DENIED[result.denied as Denial], { error: result.denied })
+        : json(200, result);
+
+    // 압축 (§4.6): 임대 받기 → 스냅샷 조각 올리기(Compaction-Id 머리) → 끝내기 또는 취소
+    if (op === 'compact-start') {
+      const upTo = body.upTo;
+      if (typeof upTo !== 'number' || !Number.isSafeInteger(upTo) || upTo < 0) {
+        return json(400, { error: 'body' });
+      }
+      return answer(await store.startCompaction({ space, authHash, upTo }));
+    }
+    if (op === 'compact-finish' || op === 'compact-abort') {
+      const compactionId = body.compactionId;
+      if (typeof compactionId !== 'string' || !LEASE.test(compactionId)) {
+        return json(400, { error: 'body' });
+      }
+      const input = { space, authHash, compactionId };
+      return answer(
+        op === 'compact-finish'
+          ? await store.finishCompaction(input)
+          : await store.abortCompaction(input),
+      );
+    }
+    if (op !== null) return json(400, { error: 'op' });
+
+    const { deviceId, iv, data } = body;
+    const compactionId = request.headers.get('compaction-id') ?? undefined;
     if (
       typeof deviceId !== 'string' ||
       !DEVICE.test(deviceId) ||
@@ -101,21 +145,22 @@ export async function handleSync(request: Request, store: SyncStore): Promise<Re
       iv.length > 24 ||
       !BASE64.test(iv) ||
       typeof data !== 'string' ||
-      !BASE64.test(data)
+      !BASE64.test(data) ||
+      (compactionId !== undefined && !LEASE.test(compactionId))
     ) {
       return json(400, { error: 'body' });
     }
-    const result = await store.push({
-      space,
-      authHash,
-      deviceId,
-      iv,
-      data,
-      limits: SYNC_LIMITS.space,
-    });
-    return 'denied' in result
-      ? json(DENIED[result.denied], { error: result.denied })
-      : json(200, { seq: result.seq });
+    return answer(
+      await store.push({
+        space,
+        authHash,
+        deviceId,
+        iv,
+        data,
+        limits: SYNC_LIMITS.space,
+        ...(compactionId === undefined ? {} : { compactionId }),
+      }),
+    );
   }
 
   if (request.method === 'DELETE') {

@@ -14,6 +14,8 @@ export class SyncHttpError extends Error {
 
 type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
 
+const json = { 'content-type': 'application/json' };
+
 const isEnvelope = (value: unknown): value is { seq: number; iv: string; data: string } => {
   const item = value as Record<string, unknown> | null;
   return (
@@ -34,7 +36,21 @@ export function httpSyncServer(
   deviceId: string,
   fetchFn: Fetch = (input, init) => fetch(input, init),
   base = '/api/sync',
-): SyncServer<SyncPayload> & { remove(): Promise<void> } {
+): SyncServer<SyncPayload> & {
+  remove(): Promise<void>;
+  /**
+   * 마지막으로 받을 때 서버가 알려 준 공간 크기와, 마지막 압축 직후의 크기 (압축한 적이 없으면 0).
+   * 아직 받지 않았으면 null
+   */
+  spaceSize(): { readonly bytes: number; readonly compactedBytes: number } | null;
+  /** 압축 임대를 받는다 (§4.6). 다른 기기가 압축 중이면 SyncHttpError(409) */
+  startCompaction(upTo: number): Promise<string>;
+  /** 스냅샷 조각을 올린다 (끝내기 전까지 받기에 보이지 않는다) */
+  pushSnapshot(payload: SyncPayload, compactionId: string): Promise<number>;
+  finishCompaction(compactionId: string): Promise<void>;
+  abortCompaction(compactionId: string): Promise<void>;
+} {
+  let size: { bytes: number; compactedBytes: number } | null = null;
   const call = async (params: Record<string, string>, init: RequestInit = {}) => {
     const response = await fetchFn(
       `${base}?${new URLSearchParams({ space: keys.spaceId, ...params })}`,
@@ -52,6 +68,10 @@ export function httpSyncServer(
   return {
     async pull(after, limit) {
       const body = await call({ after: String(after), limit: String(limit) });
+      if (typeof body.bytes === 'number') {
+        const compacted = typeof body.compactedBytes === 'number' ? body.compactedBytes : 0;
+        size = { bytes: body.bytes, compactedBytes: compacted };
+      }
       const batches = Array.isArray(body.batches) ? body.batches.filter(isEnvelope) : [];
       return batches.map(({ seq, iv, data }) => ({ seq, payload: { iv, data } }));
     },
@@ -70,6 +90,39 @@ export function httpSyncServer(
     /** 「서버의 기록 지우기」: 묶음을 모두 지우고, 이 코드는 다시 쓸 수 없게 한다 */
     async remove() {
       await call({}, { method: 'DELETE' });
+    },
+    spaceSize: () => size,
+    async startCompaction(upTo) {
+      const body = await call(
+        { op: 'compact-start' },
+        { method: 'POST', headers: json, body: JSON.stringify({ upTo }) },
+      );
+      if (typeof body.compactionId !== 'string') throw new SyncHttpError(502, 'compactionId');
+      return body.compactionId;
+    },
+    async pushSnapshot(payload, compactionId) {
+      const body = await call(
+        {},
+        {
+          method: 'POST',
+          headers: { ...json, 'compaction-id': compactionId },
+          body: JSON.stringify({ deviceId, iv: payload.iv, data: payload.data }),
+        },
+      );
+      if (typeof body.seq !== 'number') throw new SyncHttpError(502, 'seq');
+      return body.seq;
+    },
+    async finishCompaction(compactionId) {
+      await call(
+        { op: 'compact-finish' },
+        { method: 'POST', headers: json, body: JSON.stringify({ compactionId }) },
+      );
+    },
+    async abortCompaction(compactionId) {
+      await call(
+        { op: 'compact-abort' },
+        { method: 'POST', headers: json, body: JSON.stringify({ compactionId }) },
+      );
     },
   };
 }
