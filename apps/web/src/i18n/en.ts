@@ -557,6 +557,16 @@ const english = {
     importInvalid: "This isn't a record file exported from twiper.",
     importNotSaved:
       "Records were merged but couldn't be saved on this device. They may disappear when you reopen the app.",
+    about: 'About',
+    version: 'Version',
+    devModeOnIn: '{{count}} more taps to turn on developer mode.',
+    devModeOnIn_one: '1 more tap to turn on developer mode.',
+    devModeOffIn: '{{count}} more taps to turn off developer mode.',
+    devModeOffIn_one: '1 more tap to turn off developer mode.',
+    devModeOn: 'Developer mode is on. Developer tools now appear under Step-by-step lessons.',
+    devModeOff: 'Developer mode is off.',
+    devModeActive: 'Developer mode is on. Tap 7 times to turn it off.',
+    devModeNotSaved: "Couldn't save on this device, so developer mode didn't change.",
   },
   sync: {
     title: 'Sync between devices',

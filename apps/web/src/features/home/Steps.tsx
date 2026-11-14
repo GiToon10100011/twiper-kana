@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { isOnboarded } from '../../lib/flags';
+import { isDevMode, isOnboarded } from '../../lib/flags';
 import { BackIcon } from '../../ui/icons';
 import { levelAccess } from '../training/access';
 import { CourseTiles } from '../training/CourseTiles';
@@ -43,6 +43,16 @@ export function Steps() {
       <h2 className="section-label">{t('course.title')}</h2>
       <CourseTiles access={levelAccess()} />
 
+      {/* 개발 도구는 개발자 모드(설정의 「버전」 7번)에서만 보인다 */}
+      {isDevMode() ? <DevTools /> : null}
+    </main>
+  );
+}
+
+function DevTools() {
+  const { t } = useTranslation();
+  return (
+    <>
       <h2 className="section-label">{t('home.devTools')}</h2>
       <ul className="nav-list">
         <li>
@@ -82,6 +92,6 @@ export function Steps() {
           </Link>
         </li>
       </ul>
-    </main>
+    </>
   );
 }

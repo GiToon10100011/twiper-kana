@@ -526,6 +526,14 @@ export const ko = {
     importInvalid: 'twiper에서 내보낸 기록 파일이 아니에요.',
     importNotSaved:
       '기록을 합쳤지만 이 기기에 저장하지 못했어요. 앱을 다시 열면 가져온 기록이 사라질 수 있어요.',
+    about: '앱 정보',
+    version: '버전',
+    devModeOnIn: '{{count}}번 더 누르면 개발자 모드가 켜져요.',
+    devModeOffIn: '{{count}}번 더 누르면 개발자 모드가 꺼져요.',
+    devModeOn: '개발자 모드를 켰어요. 단계별 익히기 아래에 개발 도구가 보여요.',
+    devModeOff: '개발자 모드를 껐어요.',
+    devModeActive: '개발자 모드가 켜져 있어요. 7번 누르면 꺼져요.',
+    devModeNotSaved: '이 기기에 저장하지 못해 개발자 모드를 바꾸지 못했어요.',
   },
   sync: {
     title: '기기 간 동기화',

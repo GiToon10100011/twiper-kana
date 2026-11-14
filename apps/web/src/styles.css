@@ -1348,6 +1348,33 @@ a.tile-row:active {
   opacity: 0.45;
 }
 
+/* 앱 정보의 「버전」: 줄 전체가 버튼이지만 보통 줄처럼 보인다 (7번 누르면 개발자 모드) */
+button.setting-tap {
+  width: 100%;
+  min-height: 3.5rem;
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  transition: background var(--duration-fast) var(--ease);
+}
+
+button.setting-tap:active {
+  background: var(--accent-soft);
+}
+
+.setting-tap small:empty {
+  display: none;
+}
+
+.setting-value {
+  flex: none;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .backup-status {
   min-height: 1.25rem;
   margin: var(--space-3) var(--space-1) 0;

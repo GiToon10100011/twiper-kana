@@ -6,6 +6,7 @@ import { Home } from './features/home/Home';
 import { Steps } from './features/home/Steps';
 import { Opening } from './features/intro/Opening';
 import { CourseTilesLab } from './features/lab/CourseTilesLab';
+import { DevOnly } from './features/lab/DevOnly';
 import { GuideCheck } from './features/lab/GuideCheck';
 import { ImeLab } from './features/lab/ImeLab';
 import { ReviewLab } from './features/lab/ReviewLab';
@@ -47,12 +48,14 @@ export function App() {
           <Route path="/train/:levelId" element={<DrillRoute />} />
           <Route path="/weak" element={<WeakPractice />} />
           <Route path="/review" element={<ReviewPractice />} />
-          <Route path="/lab/ime" element={<ImeLab />} />
-          <Route path="/lab/guide-check" element={<GuideCheck />} />
-          <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
-          <Route path="/lab/trend" element={<TrendLab />} />
-          <Route path="/lab/review" element={<ReviewLab />} />
-          <Route path="/lab/sync" element={<SyncLab />} />
+          <Route element={<DevOnly />}>
+            <Route path="/lab/ime" element={<ImeLab />} />
+            <Route path="/lab/guide-check" element={<GuideCheck />} />
+            <Route path="/lab/course-tiles" element={<CourseTilesLab />} />
+            <Route path="/lab/trend" element={<TrendLab />} />
+            <Route path="/lab/review" element={<ReviewLab />} />
+            <Route path="/lab/sync" element={<SyncLab />} />
+          </Route>
         </Routes>
       )}
     </BrowserRouter>
