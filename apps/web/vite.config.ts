@@ -53,8 +53,8 @@ export default defineConfig({
         // 링크 공유 미리보기 이미지는 앱에서 쓰지 않으므로 미리 받지 않는다
         globIgnores: ['**/og-image.png'],
         navigateFallback: '/index.html',
-        // 개발용 trace 수집 엔드포인트는 가로채지 않는다
-        navigateFallbackDenylist: [/^\/__trace/],
+        // 개발용 trace 수집 엔드포인트와 동기화 API는 가로채지 않는다
+        navigateFallbackDenylist: [/^\/__trace/, /^\/api\//],
         cleanupOutdatedCaches: true,
       },
     }),
